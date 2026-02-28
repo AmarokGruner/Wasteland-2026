@@ -1,0 +1,16 @@
+{
+  "source": "CONTEXT_DOKUMENTATION.md",
+  "migration_date": "2026-02-27",
+  "version": "2.2.0",
+  "sections": {
+    "project_structure": {
+      "notes": "Dokumentationsdateien und Bugfix-Notizen aus CONTEXT_DOKUMENTATION.md in den canonical Bundle übertragen."
+    },
+    "bugfixes": {
+      "notes": "Bugfix-Log aus Session (Weltkarte, Province-Lager, Load-Functions) in den Bundle integrieren."
+    },
+    "api_endpoints": {
+      "notes": "API-Endpunkte und Status aus CONTEXT_DOKUMENTATION.md erfassen; Verweise zu Endpunkten und Deployment" 
+    }
+  }
+}

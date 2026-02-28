@@ -1,0 +1,1199 @@
+{
+  "1": {
+    "Typ": "Transport",
+    "Produktionswert": "4800",
+    "Platzverbrauch Landtransport": "50",
+    "Platzverbrauch Wassertransport": "50",
+    "Platzverbrauch Lufttransport": "50",
+    "Folgende Gebäude produzieren Handelskarren": {
+      "text": "Karrenbauer",
+      "link": "gebaeudevorschau.php?id=31"
+    },
+    "unbekanntes Gebäude": "Beschreibung:",
+    "Für den Handel sind die Handelskarren das wichtigste Element.\r\nMit einem Handelskarren kann man bis zu 100 Einheiten jedes beliebigen Rohstoffes transportieren.Für den Handel sind die Handelskarren das wichtigste Element.\r\nMit einem Handelskarren kann man bis zu 100 Einheiten jedes beliebigen Rohstoffes transportieren.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "_id": 1,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "2": {
+    "Typ": "Getränk",
+    "Produktionswert": "21",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Wasser": {
+      "text": "Ziegenfarm",
+      "link": "gebaeudevorschau.php?id=27"
+    },
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      {
+        "text": "Grünanlage",
+        "link": "gebaeudevorschau.php?id=212"
+      },
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      {
+        "text": "Ruine-Pumpstation",
+        "link": "gebaeudevorschau.php?id=157"
+      },
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      {
+        "text": "Küstenauffangbecken",
+        "link": "gebaeudevorschau.php?id=404"
+      }
+    ],
+    "Papiermacher": {
+      "text": "Ruine-Park",
+      "link": "gebaeudevorschau.php?id=288"
+    },
+    "Folgende Gebäude produzieren Wasser": {
+      "text": "Bunker",
+      "link": "gebaeudevorschau.php?id=1"
+    },
+    "Brunnen": {
+      "text": "Auffangbecken",
+      "link": "gebaeudevorschau.php?id=93"
+    },
+    "Beschreibung": "Wasser ist das Hauptgetränk des Volkes, wird für diverse Zuchten und Industriezweige genutzt.\r\nAußerdem kann man mit Wasser Provinzen aufwerten bzw. vor dem Abwerten bewahren.\r\n\r\nTrotz seines geringen Preises sollte man jedoch darauf achten, seine Reserven nicht zu erschöpfen. So bald die ersten Brunnen Trocken laufen wird ein Glas Wasser oftmals für ein Vielfaches seines ursprünglichen Wertes gehandelt.Wasser ist das Hauptgetränk des Volkes, wird für diverse Zuchten und Industriezweige genutzt.\r\nAußerdem kann man mit Wasser Provinzen aufwerten bzw. vor dem Abwerten bewahren.\r\n\r\nTrotz seines geringen Preises sollte man jedoch darauf achten, seine Reserven nicht zu erschöpfen. So bald die ersten Brunnen Trocken laufen wird ein Glas Wasser oftmals für ein Vielfaches seines ursprünglichen Wertes gehandelt.",
+    "_id": 2,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "3": {
+    "Typ": "Baurohstoff",
+    "Produktionswert": "230",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Bretter": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "Beschreibung:"
+    ],
+    "Folgende Gebäude produzieren Bretter": "unbekanntes Gebäude",
+    "Sägegrube": {
+      "text": "Ruine-zerfallenes Sägewerk",
+      "link": "gebaeudevorschau.php?id=395"
+    },
+    "Bretter sind ein wichtiger Baustoff.\r\nMan erhält diese, indem man Bauholz in Sägewerken verarbeitet. Aus Brettern kann man bessere Gebäude bauen als aus rohem Holz, sie gewinnen daher bei wachsender Bevölkerung an Bedeutung. Bretter sind ein wichtiger Baustoff.\r\nMan erhält diese, indem man Bauholz in Sägewerken verarbeitet. Aus Brettern kann man bessere Gebäude bauen als aus rohem Holz, sie gewinnen daher bei wachsender Bevölkerung an Bedeutung.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "_id": 3,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "4": {
+    "Typ": "Baurohstoff",
+    "Produktionswert": "290",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude produzieren Stein": {
+      "text": "Steinmetz",
+      "link": "gebaeudevorschau.php?id=16"
+    },
+    "unbekanntes Gebäude": [
+      {
+        "text": "Ruine-Steingrube",
+        "link": "gebaeudevorschau.php?id=164"
+      },
+      "Beschreibung:"
+    ],
+    "Steine sind lange Zeit ein wichtiger Baustoff. Sie werden von Steinmetzen geschlagen oder in Steinbrüchen abgebaut. Die Form der Steine kann dadurch sehr unterschiedlich sein. Daher müssen sie oft vor Ort angepasst werden. Mit hohem Aufwand können sie zuvor auch in Ziegelhauereien in regelmäßige Formen gebracht werden.Steine sind lange Zeit ein wichtiger Baustoff. Sie werden von Steinmetzen geschlagen oder in Steinbrüchen abgebaut. Die Form der Steine kann dadurch sehr unterschiedlich sein. Daher müssen sie oft vor Ort angepasst werden. Mit hohem Aufwand können sie zuvor auch in Ziegelhauereien in regelmäßige Formen gebracht werden.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "_id": 4,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "5": {
+    "Typ": "Baurohstoff",
+    "Produktionswert": "940",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Eisen": {
+      "text": "Werkzeugmacher",
+      "link": "gebaeudevorschau.php?id=83"
+    },
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude"
+    ],
+    "Folgende Gebäude produzieren Eisen": "unbekanntes Gebäude",
+    "Beschreibung": "Eisen ist neben seiner Bedeutung als Industriegut auch ein wichtiger Baustoff. Es kann in Form gegossener oder geschmiedeter Teile vorliegen, aber auch als Barren oder Rohling.\r\nGewonnen wird Eisen aus Eisenerz in einer Eisenerzschmelze und kann zu Stahl im Stahlwerk weiterverarbeitet werden.\r\nGroße Industrie und Zivilgebäude wären ohne Eisen nicht realisierbar.Eisen ist neben seiner Bedeutung als Industriegut auch ein wichtiger Baustoff. Es kann in Form gegossener oder geschmiedeter Teile vorliegen, aber auch als Barren oder Rohling.\r\nGewonnen wird Eisen aus Eisenerz in einer Eisenerzschmelze und kann zu Stahl im Stahlwerk weiterverarbeitet werden.\r\nGroße Industrie und Zivilgebäude wären ohne Eisen nicht realisierbar.",
+    "_id": 5,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "6": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "300",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "3.33",
+    "Folgende Gebäude produzieren Handelsgüter": {
+      "text": "Ruine-Fabrik",
+      "link": "gebaeudevorschau.php?id=163"
+    },
+    "Beschreibung": "Wenn das Volk nach Verbrauchsgütern schreit, kann man ihnen Handelsgüter verkaufen. Diese gibt es allerdings nur in begrenzter Anzahl in einem Bunker.Wenn das Volk nach Verbrauchsgütern schreit, kann man ihnen Handelsgüter verkaufen. Diese gibt es allerdings nur in begrenzter Anzahl in einem Bunker.",
+    "_id": 6,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "13": {
+    "Typ": "Nahrung",
+    "Produktionswert": "62",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude produzieren Kartoffeln": {
+      "text": "Kartoffelfarm",
+      "link": "gebaeudevorschau.php?id=2"
+    },
+    "Beschreibung": "Kartoffeln sind ein beliebtes Grundnahrungsmittel, da man aus ihnen die verschiedensten Kreationen herstellen bzw. kochen kann. Eine besondere Kreation ist zweifelsohne der aus ihnen gebrannte Wodka.Kartoffeln sind ein beliebtes Grundnahrungsmittel, da man aus ihnen die verschiedensten Kreationen herstellen bzw. kochen kann. Eine besondere Kreation ist zweifelsohne der aus ihnen gebrannte Wodka.",
+    "_id": 13,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "14": {
+    "Typ": "Nahrung",
+    "Produktionswert": "65",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Erdnüsse": {
+      "text": "Ziegenfarm",
+      "link": "gebaeudevorschau.php?id=27"
+    },
+    "Folgende Gebäude produzieren Erdnüsse": {
+      "text": "Erdnussfarm",
+      "link": "gebaeudevorschau.php?id=3"
+    },
+    "Beschreibung": "Erdnüsse, vor der Zeit des großen Krieges nur als Snack bekannt, haben heute in der Verbrannten Zone einen höheren Stellenwert als Nahrungsmittel erhalten.Erdnüsse, vor der Zeit des großen Krieges nur als Snack bekannt, haben heute in der Verbrannten Zone einen höheren Stellenwert als Nahrungsmittel erhalten.",
+    "_id": 14,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "15": {
+    "Typ": "Nahrung",
+    "Produktionswert": "90",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Beeren": "unbekanntes Gebäude",
+    "Ruine-Sandspringerlabor": "unbekanntes Gebäude",
+    "Folgende Gebäude produzieren Beeren": "unbekanntes Gebäude",
+    "Beschreibung": "Beeren sind sehr schmackhaft und liefern Nahrung für die Bevölkerung. Aufgrund der niedrigen Erträge, sind sie meist stark begehrt. Man kann auch sehr leckern Beerensaft daraus herstellen.Beeren sind sehr schmackhaft und liefern Nahrung für die Bevölkerung. Aufgrund der niedrigen Erträge, sind sie meist stark begehrt. Man kann auch sehr leckern Beerensaft daraus herstellen.",
+    "_id": 15,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "16": {
+    "Typ": "Nahrung",
+    "Produktionswert": "100",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Sojabohnen": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "Beschreibung:"
+    ],
+    "Folgende Gebäude produzieren Sojabohnen": {
+      "text": "Sojafarm",
+      "link": "gebaeudevorschau.php?id=4"
+    },
+    "Sojabohnen sind ein Nahrungsmittel und auf Grund ihres recht kleinen Wachstumsbereiches stark begehrt. Aus ihnen lässt sich auch eine gut bekömmliche Sojamilch herstellen.Sojabohnen sind ein Nahrungsmittel und auf Grund ihres recht kleinen Wachstumsbereiches stark begehrt. Aus ihnen lässt sich auch eine gut bekömmliche Sojamilch herstellen.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=17"
+    },
+    "_id": 16,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "17": {
+    "Typ": "Nahrung",
+    "Produktionswert": "110",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude produzieren Kokosnuss": {
+      "text": "Palmenplantage",
+      "link": "gebaeudevorschau.php?id=14"
+    },
+    "Beschreibung": "Kokosnüsse sind ein recht begehrtes Nahrungsmittel, da sie nicht nur ausgezeichnet schmecken, sondern es immer eine lustige Angelegenheit für die Kinder darstellt, wenn wieder eine geöffnet wird.Kokosnüsse sind ein recht begehrtes Nahrungsmittel, da sie nicht nur ausgezeichnet schmecken, sondern es immer eine lustige Angelegenheit für die Kinder darstellt, wenn wieder eine geöffnet wird.",
+    "_id": 17,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "18": {
+    "Typ": "Industriegut",
+    "Produktionswert": "30",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Getreide": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      {
+        "text": "Hühnerfarm",
+        "link": "gebaeudevorschau.php?id=147"
+      },
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude"
+    ],
+    "Folgende Gebäude produzieren Getreide": "unbekanntes Gebäude",
+    "kleine Getreidefarm": "unbekanntes Gebäude",
+    "Beschreibung": "Getreide ist eine Nutzpflanze, die entweder als Futter in den Viehzuchten, als Zutat zum Bierbrauen verwendet oder zu Mehl gemahlen wird.Getreide ist eine Nutzpflanze, die entweder als Futter in den Viehzuchten, als Zutat zum Bierbrauen verwendet oder zu Mehl gemahlen wird.",
+    "_id": 18,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "19": {
+    "Typ": "Nahrung",
+    "Produktionswert": "80",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Datteln": {
+      "text": "Ruine-Sarabbrennerei",
+      "link": "gebaeudevorschau.php?id=394"
+    },
+    "Folgende Gebäude produzieren Datteln": {
+      "text": "Dattelnplantage",
+      "link": "gebaeudevorschau.php?id=7"
+    },
+    "Beschreibung": "Ein exotisches und von regelmäßiger Nachfrage betroffenes Nahrungsmittel, welches sich langsam wieder in der Verbrannten Zone angesiedelt hat.Ein exotisches und von regelmäßiger Nachfrage betroffenes Nahrungsmittel, welches sich langsam wieder in der Verbrannten Zone angesiedelt hat.",
+    "_id": 19,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "21": {
+    "Typ": "Nahrung",
+    "Produktionswert": "40",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Reis": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": "unbekanntes Gebäude",
+    "Folgende Gebäude produzieren Reis": "unbekanntes Gebäude",
+    "Reisfarm": "Beschreibung:",
+    "Reis ist ein bekömmliches Nahrungsmittel, welches gut zu allen möglichen anderen Nahrungsmitteln passt. Außerdem kann man daraus einen leckeren Sake destillieren.Reis ist ein bekömmliches Nahrungsmittel, welches gut zu allen möglichen anderen Nahrungsmitteln passt. Außerdem kann man daraus einen leckeren Sake destillieren.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=22"
+    },
+    "_id": 21,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "22": {
+    "Typ": "Nahrung",
+    "Produktionswert": "70",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Äpfel": "unbekanntes Gebäude",
+    "Ruine-Schnapsbrennerei": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "Beschreibung:"
+    ],
+    "Folgende Gebäude produzieren Äpfel": {
+      "text": "Apfelplantage",
+      "link": "gebaeudevorschau.php?id=11"
+    },
+    "Äpfel sind eine gute Ergänzung zu anderen Nahrungsmitteln. Die Biologen sind sehr stolz auf ihre neuen Apfelbäume, die sich den herrschenden Verhältnissen gut angepasst haben. Vielleicht auf Grund dieser Bedingungen genießt man auch immer wieder gerne einen gut gebrannten Apfelschnaps, während die Kinder mit Apfelsaft vorlieb nehmen müssen.Äpfel sind eine gute Ergänzung zu anderen Nahrungsmitteln. Die Biologen sind sehr stolz auf ihre neuen Apfelbäume, die sich den herrschenden Verhältnissen gut angepasst haben. Vielleicht auf Grund dieser Bedingungen genießt man auch immer wieder gerne einen gut gebrannten Apfelschnaps, während die Kinder mit Apfelsaft vorlieb nehmen müssen.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=23"
+    },
+    "_id": 22,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "28": {
+    "Typ": "Nahrung",
+    "Produktionswert": "60",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Weintrauben": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "Folgende Gebäude produzieren Weintrauben:",
+      "unbekanntes Gebäude"
+    ],
+    "Weingarten": "Beschreibung:",
+    "Die besonders intensiv schmeckenden Weintrauben der Verbrannten Zone eignen sich einigermaßen zum essen, und um so mehr für herrlich aromatische Weine. An einem lauen Sommerabend in gemütlicher Runde einen Wein zu genießen gehört in vielen Provinzen zum Feierabend dazu.Die besonders intensiv schmeckenden Weintrauben der Verbrannten Zone eignen sich einigermaßen zum essen, und um so mehr für herrlich aromatische Weine. An einem lauen Sommerabend in gemütlicher Runde einen Wein zu genießen gehört in vielen Provinzen zum Feierabend dazu.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=29"
+    },
+    "_id": 28,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "29": {
+    "Typ": "Genussgut",
+    "Produktionswert": "580",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "4.31",
+    "Folgende Gebäude produzieren Tabak": {
+      "text": "Tabakplantage",
+      "link": "gebaeudevorschau.php?id=22"
+    },
+    "Beschreibung": "Inzwischen haben sich die Pflanzen den Bedingungen angepasst und gedeihen prächtig. Das abendliche genüssliche Pfeifenrauchen ist nahezu schon Tradition.Inzwischen haben sich die Pflanzen den Bedingungen angepasst und gedeihen prächtig. Das abendliche genüssliche Pfeifenrauchen ist nahezu schon Tradition.",
+    "_id": 29,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "31": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "125",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "12",
+    "Folgende Gebäude verbrauchen Kräuter": "unbekanntes Gebäude",
+    "Folgende Gebäude produzieren Kräuter": {
+      "text": "Kräutergarten",
+      "link": "gebaeudevorschau.php?id=24"
+    },
+    "unbekanntes Gebäude": "Beschreibung:",
+    "Kräuter werden in mühevoller Arbeit gezogen, damit sie dem Essen etwas mehr Geschmack und Würze verleihen. Jedes Volk kauft sie gerne als Verbrauchsgut ein.Kräuter werden in mühevoller Arbeit gezogen, damit sie dem Essen etwas mehr Geschmack und Würze verleihen. Jedes Volk kauft sie gerne als Verbrauchsgut ein.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=32"
+    },
+    "_id": 31,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "32": {
+    "Typ": "Genussgut",
+    "Produktionswert": "440",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "5.68",
+    "Folgende Gebäude verbrauchen Hanf": {
+      "text": "Hanfseilerei",
+      "link": "gebaeudevorschau.php?id=150"
+    },
+    "Folgende Gebäude produzieren Hanf": {
+      "text": "Hanfplantage",
+      "link": "gebaeudevorschau.php?id=23"
+    },
+    "Beschreibung": "Hanf wird zum einen genutzt, um Seile zu produzieren. Zum anderen ist Hanf auch als Genussgut bei der Bevölkerung sehr gefragt.Hanf wird zum einen genutzt, um Seile zu produzieren. Zum anderen ist Hanf auch als Genussgut bei der Bevölkerung sehr gefragt.",
+    "_id": 32,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "35": {
+    "Typ": "Getränk",
+    "Produktionswert": "30",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Milch": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": "Folgende Gebäude produzieren Milch:",
+    "Ziegenfarm": "unbekanntes Gebäude",
+    "Beschreibung": "Milch gewinnt man durch die zahlreichen Rinderfarmen und gilt als Hauptalternative zum Wasser. Allerdings wird sie nicht nur pur, sondern auch mit Kakao getrunken. Außerdem wird sie oft Kaffee beigemischt.Milch gewinnt man durch die zahlreichen Rinderfarmen und gilt als Hauptalternative zum Wasser. Allerdings wird sie nicht nur pur, sondern auch mit Kakao getrunken. Außerdem wird sie oft Kaffee beigemischt.",
+    "_id": 35,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "36": {
+    "Typ": "Industriegut",
+    "Produktionswert": "230",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Wolle": "unbekanntes Gebäude",
+    "Webstube": "Folgende Gebäude produzieren Wolle:",
+    "unbekanntes Gebäude": [
+      {
+        "text": "Wollspinnenzucht",
+        "link": "gebaeudevorschau.php?id=28"
+      },
+      "unbekanntes Gebäude"
+    ],
+    "Beschreibung": "Wolle kann man durch Schaffarmen oder -zuchten erhalten. Sie wird genutzt um Stoffe herzustellen. Die Wolle der Verbrannten Zone ist von einer leicht gelben Färbung und erweist sich als sehr robust. Durch spezielle Verarbeitung ehält sie einen flauschigen Charakter, mit dem sie für Kissenstoffe ideal ist.Wolle kann man durch Schaffarmen oder -zuchten erhalten. Sie wird genutzt um Stoffe herzustellen. Die Wolle der Verbrannten Zone ist von einer leicht gelben Färbung und erweist sich als sehr robust. Durch spezielle Verarbeitung ehält sie einen flauschigen Charakter, mit dem sie für Kissenstoffe ideal ist.",
+    "_id": 36,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "37": {
+    "Typ": "Industriegut",
+    "Produktionswert": "200",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Häute": {
+      "text": "Gerberei",
+      "link": "gebaeudevorschau.php?id=43"
+    },
+    "Beisser-Werkstatt": "unbekanntes Gebäude",
+    "Beschreibung": "Häute gewinnt man durch das jagen von Wildtieren und das Schlachten von Nutztieren. Sie ergeben ein gutes Leder, welches je nach Bearbeitung der Häute für Waffen oder Bücher genutzt wird.Häute gewinnt man durch das jagen von Wildtieren und das Schlachten von Nutztieren. Sie ergeben ein gutes Leder, welches je nach Bearbeitung der Häute für Waffen oder Bücher genutzt wird.",
+    "_id": 37,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "38": {
+    "Typ": "Nahrung",
+    "Produktionswert": "100",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Fleisch": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      {
+        "text": "Ruine-Sandspringerlabor",
+        "link": "gebaeudevorschau.php?id=289"
+      },
+      "Folgende Gebäude produzieren Fleisch:"
+    ],
+    "Nuggretzucht": "Beschreibung:",
+    "Fleisch erhält man durch das Shlachten sämtlicher züchtbarer Tiere oder aber durch Mutantenangriffe. Fleisch ist für die Bevölkerung sehr wichtig, da sie dadurch mit wichtigen Vitaminen, Eisen und Eiweiß versorgt werden. Da die Viehzucht nicht auf allen Gebieten wirklich effizient ist, gilt Fleisch teilweise als Luxusnahrungsmittel.Fleisch erhält man durch das Shlachten sämtlicher züchtbarer Tiere oder aber durch Mutantenangriffe. Fleisch ist für die Bevölkerung sehr wichtig, da sie dadurch mit wichtigen Vitaminen, Eisen und Eiweiß versorgt werden. Da die Viehzucht nicht auf allen Gebieten wirklich effizient ist, gilt Fleisch teilweise als Luxusnahrungsmittel.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=39"
+    },
+    "_id": 38,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "44": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "480",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "4.16",
+    "Folgende Gebäude verbrauchen Stoffe": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "Folgende Gebäude produzieren Stoffe:",
+      {
+        "text": "Webstube",
+        "link": "gebaeudevorschau.php?id=42"
+      },
+      "Beschreibung:"
+    ],
+    "Stoffe werden aus Schafswolle gewonnen. Sie dienen zur Herstellung von Möbeln und Kissen oder zum Bauen von Zelten. Stoffe sind jedoch auch bei der Bevölkerung als Verbrauchsgut gefragt, schließlich möchten die wenigsten unter ihnen ohne Kleidung auf die Straße gehen.Stoffe werden aus Schafswolle gewonnen. Sie dienen zur Herstellung von Möbeln und Kissen oder zum Bauen von Zelten. Stoffe sind jedoch auch bei der Bevölkerung als Verbrauchsgut gefragt, schließlich möchten die wenigsten unter ihnen ohne Kleidung auf die Straße gehen.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=45"
+    },
+    "_id": 44,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "45": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "550",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "3.63",
+    "Folgende Gebäude verbrauchen Leder": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "Folgende Gebäude produzieren Leder:"
+    ],
+    "Gerberei": "unbekanntes Gebäude",
+    "Beschreibung": "Leder wird aus den Häuten gewonnen und dient zur Herstellung von Waffen und Büchern. Aber auch die Bevölkerung nutzt Leder als Verbauchsgut.Leder wird aus den Häuten gewonnen und dient zur Herstellung von Waffen und Büchern. Aber auch die Bevölkerung nutzt Leder als Verbauchsgut.",
+    "_id": 45,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "53": {
+    "Typ": "Nahrung",
+    "Produktionswert": "125",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude produzieren Notrationen": "unbekanntes Gebäude",
+    "Beschreibung": "Notrationen sind fertig abgepackte kleine Lebensmittelrationen, die zu Beginn noch im Bunker zu finden sind. So hat die Bevölkerung noch ausreichend Nahrung, bevor die Ernten auf den Feldern beginnen. Sind sie einmal aufgebraucht, sollte sich die Bevölkerung bereits ernähren können, denn Notrationen können nicht hergestellt werden.Notrationen sind fertig abgepackte kleine Lebensmittelrationen, die zu Beginn noch im Bunker zu finden sind. So hat die Bevölkerung noch ausreichend Nahrung, bevor die Ernten auf den Feldern beginnen. Sind sie einmal aufgebraucht, sollte sich die Bevölkerung bereits ernähren können, denn Notrationen können nicht hergestellt werden.",
+    "_id": 53,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "59": {
+    "Typ": "Baurohstoff",
+    "Produktionswert": "290",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude produzieren Kies": {
+      "text": "Steinmetz",
+      "link": "gebaeudevorschau.php?id=16"
+    },
+    "Kiesgrube": {
+      "text": "Ruine-Steingrube",
+      "link": "gebaeudevorschau.php?id=164"
+    },
+    "unbekanntes Gebäude": "Beschreibung:",
+    "Kies ist ein recht wichtiger Baustoff, der in allen Bereichen des Provinzausbaus benötigt wird. Als Vorkommen muss man nach ihm suchen, jedoch sind die Chancen auf Erfolg recht gut, besonders auf den Felsländern oder auch in der Steppe.\r\nMan sollte die Kiesgruben gut schützen, da sich gerne Kinder dorthin \"verirren\", um sich die Kiesel zum Spielen zu holen.Kies ist ein recht wichtiger Baustoff, der in allen Bereichen des Provinzausbaus benötigt wird. Als Vorkommen muss man nach ihm suchen, jedoch sind die Chancen auf Erfolg recht gut, besonders auf den Felsländern oder auch in der Steppe.\r\nMan sollte die Kiesgruben gut schützen, da sich gerne Kinder dorthin \"verirren\", um sich die Kiesel zum Spielen zu holen.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=60"
+    },
+    "_id": 59,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "67": {
+    "Typ": "Baurohstoff",
+    "Produktionswert": "140",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Bauholz": {
+      "text": "Waffenschnitzerei",
+      "link": "gebaeudevorschau.php?id=44"
+    },
+    "Werkzeugmacher": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      {
+        "text": "Möbelflechter",
+        "link": "gebaeudevorschau.php?id=364"
+      }
+    ],
+    "Folgende Gebäude produzieren Bauholz": {
+      "text": "Holzfäller",
+      "link": "gebaeudevorschau.php?id=15"
+    },
+    "Edelholzfäller": {
+      "text": "Tropenholzfäller",
+      "link": "gebaeudevorschau.php?id=363"
+    },
+    "Beschreibung": "Bauholz ist ein sehr vielseitiger Rohstoff, da es nicht nur als Baustoff, sondern auch als Grundlage für viele weitere Rohstoffproduktionen Verwendung findet.\r\nDie Bäume der Verbrannten Zone sind durch die Katastrophe stark angegriffen worden. Doch diejenigen, welche heute noch stehen, sowie deren Nachwuchs, sind von besonderer Größe und Stabilität, so dass das gewonnene Bauholz stets zu einen guten Preis verkauft werden kann.Bauholz ist ein sehr vielseitiger Rohstoff, da es nicht nur als Baustoff, sondern auch als Grundlage für viele weitere Rohstoffproduktionen Verwendung findet.\r\nDie Bäume der Verbrannten Zone sind durch die Katastrophe stark angegriffen worden. Doch diejenigen, welche heute noch stehen, sowie deren Nachwuchs, sind von besonderer Größe und Stabilität, so dass das gewonnene Bauholz stets zu einen guten Preis verkauft werden kann.",
+    "_id": 67,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "68": {
+    "Typ": "Industriegut",
+    "Produktionswert": "170",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Edelholz": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "Folgende Gebäude produzieren Edelholz:"
+    ],
+    "Edelholzfäller": {
+      "text": "Tropenholzfäller",
+      "link": "gebaeudevorschau.php?id=363"
+    },
+    "Beschreibung": "Die Edelhölzer der Verbrannten Zone sind nachgezüchtete Bäume alter Edelhölzer. Durch Genmanipulation wurde ihr Wachstum beschleunigt, damit man nicht mehr in die Gefahr aussterbender Arten gerät. Wie in früherer Zeit, werden auch heute aus Edelhölzern ausschließlich Möbel hergestellt.Die Edelhölzer der Verbrannten Zone sind nachgezüchtete Bäume alter Edelhölzer. Durch Genmanipulation wurde ihr Wachstum beschleunigt, damit man nicht mehr in die Gefahr aussterbender Arten gerät. Wie in früherer Zeit, werden auch heute aus Edelhölzern ausschließlich Möbel hergestellt.",
+    "_id": 68,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "73": {
+    "Typ": "Industriegut",
+    "Produktionswert": "350",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Lehm": {
+      "text": "Lehmziegelei",
+      "link": "gebaeudevorschau.php?id=101"
+    },
+    "Folgende Gebäude produzieren Lehm": {
+      "text": "Lehmgrube",
+      "link": "gebaeudevorschau.php?id=98"
+    },
+    "Beschreibung": "Lehm ist als Industriegut für die Herstellung von Ziegeln notwendig. Man kann mit reinem Lehm aber auch Hütten oder Häuser für die Bevölkerung errichten. Man findet ihn garantiert auf sämtlichen Öd-Terrains und zu 50 % auch auf den Steppeterrains.Lehm ist als Industriegut für die Herstellung von Ziegeln notwendig. Man kann mit reinem Lehm aber auch Hütten oder Häuser für die Bevölkerung errichten. Man findet ihn garantiert auf sämtlichen Öd-Terrains und zu 50 % auch auf den Steppeterrains.",
+    "_id": 73,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "74": {
+    "Typ": "Industriegut",
+    "Produktionswert": "260",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Ton": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      {
+        "text": "Töpferei",
+        "link": "gebaeudevorschau.php?id=100"
+      },
+      "unbekanntes Gebäude",
+      "Folgende Gebäude produzieren Ton:"
+    ],
+    "Tongrube": "unbekanntes Gebäude",
+    "Beschreibung": "Ton ist als Industriegut für die Herstellung von Ziegeln notwendig. Es gibt für Ton jedoch noch eine weitere Verwendungsmöglichkeit: die Keramik. Man findet Ton zu 40 % auf Steppeterrains und noch zu 20 % auf Öd-Terrains.Ton ist als Industriegut für die Herstellung von Ziegeln notwendig. Es gibt für Ton jedoch noch eine weitere Verwendungsmöglichkeit: die Keramik. Man findet Ton zu 40 % auf Steppeterrains und noch zu 20 % auf Öd-Terrains.",
+    "_id": 74,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "77": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "820",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "2.43",
+    "Folgende Gebäude produzieren Keramik": {
+      "text": "Töpferei",
+      "link": "gebaeudevorschau.php?id=100"
+    },
+    "unbekanntes Gebäude": "Beschreibung:",
+    "Keramik wird aus Ton gebrannt und ist ein recht begehrtes Verbrauchsgut in der Bevölkerung. Jedes Volk hat seine eigene Brennmethode mit unterschiedlichen Mustern. Einige haben sich auch auf das Brennen bestimmter Keramik wie Krüge oder Schüsseln spezialisiert. Keramik wird aus Ton gebrannt und ist ein recht begehrtes Verbrauchsgut in der Bevölkerung. Jedes Volk hat seine eigene Brennmethode mit unterschiedlichen Mustern. Einige haben sich auch auf das Brennen bestimmter Keramik wie Krüge oder Schüsseln spezialisiert.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=78"
+    },
+    "_id": 77,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "78": {
+    "Typ": "Tier",
+    "Produktionswert": "250",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Fleisch bei Schlachtung": "0",
+    "Folgende Gebäude verbrauchen Nuggrets": {
+      "text": "Wollspinnenzucht",
+      "link": "gebaeudevorschau.php?id=28"
+    },
+    "unbekanntes Gebäude": "unbekanntes Gebäude",
+    "Folgende Gebäude produzieren Nuggrets": {
+      "text": "Nuggretzucht",
+      "link": "gebaeudevorschau.php?id=102"
+    },
+    "Beschreibung": "Nuggrets sind kleine Nagetiere, die im Wald leben und sich von Nüssen und Beeren ernähren. Sie werden von Fallenstellern gejagt, da sie für die Zucht benötigt werden. Sobald sie das Kindesalter verlassen haben, werden sie entweder geschlachtet oder als Futter für die Kronenspinnen verwendet. Ihr Fleisch soll (auf Grund des jungen Alters) recht zart sein und nicht wie Hühnchen schmecken.Nuggrets sind kleine Nagetiere, die im Wald leben und sich von Nüssen und Beeren ernähren. Sie werden von Fallenstellern gejagt, da sie für die Zucht benötigt werden. Sobald sie das Kindesalter verlassen haben, werden sie entweder geschlachtet oder als Futter für die Kronenspinnen verwendet. Ihr Fleisch soll (auf Grund des jungen Alters) recht zart sein und nicht wie Hühnchen schmecken.",
+    "_id": 78,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "79": {
+    "Typ": "Baurohstoff",
+    "Produktionswert": "2400",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Werkzeug": "unbekanntes Gebäude",
+    "Grabungsstätte": "Folgende Gebäude produzieren Werkzeug:",
+    "Werkzeugmacher": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": {
+      "text": "Beisser-Werkstatt",
+      "link": "gebaeudevorschau.php?id=156"
+    },
+    "Ruine-Schutt": "unbekanntes Gebäude",
+    "Beschreibung": "Werzeug sind ein wichtiger Bestandteil fortschrittlicher Handwerkskunst und werden ebenfalls oft bei Bau neuer Gebäude genutzt. Sie werden anfänglich in der Werkzeugwerkstatt aus Bauholz und Leder hergestellt. Später erhält man die besseren Werkzeuge jedoch aus der Werkzeugschmiede, in der sie aus Eisen und Kohle geschmiedet werden.Werzeug sind ein wichtiger Bestandteil fortschrittlicher Handwerkskunst und werden ebenfalls oft bei Bau neuer Gebäude genutzt. Sie werden anfänglich in der Werkzeugwerkstatt aus Bauholz und Leder hergestellt. Später erhält man die besseren Werkzeuge jedoch aus der Werkzeugschmiede, in der sie aus Eisen und Kohle geschmiedet werden.",
+    "_id": 79,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "83": {
+    "Typ": "Baurohstoff",
+    "Produktionswert": "1200",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Kupfer": {
+      "text": "Münzerei",
+      "link": "gebaeudevorschau.php?id=88"
+    },
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude"
+    ],
+    "Folgende Gebäude produzieren Kupfer": "unbekanntes Gebäude",
+    "Beschreibung": "Kupfer wird aus Kufererz geschmolzen und ist ein Baustoff, der für nahezu alle Gebäude und Fabriken mit höherem Techlevel benötigt wird.Kupfer wird aus Kufererz geschmolzen und ist ein Baustoff, der für nahezu alle Gebäude und Fabriken mit höherem Techlevel benötigt wird.",
+    "_id": 83,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "97": {
+    "Typ": "Nahrung",
+    "Produktionswert": "140",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude produzieren Fisch": {
+      "text": "Fischerhütte",
+      "link": "gebaeudevorschau.php?id=195"
+    },
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "Beschreibung:"
+    ],
+    "Fisch ist ein sehr gesundes Nahrungsmittel, das aus kleinen, im Wasser lebenden Tieren gewonnen wird. Vor der Katastrophe gab es viele, deren Hobby es war, den ganzen Tag lang mit der Angel im Wasser vor Seen und Flüssen zu sitzen und darauf zu warten, dass ein Fisch anbeißt.Fisch ist ein sehr gesundes Nahrungsmittel, das aus kleinen, im Wasser lebenden Tieren gewonnen wird. Vor der Katastrophe gab es viele, deren Hobby es war, den ganzen Tag lang mit der Angel im Wasser vor Seen und Flüssen zu sitzen und darauf zu warten, dass ein Fisch anbeißt.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=98"
+    },
+    "_id": 97,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "98": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "650",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "3.07",
+    "Folgende Gebäude verbrauchen Papier": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      {
+        "text": "Papiermacher",
+        "link": "gebaeudevorschau.php?id=259"
+      }
+    ],
+    "Folgende Gebäude produzieren Papier": "unbekanntes Gebäude",
+    "Beschreibung": "Papier ist das Produkt, das von Papierpressen produziert wird. Kein anderes Verbrauchsgut wird in so vielfältiger Form wie Paier benötigt. Das Volk kauft es entweder in einfachen Bögen für die verschiedensten Aufschriften oder in Form von Büchern.Papier ist das Produkt, das von Papierpressen produziert wird. Kein anderes Verbrauchsgut wird in so vielfältiger Form wie Paier benötigt. Das Volk kauft es entweder in einfachen Bögen für die verschiedensten Aufschriften oder in Form von Büchern.",
+    "_id": 98,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "100": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "3200",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "0.62",
+    "Folgende Gebäude verbrauchen Möbel": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "Folgende Gebäude produzieren Möbel:",
+      "unbekanntes Gebäude",
+      {
+        "text": "Möbelflechter",
+        "link": "gebaeudevorschau.php?id=364"
+      }
+    ],
+    "Beschreibung": "Niemand möchte in leeren Zimmern leben müssen. Daher kann man Möbel als Verbrauchsgut an das Volk verkaufen. Möbel werden auch für den Bau von Häusern auf Stadtfeldern benötigt.Niemand möchte in leeren Zimmern leben müssen. Daher kann man Möbel als Verbrauchsgut an das Volk verkaufen. Möbel werden auch für den Bau von Häusern auf Stadtfeldern benötigt.",
+    "_id": 100,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "102": {
+    "Typ": "Nahrung",
+    "Produktionswert": "100",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Eier": "unbekanntes Gebäude",
+    "Folgende Gebäude produzieren Eier": "unbekanntes Gebäude",
+    "Hühnerfarm": "Beschreibung:",
+    "Hühner legen Eier. Diese können als Nahrungsmittel an das Volk verkauft werden.Hühner legen Eier. Diese können als Nahrungsmittel an das Volk verkauft werden.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=103"
+    },
+    "_id": 102,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "103": {
+    "Typ": "Industriegut",
+    "Produktionswert": "15",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Federn": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude"
+    ],
+    "Folgende Gebäude produzieren Federn": "unbekanntes Gebäude",
+    "Hühnerfarm": "Beschreibung:",
+    "Federn fallen bei Hühnerzuchten und -farmen an. Sie werden in Schulen als Schreibutensil verwendet. Außerdem gibt es nicht besseres für die Nacht, als das müde Haupt auf einem weichen mit Federn gestopftem Kissen zur Ruhe legen zu können.Federn fallen bei Hühnerzuchten und -farmen an. Sie werden in Schulen als Schreibutensil verwendet. Außerdem gibt es nicht besseres für die Nacht, als das müde Haupt auf einem weichen mit Federn gestopftem Kissen zur Ruhe legen zu können.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=104"
+    },
+    "_id": 103,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "104": {
+    "Typ": "Tier",
+    "Produktionswert": "245",
+    "Platzverbrauch Landtransport": "2",
+    "Platzverbrauch Wassertransport": "2",
+    "Platzverbrauch Lufttransport": "2",
+    "Fleisch bei Schlachtung": "0",
+    "Folgende Gebäude produzieren Hühner": {
+      "text": "Hühnerfarm",
+      "link": "gebaeudevorschau.php?id=147"
+    },
+    "Beschreibung": "Hühner werden in Farmen und Zuchten gezüchtet. Dabei fallen auch Federn und Eier an. Die Hühner können geschlachtet und verzehrt werden.Hühner werden in Farmen und Zuchten gezüchtet. Dabei fallen auch Federn und Eier an. Die Hühner können geschlachtet und verzehrt werden.",
+    "_id": 104,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "106": {
+    "Typ": "Baurohstoff",
+    "Produktionswert": "1500",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Seile": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "Beschreibung:"
+    ],
+    "Folgende Gebäude produzieren Seile": {
+      "text": "Hanfseilerei",
+      "link": "gebaeudevorschau.php?id=150"
+    },
+    "Flachsseilerei": {
+      "text": "Seileflechterei",
+      "link": "gebaeudevorschau.php?id=366"
+    },
+    "Seile werden für Gruben benötigt, in denen Rohstoffe abgebaut werden. Außerdem verwenden Hafenanlagen diese für ihre Fischereien.Seile werden für Gruben benötigt, in denen Rohstoffe abgebaut werden. Außerdem verwenden Hafenanlagen diese für ihre Fischereien.": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=107"
+    },
+    "_id": 106,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "119": {
+    "Typ": "Industriegut",
+    "Produktionswert": "560",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Flachs": {
+      "text": "Flachswebstube",
+      "link": "gebaeudevorschau.php?id=192"
+    },
+    "Flachsseilerei": "unbekanntes Gebäude",
+    "Folgende Gebäude produzieren Flachs": {
+      "text": "Flachsplantage",
+      "link": "gebaeudevorschau.php?id=191"
+    },
+    "_id": 119,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "123": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "650",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "2.3",
+    "Folgende Gebäude verbrauchen Gummi": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude",
+      {
+        "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+        "link": "rohstoffevorschau.php?id=124"
+      }
+    ],
+    "Folgende Gebäude produzieren Gummi": {
+      "text": "Kautschukplantage",
+      "link": "gebaeudevorschau.php?id=202"
+    },
+    "_id": 123,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "131": {
+    "Typ": "Nahrung",
+    "Produktionswert": "62",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude verbrauchen Orangen": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": "Folgende Gebäude produzieren Orangen:",
+    "Orangenplantage": "unbekanntes Gebäude",
+    "_id": 131,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "132": {
+    "Typ": "Nahrung",
+    "Produktionswert": "100",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch": "siehe FAQ Position 2.1.10",
+    "Folgende Gebäude produzieren Honig": {
+      "text": "Imkerei",
+      "link": "gebaeudevorschau.php?id=5"
+    },
+    "unbekanntes Gebäude": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=133"
+    },
+    "_id": 132,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "133": {
+    "Typ": "Industriegut",
+    "Produktionswert": "50",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Wachs": {
+      "text": "Kerzenzieherei",
+      "link": "gebaeudevorschau.php?id=169"
+    },
+    "Folgende Gebäude produzieren Wachs": {
+      "text": "Imkerei",
+      "link": "gebaeudevorschau.php?id=5"
+    },
+    "unbekanntes Gebäude": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=134"
+    },
+    "_id": 133,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "134": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "350",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "5.7",
+    "Folgende Gebäude produzieren Kerzen": {
+      "text": "Kerzenzieherei",
+      "link": "gebaeudevorschau.php?id=169"
+    },
+    "unbekanntes Gebäude": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=135"
+    },
+    "_id": 134,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "135": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "305",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "4.9",
+    "Folgende Gebäude verbrauchen Fell": "unbekanntes Gebäude",
+    "Folgende Gebäude produzieren Fell": {
+      "text": "Nuggretzucht",
+      "link": "gebaeudevorschau.php?id=102"
+    },
+    "_id": 135,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "136": {
+    "Typ": "Tier",
+    "Produktionswert": "2750",
+    "Platzverbrauch Landtransport": "15",
+    "Platzverbrauch Wassertransport": "15",
+    "Platzverbrauch Lufttransport": "15",
+    "Fleisch bei Schlachtung": "0",
+    "Folgende Gebäude produzieren Wollspinnen": {
+      "text": "Wollspinnenzucht",
+      "link": "gebaeudevorschau.php?id=28"
+    },
+    "_id": 136,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "137": {
+    "Typ": "Tier",
+    "Produktionswert": "1000",
+    "Platzverbrauch Landtransport": "0",
+    "Platzverbrauch Wassertransport": "5",
+    "Platzverbrauch Lufttransport": "5",
+    "Fleisch bei Schlachtung": "0",
+    "Folgende Gebäude produzieren Ziegen": {
+      "text": "Ziegenfarm",
+      "link": "gebaeudevorschau.php?id=27"
+    },
+    "Beschreibung": "Noch nie eine Ziege gesehen?\r\nNeinNoch nie eine Ziege gesehen?\r\nNein",
+    "_id": 137,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "138": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "160",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "9.37",
+    "Folgende Gebäude produzieren Gewürz": "unbekanntes Gebäude",
+    "_id": 138,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "183": {
+    "Typ": "Waffentyp",
+    "Produktionswert": "1600",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude produzieren Holzspeer": {
+      "text": "Waffenschnitzerei",
+      "link": "gebaeudevorschau.php?id=44"
+    },
+    "unbekanntes Gebäude": "unbekanntes Gebäude",
+    "Beschreibung": "Ein Primitiver Speer aus Holz, welche in den richtigen Händen sehr effektiv sein kann. Er ist gleichermaßen geeignet zur Verteidigung und Jagd wilder Tiere.Ein Primitiver Speer aus Holz, welche in den richtigen Händen sehr effektiv sein kann. Er ist gleichermaßen geeignet zur Verteidigung und Jagd wilder Tiere.",
+    "_id": 183,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "233": {
+    "Typ": "Industriegut",
+    "Produktionswert": "75",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Stroh": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=234"
+    },
+    "_id": 233,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "234": {
+    "Typ": "Industriegut",
+    "Produktionswert": "88",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Schilf": {
+      "text": "Papiermacher",
+      "link": "gebaeudevorschau.php?id=259"
+    },
+    "Folgende Gebäude produzieren Schilf": {
+      "text": "Schilfbauer",
+      "link": "gebaeudevorschau.php?id=256"
+    },
+    "_id": 234,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "235": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "100",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "15",
+    "Folgende Gebäude produzieren Tee": {
+      "text": "Teehain",
+      "link": "gebaeudevorschau.php?id=260"
+    },
+    "unbekanntes Gebäude": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=236"
+    },
+    "_id": 235,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "244": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "40",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "25",
+    "Folgende Gebäude verbrauchen Brennholz": "unbekanntes Gebäude",
+    "unbekanntes Gebäude": [
+      {
+        "text": "Töpferei",
+        "link": "gebaeudevorschau.php?id=100"
+      },
+      "unbekanntes Gebäude",
+      "unbekanntes Gebäude"
+    ],
+    "Lehmziegelei": "unbekanntes Gebäude",
+    "Ruine-Schnapsbrennerei": "unbekanntes Gebäude",
+    "Ruine-Sarabbrennerei": "Folgende Gebäude produzieren Brennholz:",
+    "Sägegrube": "unbekanntes Gebäude",
+    "_id": 244,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "286": {
+    "Typ": "Industriegut",
+    "Produktionswert": "210",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Rattanfasern": {
+      "text": "Möbelflechter",
+      "link": "gebaeudevorschau.php?id=364"
+    },
+    "unbekanntes Gebäude": {
+      "text": "Seileflechterei",
+      "link": "gebaeudevorschau.php?id=366"
+    },
+    "Folgende Gebäude produzieren Rattanfasern": {
+      "text": "Tropenholzfäller",
+      "link": "gebaeudevorschau.php?id=363"
+    },
+    "_id": 286,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "287": {
+    "Typ": "Industriegut",
+    "Produktionswert": "160",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Seidenraupen": {
+      "text": "Seidenfarm",
+      "link": "gebaeudevorschau.php?id=370"
+    },
+    "Folgende Gebäude produzieren Seidenraupen": {
+      "text": "Seidenspinnerzucht",
+      "link": "gebaeudevorschau.php?id=371"
+    },
+    "_id": 287,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "288": {
+    "Typ": "Industriegut",
+    "Produktionswert": "1240",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Rohseide": {
+      "text": "Seidenspinnerei",
+      "link": "gebaeudevorschau.php?id=372"
+    },
+    "unbekanntes Gebäude": "Folgende Gebäude produzieren Rohseide:",
+    "Seidenfarm": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=289"
+    },
+    "_id": 288,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "289": {
+    "Typ": "Verbrauchsgut",
+    "Produktionswert": "5000",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Verbrauch 1000 Leute pro Tag": "0.4",
+    "Folgende Gebäude produzieren Seide": {
+      "text": "Seidenspinnerei",
+      "link": "gebaeudevorschau.php?id=372"
+    },
+    "unbekanntes Gebäude": {
+      "text": "vorheriger Rohstoff / Rohstoff Liste / nächster Rohstoff",
+      "link": "rohstoffevorschau.php?id=290"
+    },
+    "_id": 289,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "300": {
+    "Typ": "Industriegut",
+    "Produktionswert": "250",
+    "Platzverbrauch Landtransport": "1",
+    "Platzverbrauch Wassertransport": "1",
+    "Platzverbrauch Lufttransport": "1",
+    "Folgende Gebäude verbrauchen Mandibel": {
+      "text": "Beisser-Werkstatt",
+      "link": "gebaeudevorschau.php?id=156"
+    },
+    "_id": 300,
+    "_title": "Verbrannte Zone 3 - Body"
+  }
+}

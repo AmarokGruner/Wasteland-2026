@@ -1,0 +1,18 @@
+id: "b-server-instances"
+type: "context"
+title: "Server Instances"
+domain: "infra"
+summary: "Rundende Server-Instanzen/Umgebungen (lokal, API Docs)"
+details: |
+  Übersicht der aktuellen Server-Instanzen und -Zwecke:
+  - Lokal: Entwicklungs-/Test-Umgebung
+  - API Docs: Swagger/OpenAPI-Docs-Umgebung
+  - Optional weitere Instanzen je Umgebung (Staging/Prod) je nach Bedarf
+sources:
+  - "CONTEXT_DOKUMENTATION.md"
+related_codes:
+  - "README.md"
+created_at: "2026-02-28T18:00:00Z"
+updated_at: "2026-02-28T18:00:00Z"
+status: "open"
+tokens_estimate: 40

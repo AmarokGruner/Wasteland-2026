@@ -1,0 +1,23 @@
+--- SCRAPER START ---
+[INFO] Nutze manuellen Session-Cookie...
+[OK] Session aktiv - Daten sind erreichbar!
+
+============================================================
+Starte Scraping: gebaeude
+============================================================
+  [+] ID   1: ID 1
+  [+] ID   2: ID 2
+  [+] ID   3: ID 3
+  [+] ID   4: ID 4
+  [+] ID   5: ID 5
+
+  Gefunden: 5 Einträge für 'gebaeude'
+  [SAVE] Gespeichert: C:\Users\Fabian Gruner\Dropbox\Wasteland\data\scraped\gebaeude.json
+
+============================================================
+ZUSAMMENFASSUNG
+============================================================
+         gebaeude:    5 Einträge
+           GESAMT:    5 Einträge
+
+Alle Daten gespeichert in: C:\Users\Fabian Gruner\Dropbox\Wasteland\data\scraped

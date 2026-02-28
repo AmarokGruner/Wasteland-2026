@@ -1,0 +1,4352 @@
+{
+  "1": {
+    "Name": "Bunker",
+    "Kategorie": "Start",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Spieler)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "200": "Energiebedarf",
+    "0": "Arbeiter",
+    "10": "Wohnraum",
+    "100": "Lagerraumkapazität",
+    "20000": "Effektivität bei Terrain:",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Wasser",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "50": "Gebäudespezifische Eigenschaften:",
+    "Bunkerbonus": "250",
+    "Techproduktion": "2",
+    "Kulturpunkte": "4",
+    "Ist auf Schlachtfeld": {
+      "text": "Bunker",
+      "link": "einheitenvorschau.php?id=103"
+    },
+    "1": "Beschreibung:",
+    "Der Bunker ist dein erstes Gebäude in VZ. In diesem versuchst du die neue Welt zu besiedeln.\r\nEr bietet dir 20000 Lagerraum, einen Bonus auf feindliche Übergriffe und den ersten Wohnraum. Außerdem sind in ihm 2 Labore integriert. \r\nDu solltest dir also genau überlegen ob du ihn abreißen willst - denn es ist der einzige, den du je bekommst.\r\nDer Bunker ist dein erstes Gebäude in VZ. In diesem versuchst du die neue Welt zu besiedeln.\r\nEr bietet dir 20000 Lagerraum, einen Bonus auf feindliche Übergriffe und den ersten Wohnraum. Außerdem sind in ihm 2 Labore integriert. \r\nDu solltest dir also genau überlegen ob du ihn abreißen willst - denn es ist der einzige, den du je bekommst.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=2"
+    },
+    "_id": 1,
+    "_title": "Bunker"
+  },
+  "2": {
+    "Name": "Kartoffelfarm",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "20": {
+      "text": "Kartoffeln",
+      "link": "rohstoffevorschau.php?id=13"
+    },
+    "80": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "10": "Wohnraum",
+    "25%": {
+      "text": "Steppgebirge, Ödfelsland, Ödhügel",
+      "link": "terrainvorschau.php?id=15"
+    },
+    "50%": {
+      "text": "Grasfelsland, Grashügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "75%": {
+      "text": "Steppfelsland, Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "100%": {
+      "text": "Grasland, Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Kartoffeln",
+      "link": "rohstoffevorschau.php?id=13"
+    },
+    "40": "Beschreibung:",
+    "Ein bewirtschaftetes Stück Land, auf dem aus Kartoffeln noch mehr Kartoffeln gemacht werden. Die Bauern bekommen vom Pflegen und Ernten zwar einen krummen Rücken, durch die nahrhafte und sättigende Wirkung wird dies jedoch mehr als wettgemacht.\r\nAllerdings sollten nie die giftigen Früchte, sondern nur die Wurzelverdickungen verspeist werden.Ein bewirtschaftetes Stück Land, auf dem aus Kartoffeln noch mehr Kartoffeln gemacht werden. Die Bauern bekommen vom Pflegen und Ernten zwar einen krummen Rücken, durch die nahrhafte und sättigende Wirkung wird dies jedoch mehr als wettgemacht.\r\nAllerdings sollten nie die giftigen Früchte, sondern nur die Wurzelverdickungen verspeist werden.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=3"
+    },
+    "_id": 2,
+    "_title": "Kartoffelfarm"
+  },
+  "3": {
+    "Name": "Erdnussfarm",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "50",
+    "Baukosten in Mips": "8000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Erdnüsse",
+      "link": "rohstoffevorschau.php?id=14"
+    },
+    "40": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "4": "Wohnraum",
+    "25%": {
+      "text": "Savannengebirge",
+      "link": "terrainvorschau.php?id=26"
+    },
+    "75%": {
+      "text": "Savannenfelsland, Savannenhügel",
+      "link": "terrainvorschau.php?id=24"
+    },
+    "100%": {
+      "text": "Savanne",
+      "link": "terrainvorschau.php?id=22"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Erdnüsse",
+      "link": "rohstoffevorschau.php?id=14"
+    },
+    "20": "Beschreibung:",
+    "Mit diesem Gebäude ist es möglich, Erdnüsse anzubauen. Diese sind in der Verbrannten Zone weit mehr als ein gewöhnlicher Snack geworden.Mit diesem Gebäude ist es möglich, Erdnüsse anzubauen. Diese sind in der Verbrannten Zone weit mehr als ein gewöhnlicher Snack geworden.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=4"
+    },
+    "_id": 3,
+    "_title": "Erdnussfarm"
+  },
+  "4": {
+    "Name": "Sojafarm",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "15": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "5": {
+      "text": "Sojabohnen",
+      "link": "rohstoffevorschau.php?id=16"
+    },
+    "50": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "10": "Wohnraum",
+    "100%": {
+      "text": "Sumpfland",
+      "link": "terrainvorschau.php?id=6"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Sojabohnen",
+      "link": "rohstoffevorschau.php?id=16"
+    },
+    "25": "Beschreibung:",
+    "Wie der Name bereits sagt werden in der Sojafarm Sojabohnen gezüchtet. Diese gehören vor allem in Sumpfländern, in denen sie angebaut werden, zu den Grundnahrungsmitteln.Wie der Name bereits sagt werden in der Sojafarm Sojabohnen gezüchtet. Diese gehören vor allem in Sumpfländern, in denen sie angebaut werden, zu den Grundnahrungsmitteln.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=5"
+    },
+    "_id": 4,
+    "_title": "Sojafarm"
+  },
+  "5": {
+    "Name": "Imkerei",
+    "Kategorie": "Abbau",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": [
+      {
+        "text": "Häute",
+        "link": "rohstoffevorschau.php?id=37"
+      },
+      {
+        "text": "Wachs",
+        "link": "rohstoffevorschau.php?id=133"
+      }
+    ],
+    "2": [
+      "Energiebedarf",
+      "Wohnraum",
+      "Beschreibung:"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Grasfelsland, Grashügel, Grasland, Wald",
+      "link": "terrainvorschau.php?id=4"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Honig",
+      "link": "rohstoffevorschau.php?id=132"
+    },
+    "In der Imkerei kannst du Honig als Nahrung für dein Volk gewinnen. Außerdem fällt Wachs an, dieses kann in Kerzenziehereien zu Kerzen verarbeitet werden.In der Imkerei kannst du Honig als Nahrung für dein Volk gewinnen. Außerdem fällt Wachs an, dieses kann in Kerzenziehereien zu Kerzen verarbeitet werden.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=6"
+    },
+    "_id": 5,
+    "_title": "Imkerei"
+  },
+  "7": {
+    "Name": "Dattelnplantage",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Datteln",
+      "link": "rohstoffevorschau.php?id=19"
+    },
+    "32": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "4": "Wohnraum",
+    "25%": {
+      "text": "Pampagebirge",
+      "link": "terrainvorschau.php?id=37"
+    },
+    "40%": {
+      "text": "Brachfelsland, Brachhügel",
+      "link": "terrainvorschau.php?id=31"
+    },
+    "50%": {
+      "text": "Brachland",
+      "link": "terrainvorschau.php?id=29"
+    },
+    "75%": {
+      "text": "Pampafelsland, Savannenfelsland, Savannenhügel",
+      "link": "terrainvorschau.php?id=24"
+    },
+    "100%": {
+      "text": "Pampa, Savanne",
+      "link": "terrainvorschau.php?id=22"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Datteln",
+      "link": "rohstoffevorschau.php?id=19"
+    },
+    "16": "Beschreibung:",
+    "Was in der Zeit vor der Katastrophe als eine kleine Nascherei angesehen wurde, ist nun zu einem essentiellen Nahrungsmittel geworden. Deshalb baut man Datteln im großen Stil in diesen Plantagen an.Was in der Zeit vor der Katastrophe als eine kleine Nascherei angesehen wurde, ist nun zu einem essentiellen Nahrungsmittel geworden. Deshalb baut man Datteln im großen Stil in diesen Plantagen an.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=8"
+    },
+    "_id": 7,
+    "_title": "Dattelnplantage"
+  },
+  "9": {
+    "Name": "Orangenplantage",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "20": {
+      "text": "Orangen",
+      "link": "rohstoffevorschau.php?id=131"
+    },
+    "80": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "10": "Wohnraum",
+    "25%": {
+      "text": "Grüngebirge",
+      "link": "terrainvorschau.php?id=25"
+    },
+    "50%": {
+      "text": "Plateau",
+      "link": "terrainvorschau.php?id=38"
+    },
+    "75%": {
+      "text": "Grünfelsland, Grünhügel, Weidefelsland",
+      "link": "terrainvorschau.php?id=41"
+    },
+    "100%": {
+      "text": "Grünland, Regenwald, Weideland",
+      "link": "terrainvorschau.php?id=35"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Orangen",
+      "link": "rohstoffevorschau.php?id=131"
+    },
+    "40": "Beschreibung:",
+    "Mit diesem Gebäude können die saftigen, süßen bis leicht sauren Früchte in größerer Anzahl gezüchtet werden.Mit diesem Gebäude können die saftigen, süßen bis leicht sauren Früchte in größerer Anzahl gezüchtet werden.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=10"
+    },
+    "_id": 9,
+    "_title": "Orangenplantage"
+  },
+  "11": {
+    "Name": "Apfelplantage",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "15": {
+      "text": "Äpfel",
+      "link": "rohstoffevorschau.php?id=22"
+    },
+    "48": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "6": "Wohnraum",
+    "50%": {
+      "text": "Grasgebirge",
+      "link": "terrainvorschau.php?id=8"
+    },
+    "75%": {
+      "text": "Grasfelsland, Grashügel",
+      "link": "terrainvorschau.php?id=7"
+    },
+    "100%": {
+      "text": "Grasland, Wald",
+      "link": "terrainvorschau.php?id=4"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Äpfel",
+      "link": "rohstoffevorschau.php?id=22"
+    },
+    "24": "Beschreibung:",
+    "Eine von vielen Plantagen, die sich auf die Züchtung einer Obstsorte, in diesem Fall Äpfel, spezialisiert haben.Eine von vielen Plantagen, die sich auf die Züchtung einer Obstsorte, in diesem Fall Äpfel, spezialisiert haben.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=12"
+    },
+    "_id": 11,
+    "_title": "Apfelplantage"
+  },
+  "14": {
+    "Name": "Palmenplantage",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "35",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "25": {
+      "text": "Kokosnuss",
+      "link": "rohstoffevorschau.php?id=17"
+    },
+    "64": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "15": "Wohnraum",
+    "75%": {
+      "text": "Grünland, Savanne, Tropensumpf",
+      "link": "terrainvorschau.php?id=11"
+    },
+    "100%": {
+      "text": "Dschungel, Regenwald",
+      "link": "terrainvorschau.php?id=36"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Kokosnuss",
+      "link": "rohstoffevorschau.php?id=17"
+    },
+    "32": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=15"
+    },
+    "_id": 14,
+    "_title": "Palmenplantage"
+  },
+  "15": {
+    "Name": "Holzfäller",
+    "Kategorie": "Abbau",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "15": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "6": "Wohnraum",
+    "50%": {
+      "text": "Steppe, Steppfelsland, Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "75%": {
+      "text": "Grasfelsland, Grashügel, Grasland",
+      "link": "terrainvorschau.php?id=1"
+    },
+    "100%": {
+      "text": "Sumpfland, Wald",
+      "link": "terrainvorschau.php?id=4"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "12": "Beschreibung:",
+    "Wer sich nicht nur auf das Sammeln beschränken will, sondern Bauholz in größeren Mengen benötigt, sollte sich eine Holzfällerhütte bauen. Allerdings ist die Ausbeute von der Menge der vorhandenen Bäume abhängig. In Gras- und vor allem Steppterrains ist man besser beraten Bauholz aus Wäldern zu importieren, wenn die Möglichkeit besteht.Wer sich nicht nur auf das Sammeln beschränken will, sondern Bauholz in größeren Mengen benötigt, sollte sich eine Holzfällerhütte bauen. Allerdings ist die Ausbeute von der Menge der vorhandenen Bäume abhängig. In Gras- und vor allem Steppterrains ist man besser beraten Bauholz aus Wäldern zu importieren, wenn die Möglichkeit besteht.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=16"
+    },
+    "_id": 15,
+    "_title": "Holzfäller"
+  },
+  "16": {
+    "Name": "Steinmetz",
+    "Kategorie": "Abbau",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "2": [
+      {
+        "text": "Werkzeug",
+        "link": "rohstoffevorschau.php?id=79"
+      },
+      "Beschreibung:"
+    ],
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "8": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Felsgebirge, Grasfelsland, Grasgebirge, Grünfelsland, Grüngebirge, Pampafelsland, Savannenfelsland, Savannengebirge, Steinwüste, Steppfelsland, Steppgebirge, Weidefelsland, Ödfelsland, Ödgebirge",
+      "link": "terrainvorschau.php?id=16"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": {
+      "text": "Kies",
+      "link": "rohstoffevorschau.php?id=59"
+    },
+    "Steine zu sammeln, ist nicht nur sehr aufwändig, die Menge des verwertbaren Materials ist auch stets sehr klein.\r\nDaher sollte baldmöglichst eine Steinmetzhütte besetzt werden, um dem ständig wachsenden Bedarf an Steinen gerecht zu werden.Steine zu sammeln, ist nicht nur sehr aufwändig, die Menge des verwertbaren Materials ist auch stets sehr klein.\r\nDaher sollte baldmöglichst eine Steinmetzhütte besetzt werden, um dem ständig wachsenden Bedarf an Steinen gerecht zu werden.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=17"
+    },
+    "_id": 16,
+    "_title": "Steinmetz"
+  },
+  "22": {
+    "Name": "Tabakplantage",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "5000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "30": {
+      "text": "Tabak",
+      "link": "rohstoffevorschau.php?id=29"
+    },
+    "12": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "15": "Wohnraum",
+    "100%": {
+      "text": "Grünfelsland, Grünhügel, Grünland, Weideland",
+      "link": "terrainvorschau.php?id=35"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Tabak",
+      "link": "rohstoffevorschau.php?id=29"
+    },
+    "6": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=23"
+    },
+    "_id": 22,
+    "_title": "Tabakplantage"
+  },
+  "23": {
+    "Name": "Hanfplantage",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "6000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "20": {
+      "text": "Hanf",
+      "link": "rohstoffevorschau.php?id=32"
+    },
+    "16": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "15": "Wohnraum",
+    "100%": {
+      "text": "Sumpfland",
+      "link": "terrainvorschau.php?id=6"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Hanf",
+      "link": "rohstoffevorschau.php?id=32"
+    },
+    "8": "Beschreibung:",
+    "Die Hanfplantage dient zum Anbauen von Hanf, das als Verbrauchsgut ans Volk verkauft werden kann. Eine andere Möglichkeit der Verwendung ist die Weiterverarbeitung zu Seilen oder Leinen.Die Hanfplantage dient zum Anbauen von Hanf, das als Verbrauchsgut ans Volk verkauft werden kann. Eine andere Möglichkeit der Verwendung ist die Weiterverarbeitung zu Seilen oder Leinen.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=24"
+    },
+    "_id": 23,
+    "_title": "Hanfplantage"
+  },
+  "24": {
+    "Name": "Kräutergarten",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "12": [
+      {
+        "text": "Stein",
+        "link": "rohstoffevorschau.php?id=4"
+      },
+      "Beschreibung:"
+    ],
+    "2": {
+      "text": "Kräuter",
+      "link": "rohstoffevorschau.php?id=31"
+    },
+    "16": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "5": "Wohnraum",
+    "75%": {
+      "text": "Grünfelsland, Grünhügel",
+      "link": "terrainvorschau.php?id=23"
+    },
+    "100%": {
+      "text": "Grünland, Sumpfland, Tropensumpf, Wald, Weideland",
+      "link": "terrainvorschau.php?id=35"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Kräuter",
+      "link": "rohstoffevorschau.php?id=31"
+    },
+    "Im Kräutergarten werden Kräuter gezogen, die man als Verbrauchsgut ans Volk verkaufen oder später zu Heilkräuter verarbeiten kann.Im Kräutergarten werden Kräuter gezogen, die man als Verbrauchsgut ans Volk verkaufen oder später zu Heilkräuter verarbeiten kann.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=25"
+    },
+    "_id": 24,
+    "_title": "Kräutergarten"
+  },
+  "27": {
+    "Name": "Ziegenfarm",
+    "Kategorie": "Tierzucht",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "15",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Ziegen",
+      "link": "rohstoffevorschau.php?id=137"
+    },
+    "5": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "2": [
+      "Energiebedarf",
+      {
+        "text": "Erdnüsse",
+        "link": "rohstoffevorschau.php?id=14"
+      },
+      "Rohstoffproduktion im Betrieb:"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "4": "Wohnraum",
+    "100%": {
+      "text": "Savanne, Savannenfelsland, Savannenhügel",
+      "link": "terrainvorschau.php?id=24"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Wasser",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "Ziegen": "1",
+    "Milch": "10",
+    "_id": 27,
+    "_title": "Ziegenfarm"
+  },
+  "28": {
+    "Name": "Wollspinnenzucht",
+    "Kategorie": "Tierzucht",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "7": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "2": {
+      "text": "Wollspinnen",
+      "link": "rohstoffevorschau.php?id=136"
+    },
+    "4": [
+      "Energiebedarf",
+      "Wohnraum"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Dschungel, Tropensumpf",
+      "link": "terrainvorschau.php?id=11"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Nuggrets",
+      "link": "rohstoffevorschau.php?id=78"
+    },
+    "10": "Rohstoffproduktion im Betrieb:",
+    "Wollspinnen": "0.5",
+    "Wolle": "5",
+    "_id": 28,
+    "_title": "Wollspinnenzucht"
+  },
+  "29": {
+    "Name": "kleine Getreidefarm",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "1": "Wohnraum",
+    "50%": {
+      "text": "Grasfelsland, Steppfelsland",
+      "link": "terrainvorschau.php?id=20"
+    },
+    "75%": {
+      "text": "Grashügel, Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "100%": {
+      "text": "Grasland, Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Getreide",
+      "link": "rohstoffevorschau.php?id=18"
+    },
+    "4": "Beschreibung:",
+    "Eine kleine Farm zur Kultivierung von Getreide als Saatgut und Futtermittel für ein paar Hühner.Eine kleine Farm zur Kultivierung von Getreide als Saatgut und Futtermittel für ein paar Hühner.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=30"
+    },
+    "_id": 29,
+    "_title": "kleine Getreidefarm"
+  },
+  "31": {
+    "Name": "Karrenbauer",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "50",
+    "Baukosten in Mips": "2000",
+    "Ausbaugrundkosten in Mips": "2000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "10": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "5": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": "Rohstoffgrundbedarf Ausbau:",
+    "Bretter": "10",
+    "Werkzeug": "1",
+    "Energiebedarf": "0",
+    "Arbeiter": "4",
+    "Zusatzarbeiter pro Ausbaustufe": "4",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Gebäudespezifische Eigenschaften:",
+    "Karrenwerkstatt": "2",
+    "Beschreibung": "Wer fleißig mit anderen Stämmen handeln möchte, braucht auch viel Ladekapazität. Handelskarren eignen sich hervorragend - diese können mit dieser Werkstatt gebaut werden. Mit dem nötigen Wissen können sogar kompliziertere Geräte wie Schleudern und hölzerne Deckungen gebaut werden.Wer fleißig mit anderen Stämmen handeln möchte, braucht auch viel Ladekapazität. Handelskarren eignen sich hervorragend - diese können mit dieser Werkstatt gebaut werden. Mit dem nötigen Wissen können sogar kompliziertere Geräte wie Schleudern und hölzerne Deckungen gebaut werden.",
+    "_id": 31,
+    "_title": "Karrenbauer"
+  },
+  "32": {
+    "Name": "Ruine-Tempel",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "50": "unbekannter Rohstoff",
+    "10": "unbekannter Rohstoff",
+    "1": [
+      "unbekannter Rohstoff",
+      "Wohnraum"
+    ],
+    "2": {
+      "text": "Kupfer",
+      "link": "rohstoffevorschau.php?id=83"
+    },
+    "4": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Kulturpunkte",
+      "link": "texthelp.php?gid=32&xwert=3&begriff=Kulturpunkte"
+    },
+    "3": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=33"
+    },
+    "_id": 32,
+    "_title": "Ruine-Tempel"
+  },
+  "33": {
+    "Name": "Brunnen",
+    "Kategorie": "Weg",
+    "Bautyp": "Wegkreuzung",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "3000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "2": [
+      "Energiebedarf",
+      "Wohnraum"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Vorkommen:"
+    ],
+    "Wasser": "100%",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Wasser",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "20": "Gebäudespezifische Eigenschaften:",
+    "Wegstufe": "1",
+    "Wasserstand": "1",
+    "Beschreibung": "Bevor mit dem Brunnen Wasser gefördert werden kann, muss in der Provinz nach Wasser gesucht werden.Bevor mit dem Brunnen Wasser gefördert werden kann, muss in der Provinz nach Wasser gesucht werden.",
+    "_id": 33,
+    "_title": "Brunnen"
+  },
+  "42": {
+    "Name": "Webstube",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "1000",
+    "Ausbaugrundkosten in Mips": "2000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "2": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "5": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "10",
+    "Energiebedarf": "0",
+    "Arbeiter": "3",
+    "Zusatzarbeiter pro Ausbaustufe": "3",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Wolle": "5",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Stoffe",
+      "link": "rohstoffevorschau.php?id=44"
+    },
+    "4": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=43"
+    },
+    "_id": 42,
+    "_title": "Webstube"
+  },
+  "43": {
+    "Name": "Gerberei",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "1000",
+    "Ausbaugrundkosten in Mips": "2000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "4": [
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      },
+      {
+        "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+        "link": "gebaeudevorschau.php?id=44"
+      }
+    ],
+    "15": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "15",
+    "Werkzeug": "1",
+    "Energiebedarf": "0",
+    "Arbeiter": "4",
+    "Zusatzarbeiter pro Ausbaustufe": "4",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Häute": "6",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Leder",
+      "link": "rohstoffevorschau.php?id=45"
+    },
+    "_id": 43,
+    "_title": "Gerberei"
+  },
+  "44": {
+    "Name": "Waffenschnitzerei",
+    "Kategorie": "Rüstungsindustrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "12": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "4": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "3": "Rohstoffproduktion im Betrieb:",
+    "Holzspeer": "1",
+    "Beschreibung": "Aus gefundenem oder geschlagenem Holz können primitive Waffen hergestellt werden. Gleichermaßen geeignet zur Verteidigung und Jagd wilder Tiere.Aus gefundenem oder geschlagenem Holz können primitive Waffen hergestellt werden. Gleichermaßen geeignet zur Verteidigung und Jagd wilder Tiere.",
+    "_id": 44,
+    "_title": "Waffenschnitzerei"
+  },
+  "45": {
+    "Name": "Feldweg",
+    "Kategorie": "Weg",
+    "Bautyp": "Weg",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Energiebedarf": "0",
+    "Arbeiter": "0",
+    "Wohnraum": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Gebäudespezifische Eigenschaften:",
+    "Wegstufe": "1",
+    "_id": 45,
+    "_title": "Feldweg"
+  },
+  "46": {
+    "Name": "Feldwegkreuzung",
+    "Kategorie": "Weg",
+    "Bautyp": "Wegkreuzung",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Energiebedarf": "0",
+    "Arbeiter": "0",
+    "Wohnraum": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Gebäudespezifische Eigenschaften:",
+    "Wegstufe": "1",
+    "_id": 46,
+    "_title": "Feldwegkreuzung"
+  },
+  "61": {
+    "Name": "Zelt",
+    "Kategorie": "Wohnhaus",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "2": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Lagerraumkapazität",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "_id": 61,
+    "_title": "Zelt"
+  },
+  "62": {
+    "Name": "Stoffzelt",
+    "Kategorie": "Wohnhaus",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stoffe",
+      "link": "rohstoffevorschau.php?id=44"
+    },
+    "2": [
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      },
+      "Energiebedarf"
+    ],
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Effektivität bei Terrain:"
+    ],
+    "5": "Lagerraumkapazität",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "_id": 62,
+    "_title": "Stoffzelt"
+  },
+  "63": {
+    "Name": "Camp",
+    "Kategorie": "Ausbau",
+    "Bautyp": "Speziell(Kein Gebäude)",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "20": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Provinzgrösse",
+      "link": "texthelp.php?gid=63&xwert=1&begriff=Provinzgrösse"
+    },
+    "1": "Beschreibung:",
+    "Das Camp gibt dir die ersten 4 Stadtfelder, auf denen du andere Gebäude bauen kannst als auf den Landfeldern. Zusätzlich gibt es noch andere Stadtausbauten wie Siedlung, Dorf, Ort, Kleinstadt, Stadt, Großstadt und die Metropole.\r\n\r\nDas Camp bringt dir 1 Kulturpunkt.Das Camp gibt dir die ersten 4 Stadtfelder, auf denen du andere Gebäude bauen kannst als auf den Landfeldern. Zusätzlich gibt es noch andere Stadtausbauten wie Siedlung, Dorf, Ort, Kleinstadt, Stadt, Großstadt und die Metropole.\r\n\r\nDas Camp bringt dir 1 Kulturpunkt.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=64"
+    },
+    "_id": 63,
+    "_title": "Camp"
+  },
+  "64": {
+    "Name": "Siedlung",
+    "Kategorie": "Ausbau",
+    "Bautyp": "Speziell(Kein Gebäude)",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "25000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "50": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "25": [
+      {
+        "text": "Kies",
+        "link": "rohstoffevorschau.php?id=59"
+      },
+      "Energiebedarf"
+    ],
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steinwüste, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Provinzgrösse",
+      "link": "texthelp.php?gid=64&xwert=2&begriff=Provinzgrösse"
+    },
+    "2": "Beschreibung:",
+    "Der Ausbau zur Siedlung bringt dir einen weiteren Kulturpunkt.Der Ausbau zur Siedlung bringt dir einen weiteren Kulturpunkt.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=65"
+    },
+    "_id": 64,
+    "_title": "Siedlung"
+  },
+  "65": {
+    "Name": "Dorf",
+    "Kategorie": "Ausbau",
+    "Bautyp": "Speziell(Kein Gebäude)",
+    "Benötigtes Techlevel": "50",
+    "Baukosten in Mips": "50000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "50": [
+      {
+        "text": "Kies",
+        "link": "rohstoffevorschau.php?id=59"
+      },
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      }
+    ],
+    "100": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steinwüste, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Provinzgrösse",
+      "link": "texthelp.php?gid=65&xwert=3&begriff=Provinzgrösse"
+    },
+    "3": "Beschreibung:",
+    "Der Ausbau zum Dorf bringt dir einen weiteren Kulturpunkt.Der Ausbau zum Dorf bringt dir einen weiteren Kulturpunkt.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=66"
+    },
+    "_id": 65,
+    "_title": "Dorf"
+  },
+  "71": {
+    "Name": "Feuerstelle",
+    "Kategorie": "Forschung",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "4": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Techproduktion",
+      "link": "texthelp.php?gid=71&xwert=1&begriff=Techproduktion"
+    },
+    "1": "Beschreibung:",
+    "Hier treffen sich die ältesten und weisesten Bürger deiner Provinz um ihre Entdeckungen auszutauschen. Auch wärmt das Feuer in kalten Nächten.Hier treffen sich die ältesten und weisesten Bürger deiner Provinz um ihre Entdeckungen auszutauschen. Auch wärmt das Feuer in kalten Nächten.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=72"
+    },
+    "_id": 71,
+    "_title": "Feuerstelle"
+  },
+  "72": {
+    "Name": "Marktplatz",
+    "Kategorie": "Speziell",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "50",
+    "Baukosten in Mips": "25000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "20": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "50": "unbekannter Rohstoff",
+    "10": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "15": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Marktpunkte",
+      "link": "texthelp.php?gid=72&xwert=25&begriff=Marktpunkte"
+    },
+    "25": "Beschreibung:",
+    "Ein Marktplatz, eine tolle Idee! Sofern unsere Bürger bereits Löhne gezahlt bekommen und Steuern zahlen, könnten wir doch auch bestimmen welche Waren sie kaufen dürfen und welche nicht. Und freilich bezahlen sie für die Waren, die sie aus dem Lager entnehmen. Schließlich müssen sie von ihren Löhnen unseren Staat so gut wie es geht unterstützen. Wir sollten unbedingt einen Marktplatz bauen!Ein Marktplatz, eine tolle Idee! Sofern unsere Bürger bereits Löhne gezahlt bekommen und Steuern zahlen, könnten wir doch auch bestimmen welche Waren sie kaufen dürfen und welche nicht. Und freilich bezahlen sie für die Waren, die sie aus dem Lager entnehmen. Schließlich müssen sie von ihren Löhnen unseren Staat so gut wie es geht unterstützen. Wir sollten unbedingt einen Marktplatz bauen!": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=73"
+    },
+    "_id": 72,
+    "_title": "Marktplatz"
+  },
+  "74": {
+    "Name": "Ausbildungscamp",
+    "Kategorie": "Ausbildung",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "20",
+    "Baukosten in Mips": "2000",
+    "Ausbaugrundkosten in Mips": "4000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "20",
+    "Energiebedarf": "0",
+    "Arbeiter": "2",
+    "Zusatzarbeiter pro Ausbaustufe": "2",
+    "Wohnraum": "2",
+    "Zusatzwohnraum pro Ausbaustufe": "2",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Gebäudespezifische Eigenschaften:",
+    "Ausbildung": "2",
+    "Beschreibung": "In einem Ausbildungscamp können einfache Siedler zu strammen Rekruten ausgebildet werden. Diese können dann als Provinzwachen eingesetzt werden um die Sicherheit zu erhöhen oder aber in die Welt entsandt werden, um für unser Volk Kämpfe auszutragen.In einem Ausbildungscamp können einfache Siedler zu strammen Rekruten ausgebildet werden. Diese können dann als Provinzwachen eingesetzt werden um die Sicherheit zu erhöhen oder aber in die Welt entsandt werden, um für unser Volk Kämpfe auszutragen.",
+    "_id": 74,
+    "_title": "Ausbildungscamp"
+  },
+  "77": {
+    "Name": "Schlachthaus",
+    "Kategorie": "Speziell",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "15": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "10": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:",
+      {
+        "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+        "link": "gebaeudevorschau.php?id=78"
+      }
+    ],
+    "2": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Schlachter",
+      "link": "texthelp.php?gid=77&xwert=0&begriff=Schlachter"
+    },
+    "_id": 77,
+    "_title": "Schlachthaus"
+  },
+  "78": {
+    "Name": "Kiesgrube",
+    "Kategorie": "Grube",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "2": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "15": {
+      "text": "Seile",
+      "link": "rohstoffevorschau.php?id=106"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "12": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Grasfelsland, Grünfelsland, Pampafelsland, Savannenfelsland, Steinwüste, Steppfelsland, Weidefelsland, Ödfelsland",
+      "link": "terrainvorschau.php?id=19"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Kies",
+      "link": "rohstoffevorschau.php?id=59"
+    },
+    "10": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=79"
+    },
+    "_id": 78,
+    "_title": "Kiesgrube"
+  },
+  "79": {
+    "Name": "Kiesweg",
+    "Kategorie": "Weg",
+    "Bautyp": "Weg",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "20",
+    "Baukosten in Mips": "5000",
+    "Rohstoffbedarf Bau": {
+      "text": "Kies",
+      "link": "rohstoffevorschau.php?id=59"
+    },
+    "10": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Wegstufe",
+      "link": "texthelp.php?gid=79&xwert=3&begriff=Wegstufe"
+    },
+    "3": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=80"
+    },
+    "_id": 79,
+    "_title": "Kiesweg"
+  },
+  "80": {
+    "Name": "Kieskreuzung",
+    "Kategorie": "Weg",
+    "Bautyp": "Wegkreuzung",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "20",
+    "Baukosten in Mips": "1000",
+    "Rohstoffbedarf Bau": {
+      "text": "Kies",
+      "link": "rohstoffevorschau.php?id=59"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Wegstufe",
+      "link": "texthelp.php?gid=80&xwert=3&begriff=Wegstufe"
+    },
+    "3": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=81"
+    },
+    "_id": 80,
+    "_title": "Kieskreuzung"
+  },
+  "83": {
+    "Name": "Werkzeugmacher",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "2": [
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      },
+      "Wohnraum",
+      {
+        "text": "Eisen",
+        "link": "rohstoffevorschau.php?id=5"
+      }
+    ],
+    "10": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "0.5": "Rohstoffproduktion im Betrieb:",
+    "Werkzeug": "1",
+    "_id": 83,
+    "_title": "Werkzeugmacher"
+  },
+  "88": {
+    "Name": "Münzerei",
+    "Kategorie": "Schmiede",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Eisen",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "1": [
+      {
+        "text": "Werkzeug",
+        "link": "rohstoffevorschau.php?id=79"
+      },
+      "Energiebedarf"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "2": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Kupfer",
+      "link": "rohstoffevorschau.php?id=83"
+    },
+    "0.05": "Gebäudespezifische Eigenschaften:",
+    "Mipsproduktion": "1500",
+    "_id": 88,
+    "_title": "Münzerei"
+  },
+  "90": {
+    "Name": "Edelholzfäller",
+    "Kategorie": "Abbau",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "22": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "6": [
+      "Wohnraum",
+      {
+        "text": "Edelholz",
+        "link": "rohstoffevorschau.php?id=68"
+      }
+    ],
+    "50%": {
+      "text": "Pampa, Pampafelsland, Savanne, Savannenfelsland, Savannenhügel",
+      "link": "terrainvorschau.php?id=24"
+    },
+    "75%": {
+      "text": "Grünfelsland, Grünhügel, Grünland, Weidefelsland, Weideland",
+      "link": "terrainvorschau.php?id=35"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "4": "Beschreibung:",
+    "Wer sich nicht nur auf das Sammeln beschränken will, sondern Bauholz in größeren Mengen benötigt, sollte sich eine Holzfällerhütte bauen. Nebenbei wirft diese noch edlere Hölzer ab, die zu wertvollen Möbeln verarbeitet werden können. Allerdings ist die Ausbeute von der Menge der vorhandenen Bäume abhängig. In Grün- und vor allem Savannenterrains ist man besser beraten Bauholz aus dem Dschungel zu importieren, wenn die Möglichkeit besteht.Wer sich nicht nur auf das Sammeln beschränken will, sondern Bauholz in größeren Mengen benötigt, sollte sich eine Holzfällerhütte bauen. Nebenbei wirft diese noch edlere Hölzer ab, die zu wertvollen Möbeln verarbeitet werden können. Allerdings ist die Ausbeute von der Menge der vorhandenen Bäume abhängig. In Grün- und vor allem Savannenterrains ist man besser beraten Bauholz aus dem Dschungel zu importieren, wenn die Möglichkeit besteht.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=91"
+    },
+    "_id": 90,
+    "_title": "Edelholzfäller"
+  },
+  "93": {
+    "Name": "Auffangbecken",
+    "Kategorie": "Abbau",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "4": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "1": "Wohnraum",
+    "2%": {
+      "text": "Sanddünen",
+      "link": "terrainvorschau.php?id=13"
+    },
+    "9%": {
+      "text": "Ödhügel",
+      "link": "terrainvorschau.php?id=15"
+    },
+    "10%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Felsgebirge, Steinwüste, Wüste, Ödfelsland, Ödgebirge, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "25%": {
+      "text": "Pampa, Pampafelsland, Savanne, Savannenfelsland, Steppe, Steppfelsland",
+      "link": "terrainvorschau.php?id=20"
+    },
+    "28%": {
+      "text": "Savannenhügel, Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "30%": {
+      "text": "Grasfelsland, Grasland, Grünfelsland, Grünland, Steppgebirge, Tropensumpf, Weidefelsland, Weideland",
+      "link": "terrainvorschau.php?id=35"
+    },
+    "33%": {
+      "text": "Pampagebirge, Savannengebirge",
+      "link": "terrainvorschau.php?id=26"
+    },
+    "35%": {
+      "text": "Grashügel, Grünhügel",
+      "link": "terrainvorschau.php?id=23"
+    },
+    "40%": {
+      "text": "Eiswüste, Grasgebirge, Grüngebirge, Hochnebelwald, Plateau",
+      "link": "terrainvorschau.php?id=38"
+    },
+    "50%": {
+      "text": "Dschungel, Regenwald, Sumpfland, Wald",
+      "link": "terrainvorschau.php?id=4"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Wasser",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "25": "Gebäudespezifische Eigenschaften:",
+    "Regenabhängig": "0",
+    "Beschreibung": "Mit dem Auffangbecken kann man sehr gut sein Terrain abwerten oder das Aufwerten verhindern. Es ist das erste Gebäude, welches Wasser produziert, jedoch nur wenn es regnet.\r\nAußer dem Auffangbecken gibt es natürlich auch noch weitere Wasser produzierende Gebäude: den Brunnen und die Entsalzungsanlagen.\r\nMit dem Auffangbecken kann man sehr gut sein Terrain abwerten oder das Aufwerten verhindern. Es ist das erste Gebäude, welches Wasser produziert, jedoch nur wenn es regnet.\r\nAußer dem Auffangbecken gibt es natürlich auch noch weitere Wasser produzierende Gebäude: den Brunnen und die Entsalzungsanlagen.",
+    "_id": 93,
+    "_title": "Auffangbecken"
+  },
+  "97": {
+    "Name": "Tongrube",
+    "Kategorie": "Grube",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "15",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "3": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "25": {
+      "text": "Seile",
+      "link": "rohstoffevorschau.php?id=106"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "8": "Wohnraum",
+    "50%": {
+      "text": "Savannenfelsland, Savannenhügel, Steppfelsland, Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "80%": {
+      "text": "Savanne, Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "Effektivität bei Vorkommen": {
+      "text": "Ton",
+      "link": "vorkommenvorschau.php?id=9"
+    },
+    "100%": "Rohstoffproduktion im Betrieb:",
+    "Ton": "8",
+    "_id": 97,
+    "_title": "Tongrube"
+  },
+  "98": {
+    "Name": "Lehmgrube",
+    "Kategorie": "Grube",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "30",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "2": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "20": {
+      "text": "Seile",
+      "link": "rohstoffevorschau.php?id=106"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "8": "Wohnraum",
+    "50%": {
+      "text": "Savannenfelsland, Steppfelsland",
+      "link": "terrainvorschau.php?id=20"
+    },
+    "75%": {
+      "text": "Savannenhügel, Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "90%": {
+      "text": "Savanne, Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "Effektivität bei Vorkommen": {
+      "text": "Lehm",
+      "link": "vorkommenvorschau.php?id=8"
+    },
+    "100%": "Rohstoffproduktion im Betrieb:",
+    "Lehm": "6",
+    "_id": 98,
+    "_title": "Lehmgrube"
+  },
+  "100": {
+    "Name": "Töpferei",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "20",
+    "Baukosten in Mips": "1000",
+    "Ausbaugrundkosten in Mips": "4000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "12": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "6": "Rohstoffgrundbedarf Ausbau:",
+    "Stein": "8",
+    "Bretter": "8",
+    "Energiebedarf": "0",
+    "Arbeiter": "8",
+    "Zusatzarbeiter pro Ausbaustufe": "8",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Ton": "2",
+    "Brennholz": "3",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Keramik",
+      "link": "rohstoffevorschau.php?id=77"
+    },
+    "3": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=101"
+    },
+    "_id": 100,
+    "_title": "Töpferei"
+  },
+  "101": {
+    "Name": "Lehmziegelei",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "45",
+    "Baukosten in Mips": "4000",
+    "Ausbaugrundkosten in Mips": "4000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "10": [
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      },
+      "Rohstoffgrundbedarf Ausbau:"
+    ],
+    "Bretter": "10",
+    "Keramik": "2",
+    "Energiebedarf": "0",
+    "Arbeiter": "5",
+    "Zusatzarbeiter pro Ausbaustufe": "4",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Lehm": "3",
+    "Brennholz": "2",
+    "Rohstoffproduktion im Betrieb": "unbekannter Rohstoff",
+    "3": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=102"
+    },
+    "_id": 101,
+    "_title": "Lehmziegelei"
+  },
+  "102": {
+    "Name": "Nuggretzucht",
+    "Kategorie": "Tierzucht",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": {
+      "text": "Nuggrets",
+      "link": "rohstoffevorschau.php?id=78"
+    },
+    "12": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Wohnraum",
+    "100%": {
+      "text": "Dschungel, Hochnebelwald, Regenwald, Sumpfland, Tropensumpf, Wald",
+      "link": "terrainvorschau.php?id=4"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Nuggrets",
+      "link": "rohstoffevorschau.php?id=78"
+    },
+    "2": {
+      "text": "Fell",
+      "link": "rohstoffevorschau.php?id=135"
+    },
+    "1": {
+      "text": "Fleisch",
+      "link": "rohstoffevorschau.php?id=38"
+    },
+    "4": "Beschreibung:",
+    "Mit dem Bau dieses Gebäudes ist es möglich die kleinen Nager kommerziel zu züchten.Mit dem Bau dieses Gebäudes ist es möglich die kleinen Nager kommerziel zu züchten.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=103"
+    },
+    "_id": 102,
+    "_title": "Nuggretzucht"
+  },
+  "105": {
+    "Name": "Lehmhütte",
+    "Kategorie": "Wohnhaus",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "5000",
+    "Rohstoffbedarf Bau": {
+      "text": "Lehm",
+      "link": "rohstoffevorschau.php?id=73"
+    },
+    "18": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Effektivität bei Terrain:"
+    ],
+    "10": "Lagerraumkapazität",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "_id": 105,
+    "_title": "Lehmhütte"
+  },
+  "106": {
+    "Name": "Lagerhütte",
+    "Kategorie": "Lager",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "5000",
+    "Rohstoffbedarf Bau": {
+      "text": "Lehm",
+      "link": "rohstoffevorschau.php?id=73"
+    },
+    "18": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Lagerraumkapazität"
+    ],
+    "3000": "Effektivität bei Terrain:",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Transportpunkte",
+      "link": "texthelp.php?gid=106&xwert=1&begriff=Transportpunkte"
+    },
+    "1": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=107"
+    },
+    "_id": 106,
+    "_title": "Lagerhütte"
+  },
+  "108": {
+    "Name": "Pallisadenwall",
+    "Kategorie": "Verteidigung",
+    "Bautyp": "Speziell(Kein Gebäude)",
+    "Benötigtes Techlevel": "60",
+    "Baukosten in Mips": "5000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "30": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Festung",
+      "link": "texthelp.php?gid=108&xwert=1&begriff=Festung"
+    },
+    "1": "Ist auf Schlachtfeld:",
+    "Palisadepunkt(e)": "100",
+    "Beschreibung": "Der Palisadenwall schützt deine Truppen im Verteidigungsfall gegen Soldaten, Mutanten und fleischfressende Tiere und reduziert damit die eigenen Verluste. Gleichzeitig erhöht er die Innere Sicherheit um 50.\r\nDer Wall geht verloren wenn die Provinz zur nächsten Stufe ausgebaut wird. Die Kosten erhöhen sich mit der Stadtstufe.Der Palisadenwall schützt deine Truppen im Verteidigungsfall gegen Soldaten, Mutanten und fleischfressende Tiere und reduziert damit die eigenen Verluste. Gleichzeitig erhöht er die Innere Sicherheit um 50.\r\nDer Wall geht verloren wenn die Provinz zur nächsten Stufe ausgebaut wird. Die Kosten erhöhen sich mit der Stadtstufe.",
+    "_id": 108,
+    "_title": "Pallisadenwall"
+  },
+  "147": {
+    "Name": "Hühnerfarm",
+    "Kategorie": "Tierzucht",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "15",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "12": {
+      "text": "Hühner",
+      "link": "rohstoffevorschau.php?id=104"
+    },
+    "24": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "2": [
+      "Energiebedarf",
+      "Rohstoffproduktion im Betrieb:"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Wohnraum",
+    "100%": {
+      "text": "Grasfelsland, Grashügel, Grasland, Steppe, Steppfelsland, Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Getreide",
+      "link": "rohstoffevorschau.php?id=18"
+    },
+    "Hühner": "2",
+    "Eier": "8",
+    "Federn": "3",
+    "_id": 147,
+    "_title": "Hühnerfarm"
+  },
+  "150": {
+    "Name": "Hanfseilerei",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "2000",
+    "Ausbaugrundkosten in Mips": "2000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "8": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "5": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "12": "Rohstoffgrundbedarf Ausbau:",
+    "Bretter": "20",
+    "Energiebedarf": "0",
+    "Arbeiter": "4",
+    "Zusatzarbeiter pro Ausbaustufe": "4",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Hanf": "8",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Seile",
+      "link": "rohstoffevorschau.php?id=106"
+    },
+    "3": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=151"
+    },
+    "_id": 150,
+    "_title": "Hanfseilerei"
+  },
+  "156": {
+    "Name": "Beisser-Werkstatt",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "35",
+    "Baukosten in Mips": "2000",
+    "Ausbaugrundkosten in Mips": "2000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "10": [
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      },
+      {
+        "text": "Werkzeug",
+        "link": "rohstoffevorschau.php?id=79"
+      }
+    ],
+    "1": "Rohstoffgrundbedarf Ausbau:",
+    "Stein": "10",
+    "Bretter": "5",
+    "Werkzeug": "1",
+    "Energiebedarf": "0",
+    "Arbeiter": "1",
+    "Zusatzarbeiter pro Ausbaustufe": "1",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Mandibel": "2",
+    "Häute": "1",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "0.5": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=157"
+    },
+    "_id": 156,
+    "_title": "Beisser-Werkstatt"
+  },
+  "157": {
+    "Name": "Ruine-Pumpstation",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "50": "unbekannter Rohstoff",
+    "20": {
+      "text": "Eisen",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "6": [
+      "unbekannter Rohstoff",
+      "Wohnraum"
+    ],
+    "2": [
+      "unbekannter Rohstoff",
+      {
+        "text": "Werkzeug",
+        "link": "rohstoffevorschau.php?id=79"
+      }
+    ],
+    "4": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Wasser",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "100": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=158"
+    },
+    "_id": 157,
+    "_title": "Ruine-Pumpstation"
+  },
+  "158": {
+    "Name": "Ruine-Schutt",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "100": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "0.1": "unbekannter Rohstoff",
+    "0.4": "unbekannter Rohstoff",
+    "0.3": "unbekannter Rohstoff",
+    "0.2": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=159"
+    },
+    "_id": 158,
+    "_title": "Ruine-Schutt"
+  },
+  "159": {
+    "Name": "Ruine-Wohnblock",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "100": "unbekannter Rohstoff",
+    "20": {
+      "text": "Möbel",
+      "link": "rohstoffevorschau.php?id=100"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Effektivität bei Terrain:"
+    ],
+    "75": "Lagerraumkapazität",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "_id": 159,
+    "_title": "Ruine-Wohnblock"
+  },
+  "160": {
+    "Name": "Ruine-Laboratorium",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": [
+      {
+        "text": "Bretter",
+        "link": "rohstoffevorschau.php?id=3"
+      },
+      "Wohnraum"
+    ],
+    "20": [
+      {
+        "text": "Stein",
+        "link": "rohstoffevorschau.php?id=4"
+      },
+      "unbekannter Rohstoff",
+      {
+        "text": "Eisen",
+        "link": "rohstoffevorschau.php?id=5"
+      }
+    ],
+    "8": {
+      "text": "Kupfer",
+      "link": "rohstoffevorschau.php?id=83"
+    },
+    "4": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Techproduktion",
+      "link": "texthelp.php?gid=160&xwert=2&begriff=Techproduktion"
+    },
+    "2": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=161"
+    },
+    "_id": 160,
+    "_title": "Ruine-Laboratorium"
+  },
+  "161": {
+    "Name": "Ruine-Lageraum",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "30": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "50": "unbekannter Rohstoff",
+    "20": {
+      "text": "Seile",
+      "link": "rohstoffevorschau.php?id=106"
+    },
+    "6": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität"
+    ],
+    "3": "Wohnraum",
+    "25000": "Effektivität bei Terrain:",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Transportpunkte",
+      "link": "texthelp.php?gid=161&xwert=2&begriff=Transportpunkte"
+    },
+    "2": "Beschreibung:",
+    "Ein riesiges Lager. Wunderbar!Ein riesiges Lager. Wunderbar!": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=162"
+    },
+    "_id": 161,
+    "_title": "Ruine-Lageraum"
+  },
+  "162": {
+    "Name": "Ruine-Festung",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Eisen",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "50": [
+      {
+        "text": "Stein",
+        "link": "rohstoffevorschau.php?id=4"
+      },
+      "Energiebedarf"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "10": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Ausbildung",
+      "link": "texthelp.php?gid=162&xwert=2&begriff=Ausbildung"
+    },
+    "2": {
+      "text": "Sicherheitsbonus",
+      "link": "texthelp.php?gid=162&xwert=30&begriff=Sicherheitsbonus"
+    },
+    "30": "Ist auf Schlachtfeld:",
+    "Ruine": "1",
+    "Beschreibung": "Wenn wir hier mal ordentlich aufräumen könnte man hier sicherlich einige Rekruten ausbilden und trainieren. Im Verteidigungsfall können sich die Truppen hier verschanzen. Dieses Gebäude wird die Sicherheit unserer Provinz um einiges erhöhen.Wenn wir hier mal ordentlich aufräumen könnte man hier sicherlich einige Rekruten ausbilden und trainieren. Im Verteidigungsfall können sich die Truppen hier verschanzen. Dieses Gebäude wird die Sicherheit unserer Provinz um einiges erhöhen.",
+    "_id": 162,
+    "_title": "Ruine-Festung"
+  },
+  "163": {
+    "Name": "Ruine-Fabrik",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "100": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "25": {
+      "text": "Eisen",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "5": {
+      "text": "Kupfer",
+      "link": "rohstoffevorschau.php?id=83"
+    },
+    "2": "unbekannter Rohstoff",
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "15": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Handelsgüter",
+      "link": "rohstoffevorschau.php?id=6"
+    },
+    "20": "Beschreibung:",
+    "Eine alte Fabrik voller Kleinteile. Hier können wir reichlich Güter aus vergangenen Zeiten produzieren unserem Volk anbieten oder mit diesen handeln.Eine alte Fabrik voller Kleinteile. Hier können wir reichlich Güter aus vergangenen Zeiten produzieren unserem Volk anbieten oder mit diesen handeln.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=164"
+    },
+    "_id": 163,
+    "_title": "Ruine-Fabrik"
+  },
+  "164": {
+    "Name": "Ruine-Steingrube",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "100": {
+      "text": "Seile",
+      "link": "rohstoffevorschau.php?id=106"
+    },
+    "4": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "2": [
+      "Energiebedarf",
+      {
+        "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+        "link": "gebaeudevorschau.php?id=165"
+      }
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "6": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "9": {
+      "text": "Kies",
+      "link": "rohstoffevorschau.php?id=59"
+    },
+    "_id": 164,
+    "_title": "Ruine-Steingrube"
+  },
+  "169": {
+    "Name": "Kerzenzieherei",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "1000",
+    "Ausbaugrundkosten in Mips": "5000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": [
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      },
+      {
+        "text": "Häute",
+        "link": "rohstoffevorschau.php?id=37"
+      }
+    ],
+    "2": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "10",
+    "Energiebedarf": "0",
+    "Arbeiter": "3",
+    "Zusatzarbeiter pro Ausbaustufe": "3",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Wachs": "12",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Kerzen",
+      "link": "rohstoffevorschau.php?id=134"
+    },
+    "4": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=170"
+    },
+    "_id": 169,
+    "_title": "Kerzenzieherei"
+  },
+  "172": {
+    "Name": "Steueramt",
+    "Kategorie": "Speziell",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "40",
+    "Baukosten in Mips": "15000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "20": [
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      },
+      "Wohnraum",
+      "Beschreibung:"
+    ],
+    "10": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:",
+      {
+        "text": "Bankfunktion",
+        "link": "texthelp.php?gid=172&xwert=0&begriff=Bankfunktion"
+      },
+      {
+        "text": "Gewerbepunkte",
+        "link": "texthelp.php?gid=172&xwert=20&begriff=Gewerbepunkte"
+      }
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Steuerfunktion",
+      "link": "texthelp.php?gid=172&xwert=0&begriff=Steuerfunktion"
+    },
+    "Da sind sie endlich! Die ersten Beamten der neuen Welt.\r\nMit dem Steueramt legt der Staat den ersten großen Meilenstein im Punkte Verwaltung des Volksvermögens. Durch den Bau des Steueramt kann das Volk nun besteuert werden, es werden Löhne und Söldner bezahlt sowie andere Finanzregulierungsoptionen freigeschaltet.\r\nDiese Optionen bleiben deinem Staat auch dann noch erhalten, wenn das Gebäude anschließend wieder abgerissen wird.\r\nZusätzlich schaltet das Steueramt aber auch die sog. Bankfunktion frei und bildet Gewerbepunkte. (Siehe Beschreibung Bankfunktion & Gewerbepunkte)\r\nBankfunktion und Gewerbepunkte jedoch gehen mit dem Abriss des Steueramtes verloren. Was bleibt, ist das Wissen um die Besteuerung des Volkes.Da sind sie endlich! Die ersten Beamten der neuen Welt.\r\nMit dem Steueramt legt der Staat den ersten großen Meilenstein im Punkte Verwaltung des Volksvermögens. Durch den Bau des Steueramt kann das Volk nun besteuert werden, es werden Löhne und Söldner bezahlt sowie andere Finanzregulierungsoptionen freigeschaltet.\r\nDiese Optionen bleiben deinem Staat auch dann noch erhalten, wenn das Gebäude anschließend wieder abgerissen wird.\r\nZusätzlich schaltet das Steueramt aber auch die sog. Bankfunktion frei und bildet Gewerbepunkte. (Siehe Beschreibung Bankfunktion & Gewerbepunkte)\r\nBankfunktion und Gewerbepunkte jedoch gehen mit dem Abriss des Steueramtes verloren. Was bleibt, ist das Wissen um die Besteuerung des Volkes.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=173"
+    },
+    "_id": 172,
+    "_title": "Steueramt"
+  },
+  "173": {
+    "Name": "Blockhaus",
+    "Kategorie": "Wohnhaus",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "40",
+    "Baukosten in Mips": "5000",
+    "Ausbaugrundkosten in Mips": "2000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "30": {
+      "text": "Möbel",
+      "link": "rohstoffevorschau.php?id=100"
+    },
+    "0.5": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "4": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "20",
+    "Möbel": "0.5",
+    "Stein": "4",
+    "Energiebedarf": "0",
+    "Arbeiter": "0",
+    "Zusatzarbeiter pro Ausbaustufe": "0",
+    "Wohnraum": "12",
+    "Zusatzwohnraum pro Ausbaustufe": "6",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Beschreibung:",
+    "Das Blockhaus ist im Großen und Ganzen der Blockhütte gleichzusetzen, das Blockhaus braucht außerdem mehr Bauholz und noch Möbel zum Bau. Der Vorteil liegt aber darin das man es ausbauen kann.Das Blockhaus ist im Großen und Ganzen der Blockhütte gleichzusetzen, das Blockhaus braucht außerdem mehr Bauholz und noch Möbel zum Bau. Der Vorteil liegt aber darin das man es ausbauen kann.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=174"
+    },
+    "_id": 173,
+    "_title": "Blockhaus"
+  },
+  "174": {
+    "Name": "Lehmhaus",
+    "Kategorie": "Wohnhaus",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "30",
+    "Baukosten in Mips": "3000",
+    "Ausbaugrundkosten in Mips": "1000",
+    "Rohstoffbedarf Bau": {
+      "text": "Lehm",
+      "link": "rohstoffevorschau.php?id=73"
+    },
+    "15": {
+      "text": "Möbel",
+      "link": "rohstoffevorschau.php?id=100"
+    },
+    "0.4": "Rohstoffgrundbedarf Ausbau:",
+    "Lehm": "10",
+    "Möbel": "0.4",
+    "Energiebedarf": "0",
+    "Arbeiter": "0",
+    "Zusatzarbeiter pro Ausbaustufe": "0",
+    "Wohnraum": "10",
+    "Zusatzwohnraum pro Ausbaustufe": "5",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=175"
+    },
+    "_id": 174,
+    "_title": "Lehmhaus"
+  },
+  "191": {
+    "Name": "Flachsplantage",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "15": {
+      "text": "Flachs",
+      "link": "rohstoffevorschau.php?id=119"
+    },
+    "6": [
+      "Energiebedarf",
+      "Wohnraum"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Grashügel, Grasland, Grünhügel, Grünland, Savanne, Savannenhügel, Steppe, Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Flachs",
+      "link": "rohstoffevorschau.php?id=119"
+    },
+    "3": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=192"
+    },
+    "_id": 191,
+    "_title": "Flachsplantage"
+  },
+  "192": {
+    "Name": "Flachswebstube",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "40",
+    "Baukosten in Mips": "5000",
+    "Ausbaugrundkosten in Mips": "3000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": [
+      {
+        "text": "Bauholz",
+        "link": "rohstoffevorschau.php?id=67"
+      },
+      "Rohstoffgrundbedarf Ausbau:"
+    ],
+    "Bretter": "10",
+    "Energiebedarf": "0",
+    "Arbeiter": "16",
+    "Zusatzarbeiter pro Ausbaustufe": "16",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Flachs": "3",
+    "Rohstoffproduktion im Betrieb": "unbekannter Rohstoff",
+    "9": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=193"
+    },
+    "_id": 192,
+    "_title": "Flachswebstube"
+  },
+  "193": {
+    "Name": "Flachsseilerei",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "15",
+    "Baukosten in Mips": "1000",
+    "Ausbaugrundkosten in Mips": "3000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "20",
+    "Energiebedarf": "0",
+    "Arbeiter": "4",
+    "Zusatzarbeiter pro Ausbaustufe": "4",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Flachs": "6",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Seile",
+      "link": "rohstoffevorschau.php?id=106"
+    },
+    "3": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=194"
+    },
+    "_id": 193,
+    "_title": "Flachsseilerei"
+  },
+  "195": {
+    "Name": "Fischerhütte",
+    "Kategorie": "Küste",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "JA",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "2": [
+      "Energiebedarf",
+      "Wohnraum"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Fisch",
+      "link": "rohstoffevorschau.php?id=97"
+    },
+    "6": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=196"
+    },
+    "_id": 195,
+    "_title": "Fischerhütte"
+  },
+  "202": {
+    "Name": "Kautschukplantage",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "2",
+    "Baukosten in Mips": "10000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "2": [
+      "Energiebedarf",
+      {
+        "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+        "link": "gebaeudevorschau.php?id=203"
+      }
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "4": "Wohnraum",
+    "100%": {
+      "text": "Dschungel, Hochnebelwald, Regenwald, Tropensumpf",
+      "link": "terrainvorschau.php?id=11"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Gummi",
+      "link": "rohstoffevorschau.php?id=123"
+    },
+    "_id": 202,
+    "_title": "Kautschukplantage"
+  },
+  "212": {
+    "Name": "Grünanlage",
+    "Kategorie": "Speziell",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "55",
+    "Baukosten in Mips": "11000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "25": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Wasser",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "50": "Gebäudespezifische Eigenschaften:",
+    "Moralbonus": "300",
+    "Moral": "2",
+    "Umweltverschmutzung": "-10",
+    "_id": 212,
+    "_title": "Grünanlage"
+  },
+  "219": {
+    "Name": "Kontor",
+    "Kategorie": "Speziell",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "20",
+    "Baukosten in Mips": "6000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "25": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "10": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität"
+    ],
+    "3": "Wohnraum",
+    "5000": "Effektivität bei Terrain:",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Kontor",
+      "link": "texthelp.php?gid=219&xwert=1&begriff=Kontor"
+    },
+    "1": [
+      {
+        "text": "Transportpunkte",
+        "link": "texthelp.php?gid=219&xwert=1&begriff=Transportpunkte"
+      },
+      {
+        "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+        "link": "gebaeudevorschau.php?id=220"
+      }
+    ],
+    "_id": 219,
+    "_title": "Kontor"
+  },
+  "252": {
+    "Name": "Jägerhütte",
+    "Kategorie": "Abbau",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "12": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "2": {
+      "text": "Holzspeer",
+      "link": "rohstoffevorschau.php?id=183"
+    },
+    "4": [
+      "Energiebedarf",
+      "Wohnraum"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steinwüste, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Jagen",
+      "link": "texthelp.php?gid=252&xwert=10&begriff=Jagen"
+    },
+    "10": "Beschreibung:",
+    "Der Jäger ist im Gegensatz zum normalen Einwohner dafür ausgebildet die wilden Tiere der Provinz zu jagen. Er tut dies immer, auch wenn die Restbevölkerung nicht jagen gehen sollte. Der Jäger führt zusätzlich Buch über alle wild lebenden Tierherden der Provinz und kann gezielt auf Tierarten angesetzt werden.Der Jäger ist im Gegensatz zum normalen Einwohner dafür ausgebildet die wilden Tiere der Provinz zu jagen. Er tut dies immer, auch wenn die Restbevölkerung nicht jagen gehen sollte. Der Jäger führt zusätzlich Buch über alle wild lebenden Tierherden der Provinz und kann gezielt auf Tierarten angesetzt werden.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=253"
+    },
+    "_id": 252,
+    "_title": "Jägerhütte"
+  },
+  "256": {
+    "Name": "Schilfbauer",
+    "Kategorie": "Küste",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "JA",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "5": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "1": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Schilf",
+      "link": "rohstoffevorschau.php?id=234"
+    },
+    "8": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=257"
+    },
+    "_id": 256,
+    "_title": "Schilfbauer"
+  },
+  "257": {
+    "Name": "Schilfhütte",
+    "Kategorie": "Wohnhaus",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Schilf",
+      "link": "rohstoffevorschau.php?id=234"
+    },
+    "12": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Effektivität bei Terrain:"
+    ],
+    "2": "Lagerraumkapazität",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "_id": 257,
+    "_title": "Schilfhütte"
+  },
+  "258": {
+    "Name": "Strohhütte",
+    "Kategorie": "Wohnhaus",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "5",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stroh",
+      "link": "rohstoffevorschau.php?id=233"
+    },
+    "18": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Effektivität bei Terrain:"
+    ],
+    "2": "Lagerraumkapazität",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "_id": 258,
+    "_title": "Strohhütte"
+  },
+  "259": {
+    "Name": "Papiermacher",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "2000",
+    "Ausbaugrundkosten in Mips": "2000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "8",
+    "Energiebedarf": "0",
+    "Arbeiter": "2",
+    "Zusatzarbeiter pro Ausbaustufe": "2",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Schilf": "8",
+    "Wasser": "2",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Papier",
+      "link": "rohstoffevorschau.php?id=98"
+    },
+    "1": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=260"
+    },
+    "_id": 259,
+    "_title": "Papiermacher"
+  },
+  "260": {
+    "Name": "Teehain",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "2",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Tee",
+      "link": "rohstoffevorschau.php?id=235"
+    },
+    "18": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Wohnraum",
+    "100%": {
+      "text": "Hochnebelwald, Tropensumpf",
+      "link": "terrainvorschau.php?id=11"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Tee",
+      "link": "rohstoffevorschau.php?id=235"
+    },
+    "9": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=261"
+    },
+    "_id": 260,
+    "_title": "Teehain"
+  },
+  "269": {
+    "Name": "Perlentaucher",
+    "Kategorie": "Küste",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "JA",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "65",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": "unbekannter Rohstoff",
+    "2": [
+      {
+        "text": "Seile",
+        "link": "rohstoffevorschau.php?id=106"
+      },
+      "Energiebedarf"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": "unbekannter Rohstoff",
+    "0.2": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=270"
+    },
+    "_id": 269,
+    "_title": "Perlentaucher"
+  },
+  "271": {
+    "Name": "Sägegrube",
+    "Kategorie": "Industrie",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "30",
+    "Baukosten in Mips": "2500",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "3": "Wohnraum",
+    "50%": {
+      "text": "Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Plateau, Weidefelsland, Weideland",
+      "link": "terrainvorschau.php?id=35"
+    },
+    "100%": {
+      "text": "Dschungel, Hochnebelwald, Regenwald, Sumpfland, Tropensumpf, Wald",
+      "link": "terrainvorschau.php?id=4"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "2": {
+      "text": "Brennholz",
+      "link": "rohstoffevorschau.php?id=244"
+    },
+    "6": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=272"
+    },
+    "_id": 271,
+    "_title": "Sägegrube"
+  },
+  "287": {
+    "Name": "Ruine-Markt",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "10": [
+      {
+        "text": "Stein",
+        "link": "rohstoffevorschau.php?id=4"
+      },
+      "unbekannter Rohstoff",
+      "Wohnraum",
+      {
+        "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+        "link": "gebaeudevorschau.php?id=288"
+      }
+    ],
+    "15": {
+      "text": "Möbel",
+      "link": "rohstoffevorschau.php?id=100"
+    },
+    "4": [
+      {
+        "text": "Seile",
+        "link": "rohstoffevorschau.php?id=106"
+      },
+      {
+        "text": "Stoffe",
+        "link": "rohstoffevorschau.php?id=44"
+      },
+      {
+        "text": "Kupfer",
+        "link": "rohstoffevorschau.php?id=83"
+      }
+    ],
+    "2": "unbekannter Rohstoff",
+    "8": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Marktpunkte",
+      "link": "texthelp.php?gid=287&xwert=10&begriff=Marktpunkte"
+    },
+    "_id": 287,
+    "_title": "Ruine-Markt"
+  },
+  "288": {
+    "Name": "Ruine-Park",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "20": [
+      {
+        "text": "Eisen",
+        "link": "rohstoffevorschau.php?id=5"
+      },
+      "Gebäudespezifische Eigenschaften:"
+    ],
+    "4": [
+      {
+        "text": "Kies",
+        "link": "rohstoffevorschau.php?id=59"
+      },
+      "Wohnraum"
+    ],
+    "60": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachhügel, Brachland, Dschungel, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Ödfelsland, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Wasser",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "Moralbonus": "1000",
+    "Gesundheitsbonus": "500",
+    "Umweltverschmutzung": "-10",
+    "_id": 288,
+    "_title": "Ruine-Park"
+  },
+  "289": {
+    "Name": "Ruine-Sandspringerlabor",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "100": "unbekannter Rohstoff",
+    "4": "unbekannter Rohstoff",
+    "10": "unbekannter Rohstoff",
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "15": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachhügel, Brachland, Sanddünen, Wüste, Ödfelsland, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Fleisch",
+      "link": "rohstoffevorschau.php?id=38"
+    },
+    "0.5": {
+      "text": "Beeren",
+      "link": "rohstoffevorschau.php?id=15"
+    },
+    "5": "Rohstoffproduktion im Betrieb:",
+    "unbekannter Rohstoff": "24",
+    "Beschreibung": "In den Käfigen dieser Einrichtung wimmelt es von Sandspringern. Wenn wir sie mit Fleisch und Beerensaft füttern könnten wir bestimmt reichlich Springersaft ernten.In den Käfigen dieser Einrichtung wimmelt es von Sandspringern. Wenn wir sie mit Fleisch und Beerensaft füttern könnten wir bestimmt reichlich Springersaft ernten.",
+    "_id": 289,
+    "_title": "Ruine-Sandspringerlabor"
+  },
+  "290": {
+    "Name": "Ruine-Schnapsbrennerei",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "30": {
+      "text": "Eisen",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "6": "unbekannter Rohstoff",
+    "4": [
+      "Energiebedarf",
+      "Rohstoffproduktion im Betrieb:"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "5": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Äpfel",
+      "link": "rohstoffevorschau.php?id=22"
+    },
+    "15": {
+      "text": "Brennholz",
+      "link": "rohstoffevorschau.php?id=244"
+    },
+    "unbekannter Rohstoff": "30",
+    "_id": 290,
+    "_title": "Ruine-Schnapsbrennerei"
+  },
+  "291": {
+    "Name": "Schulungszelt",
+    "Kategorie": "Bildung",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "50",
+    "Baukosten in Mips": "20000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": {
+      "text": "Stoffe",
+      "link": "rohstoffevorschau.php?id=44"
+    },
+    "15": "unbekannter Rohstoff",
+    "20": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "5": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Techproduktion",
+      "link": "texthelp.php?gid=291&xwert=4&begriff=Techproduktion"
+    },
+    "4": {
+      "text": "Bildungspunkte",
+      "link": "texthelp.php?gid=291&xwert=2&begriff=Bildungspunkte"
+    },
+    "2": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=292"
+    },
+    "_id": 291,
+    "_title": "Schulungszelt"
+  },
+  "349": {
+    "Name": "Glockenturm",
+    "Kategorie": "Speziell",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "2",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "10": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "25": {
+      "text": "Eisen",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "2": [
+      "Energiebedarf",
+      "Wohnraum",
+      "Beschreibung:"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Kulturpunkte",
+      "link": "texthelp.php?gid=349&xwert=2&begriff=Kulturpunkte"
+    },
+    "Wir sind zurück! Das soll dieser Turm signalisieren. 2 Arbeiter werden benötigt diese Glocke mehrmals Täglich schallen zu lassen.\r\nGibt es noch andere Überlebende?  Wenn ja. Sie werden uns hören.Wir sind zurück! Das soll dieser Turm signalisieren. 2 Arbeiter werden benötigt diese Glocke mehrmals Täglich schallen zu lassen.\r\nGibt es noch andere Überlebende?  Wenn ja. Sie werden uns hören.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=350"
+    },
+    "_id": 349,
+    "_title": "Glockenturm"
+  },
+  "355": {
+    "Name": "{Mission}",
+    "Kategorie": "Mission",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Energiebedarf": "0",
+    "Arbeiter": "0",
+    "Wohnraum": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Ozean, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steinwüste, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Beschreibung:",
+    "Dieses Gebäude hat selbst noch keinen nutzen und ist Missionsabhängig. (Kurz; es dient als Platzhalter bei Missionen)\r\nDieses Gebäude hat selbst noch keinen nutzen und ist Missionsabhängig. (Kurz; es dient als Platzhalter bei Missionen)": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=356"
+    },
+    "_id": 355,
+    "_title": "{Mission}"
+  },
+  "356": {
+    "Name": "Villa",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "50": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "25": "unbekannter Rohstoff",
+    "10": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Wohnraum",
+      "Effektivität bei Terrain:"
+    ],
+    "4": "Lagerraumkapazität",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Mipsproduktion",
+      "link": "texthelp.php?gid=356&xwert=1000&begriff=Mipsproduktion"
+    },
+    "1000": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=357"
+    },
+    "_id": 356,
+    "_title": "Villa"
+  },
+  "363": {
+    "Name": "Tropenholzfäller",
+    "Kategorie": "Abbau",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "22": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "1": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "8": "Wohnraum",
+    "75%": {
+      "text": "Hochnebelwald",
+      "link": "terrainvorschau.php?id=39"
+    },
+    "100%": {
+      "text": "Dschungel, Regenwald, Tropensumpf",
+      "link": "terrainvorschau.php?id=11"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "6": {
+      "text": "Edelholz",
+      "link": "rohstoffevorschau.php?id=68"
+    },
+    "5": {
+      "text": "Rattanfasern",
+      "link": "rohstoffevorschau.php?id=286"
+    },
+    "2": "Beschreibung:",
+    "Wer sich nicht nur auf das Sammeln beschränken will, sondern Bauholz in größeren Mengen benötigt, sollte sich eine Holzfällerhütte bauen. Einige der Bäume sind sogar aus edleren oder faserigen Hölzern, welche man zu wertvollen Möbeln, Körben und Seilen verarbeiten kann. Allerdings ist die Ausbeute von der Menge der vorhandenen Bäume abhängig. In Weide- und vor allem Pampaterrains ist man besser beraten Bauholz aus Regenwäldern zu importieren, wenn die Möglichkeit besteht.Wer sich nicht nur auf das Sammeln beschränken will, sondern Bauholz in größeren Mengen benötigt, sollte sich eine Holzfällerhütte bauen. Einige der Bäume sind sogar aus edleren oder faserigen Hölzern, welche man zu wertvollen Möbeln, Körben und Seilen verarbeiten kann. Allerdings ist die Ausbeute von der Menge der vorhandenen Bäume abhängig. In Weide- und vor allem Pampaterrains ist man besser beraten Bauholz aus Regenwäldern zu importieren, wenn die Möglichkeit besteht.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=364"
+    },
+    "_id": 363,
+    "_title": "Tropenholzfäller"
+  },
+  "364": {
+    "Name": "Möbelflechter",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "18",
+    "Baukosten in Mips": "500",
+    "Ausbaugrundkosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "4": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": [
+      "8",
+      "0.1"
+    ],
+    "Häute": "2",
+    "Energiebedarf": "0",
+    "Arbeiter": "4",
+    "Zusatzarbeiter pro Ausbaustufe": "4",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Rattanfasern": "3",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Möbel",
+      "link": "rohstoffevorschau.php?id=100"
+    },
+    "0.5": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=365"
+    },
+    "_id": 364,
+    "_title": "Möbelflechter"
+  },
+  "366": {
+    "Name": "Seileflechterei",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "55",
+    "Baukosten in Mips": "3000",
+    "Ausbaugrundkosten in Mips": "3000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "18": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "5": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "20",
+    "Häute": "4",
+    "Energiebedarf": "0",
+    "Arbeiter": "9",
+    "Zusatzarbeiter pro Ausbaustufe": "9",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Rattanfasern": "5",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Seile",
+      "link": "rohstoffevorschau.php?id=106"
+    },
+    "2": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=367"
+    },
+    "_id": 366,
+    "_title": "Seileflechterei"
+  },
+  "370": {
+    "Name": "Seidenfarm",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "12": {
+      "text": "Rattanfasern",
+      "link": "rohstoffevorschau.php?id=286"
+    },
+    "4": {
+      "text": "Seidenraupen",
+      "link": "rohstoffevorschau.php?id=287"
+    },
+    "60": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "26": "Wohnraum",
+    "75%": {
+      "text": "Grünhügel",
+      "link": "terrainvorschau.php?id=23"
+    },
+    "100%": {
+      "text": "Grünland, Weideland",
+      "link": "terrainvorschau.php?id=35"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Seidenraupen",
+      "link": "rohstoffevorschau.php?id=287"
+    },
+    "3": "Rohstoffproduktion im Betrieb:",
+    "Rohseide": "5",
+    "_id": 370,
+    "_title": "Seidenfarm"
+  },
+  "371": {
+    "Name": "Seidenspinnerzucht",
+    "Kategorie": "Tierzucht",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "1200",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "8": {
+      "text": "Rattanfasern",
+      "link": "rohstoffevorschau.php?id=286"
+    },
+    "6": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "7": "Wohnraum",
+    "100%": {
+      "text": "Grünhügel, Grünland, Weideland",
+      "link": "terrainvorschau.php?id=35"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Seidenraupen",
+      "link": "rohstoffevorschau.php?id=287"
+    },
+    "12": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=372"
+    },
+    "_id": 371,
+    "_title": "Seidenspinnerzucht"
+  },
+  "372": {
+    "Name": "Seidenspinnerei",
+    "Kategorie": "Industrie",
+    "Bautyp": "Stadt",
+    "Ausbaubar": "JA",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "25",
+    "Baukosten in Mips": "1000",
+    "Ausbaugrundkosten in Mips": "1000",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": {
+      "text": "Häute",
+      "link": "rohstoffevorschau.php?id=37"
+    },
+    "4": "Rohstoffgrundbedarf Ausbau:",
+    "Bauholz": "10",
+    "Stein": "5",
+    "Häute": "4",
+    "Energiebedarf": "0",
+    "Arbeiter": "12",
+    "Zusatzarbeiter pro Ausbaustufe": "12",
+    "Wohnraum": "0",
+    "Zusatzwohnraum pro Ausbaustufe": "0",
+    "Lagerraumkapazität": "0",
+    "Effektivität bei Terrain": "100%",
+    "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland": "Rohstoffverbrauch im Betrieb:",
+    "Rohseide": "2",
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Seide",
+      "link": "rohstoffevorschau.php?id=289"
+    },
+    "1": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=373"
+    },
+    "_id": 372,
+    "_title": "Seidenspinnerei"
+  },
+  "389": {
+    "Name": "Leuchtturm",
+    "Kategorie": "Küste",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Provinz)",
+    "Nur an Küste": "JA",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "28",
+    "Baukosten in Mips": "3000",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "15": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "4": {
+      "text": "Eisen",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "1": [
+      "Energiebedarf",
+      "Wohnraum"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Gebäudespezifische Eigenschaften": {
+      "text": "Kulturpunkte",
+      "link": "texthelp.php?gid=389&xwert=2&begriff=Kulturpunkte"
+    },
+    "2": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=390"
+    },
+    "_id": 389,
+    "_title": "Leuchtturm"
+  },
+  "390": {
+    "Name": "Grabungsstätte",
+    "Kategorie": "Forschung",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "JA (einmal pro Spieler)",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "15": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "6": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "0.5": "Gebäudespezifische Eigenschaften:",
+    "Techproduktion": "1",
+    "Beschreibung": "Wir haben in diesem Gebiet mit Grabungen begonnen. Wir benötigen für die Arbeiten Werkzeuge, lernen jedoch auch wertvolle Dinge über die Vergangenheit.\r\n\r\nWenn wir größere Fossilien finden, könnten wir sogar versuchen diese zu bergen. Dies würde unseren Fortschritt mit Sicherheit noch weiter beschleunigen, als durch den Routinebetrieb allein.Wir haben in diesem Gebiet mit Grabungen begonnen. Wir benötigen für die Arbeiten Werkzeuge, lernen jedoch auch wertvolle Dinge über die Vergangenheit.\r\n\r\nWenn wir größere Fossilien finden, könnten wir sogar versuchen diese zu bergen. Dies würde unseren Fortschritt mit Sicherheit noch weiter beschleunigen, als durch den Routinebetrieb allein.",
+    "_id": 390,
+    "_title": "Grabungsstätte"
+  },
+  "394": {
+    "Name": "Ruine-Sarabbrennerei",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "20": {
+      "text": "Eisen",
+      "link": "rohstoffevorschau.php?id=5"
+    },
+    "6": {
+      "text": "Kupfer",
+      "link": "rohstoffevorschau.php?id=83"
+    },
+    "4": [
+      "Energiebedarf",
+      "Rohstoffproduktion im Betrieb:"
+    ],
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "5": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffverbrauch im Betrieb": {
+      "text": "Datteln",
+      "link": "rohstoffevorschau.php?id=19"
+    },
+    "15": {
+      "text": "Brennholz",
+      "link": "rohstoffevorschau.php?id=244"
+    },
+    "unbekannter Rohstoff": "30",
+    "Beschreibung": "In diesem Gebäude wurden früher Datteln gebrannt und daraus Schnaps hergestellt. Eine kleine Produktion bekommt man sicherlich wieder hin.In diesem Gebäude wurden früher Datteln gebrannt und daraus Schnaps hergestellt. Eine kleine Produktion bekommt man sicherlich wieder hin.",
+    "_id": 394,
+    "_title": "Ruine-Sarabbrennerei"
+  },
+  "395": {
+    "Name": "Ruine-zerfallenes Sägewerk",
+    "Kategorie": "Vorgabe",
+    "Bautyp": "Vorgabe(nicht Baubar)",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "25": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "20": {
+      "text": "Werkzeug",
+      "link": "rohstoffevorschau.php?id=79"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "8": "Wohnraum",
+    "100%": {
+      "text": "Brachfelsland, Brachgebirge, Brachhügel, Brachland, Dschungel, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Sanddünen, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Wüste, Ödfelsland, Ödgebirge, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Bretter",
+      "link": "rohstoffevorschau.php?id=3"
+    },
+    "12": "Beschreibung:",
+    "Der Großteil dieses Sägewerk ist zerstört. Einige Maschinen scheinen aber noch zu funktionieren. Besonders interessant, ist der große Lagerraum mit reichlich Holzplatten die wir zu Brettern bearbeiten können.Der Großteil dieses Sägewerk ist zerstört. Einige Maschinen scheinen aber noch zu funktionieren. Besonders interessant, ist der große Lagerraum mit reichlich Holzplatten die wir zu Brettern bearbeiten können.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=396"
+    },
+    "_id": 395,
+    "_title": "Ruine-zerfallenes Sägewerk"
+  },
+  "404": {
+    "Name": "Küstenauffangbecken",
+    "Kategorie": "Abbau",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "JA",
+    "ist Feld": "NEIN",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "4": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "2": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "1": "Wohnraum",
+    "50%": {
+      "text": "Sanddünen, Steinwüste, Wüste",
+      "link": "terrainvorschau.php?id=10"
+    },
+    "75%": {
+      "text": "Brachfelsland, Brachhügel, Brachland, Ödfelsland, Ödhügel, Ödland",
+      "link": "terrainvorschau.php?id=3"
+    },
+    "100%": {
+      "text": "Brachgebirge, Dschungel, Eiswüste, Felsgebirge, Grasfelsland, Grasgebirge, Grashügel, Grasland, Grünfelsland, Grüngebirge, Grünhügel, Grünland, Hochnebelwald, Pampa, Pampafelsland, Pampagebirge, Plateau, Regenwald, Savanne, Savannenfelsland, Savannengebirge, Savannenhügel, Steppe, Steppfelsland, Steppgebirge, Stepphügel, Sumpfland, Tropensumpf, Wald, Weidefelsland, Weideland, Ödgebirge",
+      "link": "terrainvorschau.php?id=16"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Wasser",
+      "link": "rohstoffevorschau.php?id=2"
+    },
+    "25": "Gebäudespezifische Eigenschaften:",
+    "Regenabhängig": "0",
+    "Beschreibung": "Mit dem Küsten-Auffangbecken kann man sehr gut sein Terrain abwerten, wenn man an der Küste lebt. Ansonsten ist man besser beraten Fische zu fangen.Mit dem Küsten-Auffangbecken kann man sehr gut sein Terrain abwerten, wenn man an der Küste lebt. Ansonsten ist man besser beraten Fische zu fangen.",
+    "_id": 404,
+    "_title": "Küstenauffangbecken"
+  },
+  "405": {
+    "Name": "Weingarten",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "10",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "10": {
+      "text": "Stein",
+      "link": "rohstoffevorschau.php?id=4"
+    },
+    "5": {
+      "text": "Weintrauben",
+      "link": "rohstoffevorschau.php?id=28"
+    },
+    "16": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "1": "Wohnraum",
+    "50%": {
+      "text": "Grüngebirge",
+      "link": "terrainvorschau.php?id=25"
+    },
+    "100%": {
+      "text": "Grünhügel",
+      "link": "terrainvorschau.php?id=23"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Weintrauben",
+      "link": "rohstoffevorschau.php?id=28"
+    },
+    "8": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=406"
+    },
+    "_id": 405,
+    "_title": "Weingarten"
+  },
+  "406": {
+    "Name": "Reisfarm",
+    "Kategorie": "Farm",
+    "Bautyp": "Land",
+    "Ausbaubar": "NEIN",
+    "Unique(einmalig)": "NEIN",
+    "Nur an Küste": "NEIN",
+    "ist Feld": "JA",
+    "Benötigtes Techlevel": "0",
+    "Baukosten in Mips": "0",
+    "Rohstoffbedarf Bau": {
+      "text": "Bauholz",
+      "link": "rohstoffevorschau.php?id=67"
+    },
+    "16": [
+      {
+        "text": "Reis",
+        "link": "rohstoffevorschau.php?id=21"
+      },
+      "Beschreibung:"
+    ],
+    "32": "Energiebedarf",
+    "0": [
+      "Arbeiter",
+      "Lagerraumkapazität",
+      "Effektivität bei Terrain:"
+    ],
+    "2": "Wohnraum",
+    "50%": {
+      "text": "Hochnebelwald",
+      "link": "terrainvorschau.php?id=39"
+    },
+    "100%": {
+      "text": "Sumpfland, Tropensumpf",
+      "link": "terrainvorschau.php?id=11"
+    },
+    "Rohstoffproduktion im Betrieb": {
+      "text": "Reis",
+      "link": "rohstoffevorschau.php?id=21"
+    },
+    "Eine kleine Farm zum Anbau von Reis und der Kultivierung von Saatgut.Eine kleine Farm zum Anbau von Reis und der Kultivierung von Saatgut.": {
+      "text": "vorheriges Gebäude / Gebäude Liste / nächstes Gebäude",
+      "link": "gebaeudevorschau.php?id=407"
+    },
+    "_id": 406,
+    "_title": "Reisfarm"
+  }
+}

@@ -1,0 +1,19 @@
+id: "b-testing-plan"
+type: "context"
+title: "Testing Plan"
+domain: "qa"
+summary: "Strategie für Unit-, Integration-, API- und Smoke-Tests."
+details: |
+  Ziel ist eine schlanke, verlässliche Testabdeckung:
+  - Unit-Tests für Backend-Endpunkte und Geschäftslogik
+  - Integrationstests zwischen Backend und Frontend
+  - API-Tests (OpenAPI-Konformität, Response-Formate)
+  - Smoke-Tests nach Deploys
+sources:
+  - "README.md"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T14:00:00Z"
+updated_at: "2026-02-28T14:00:00Z"
+status: "open"
+tokens_estimate: 80

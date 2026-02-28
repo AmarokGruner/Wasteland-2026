@@ -1,0 +1,20 @@
+id: "b-ui-accessibility"
+type: "context"
+title: "UI Accessibility"
+domain: "frontend"
+summary: "Accessibility guidelines for the UI (WCAG 2.1)"
+details: |
+  Ziel ist eine barrierearme Benutzeroberfläche:
+  - ausreichender Kontrast, klare Typografie
+  - vollständige Tastaturnavigation, Fokusmanagement
+  - ARIA-Attribute dort, wo sinnvoll
+  - Screen-Reader-Kompatibilität testen
+sources:
+  - "README.md"
+related_codes:
+  - "css/style.css"
+  - "index.html"
+created_at: "2026-02-28T17:20:00Z"
+updated_at: "2026-02-28T17:20:00Z"
+status: "open"
+tokens_estimate: 65

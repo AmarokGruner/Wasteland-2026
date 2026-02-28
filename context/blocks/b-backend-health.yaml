@@ -1,0 +1,18 @@
+id: "b-backend-health"
+type: "context"
+title: "Backend Health Check"
+domain: "backend"
+summary: "Establish a health check endpoint and monitoring hooks for FastAPI backend."
+details: |
+  Ziel ist es, einen initialen Health-Check-Endpunkt bereitzustellen und grundlegende Monitoring-Hooks zu etablieren,
+  damit Frontend und Tests zuverlässig den Backend-Status prüfen können. Dieser Block dient als Seed für weitere
+  Gesundheits- und Stabilitäts-Maßnahmen.
+sources:
+  - "README.md"
+  - "context/v2.2.0/blocks/b-backend-health.yaml"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T12:00:00Z"
+updated_at: "2026-02-28T12:00:00Z"
+status: "open"
+tokens_estimate: 60

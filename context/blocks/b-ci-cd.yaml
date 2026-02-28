@@ -1,0 +1,18 @@
+id: "b-ci-cd"
+type: "context"
+title: "CI/CD Plan"
+domain: "infra"
+summary: "Setup lightweight CI/CD for local/dev testing and optional self-hosted runner"
+details: |
+  Ziel ist es, eine minimalistische CI/CD-Pipeline zu etablieren, die lokal läuft:
+  - Lint/Unit-Tests, Build-Check, einfache Security-Checks
+  - Pre-commit Hooks (Husky/pre-commit-equivalent)
+  - Optional: Selbst gehostete Runner (z.B. GitLab Runner, Gitea CI) wenn remote gehostet wird
+sources:
+  - "README.md"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T15:15:00Z"
+updated_at: "2026-02-28T15:15:00Z"
+status: "open"
+tokens_estimate: 70

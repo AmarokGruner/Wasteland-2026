@@ -1,0 +1,19 @@
+id: "b-data-organization"
+type: "context"
+title: "Data Organization"
+domain: "data"
+summary: "Datenmodell, Worldmap, Provinzen, Terrains – Überblick"
+details: |
+  Ziel ist ein kohärentes Datenmodell:
+  - Weltkarte: worldmap.json, terrain.json, terrain-types.js
+  - Provinzen: provinces.json, lager, build.
+  - Terrains: 30x30 px Grafiken, Mapping-Keys (lowercase)
+  - Ressourcen, Vorkommen, Gebäude, Transport-Entities
+sources:
+  - "b-merged-master.yaml"
+related_codes:
+  - "data/worldmap.json"
+created_at: "2026-02-28T19:55:00Z"
+updated_at: "2026-02-28T19:55:00Z"
+status: "open"
+tokens_estimate: 70

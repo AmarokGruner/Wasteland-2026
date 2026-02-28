@@ -1,0 +1,1042 @@
+{
+  "1": {
+    "Typ": "unt. Seen",
+    "Techlevel": "10",
+    "Suchkosten": "2000",
+    "Findwarscheinlichkeit": {
+      "text": "Grasland",
+      "link": "terrainvorschau.php?id=1"
+    },
+    "100%": [
+      {
+        "text": "Steppe",
+        "link": "terrainvorschau.php?id=2"
+      },
+      {
+        "text": "Ödland",
+        "link": "terrainvorschau.php?id=3"
+      },
+      {
+        "text": "Wald",
+        "link": "terrainvorschau.php?id=4"
+      },
+      {
+        "text": "Grasfelsland",
+        "link": "terrainvorschau.php?id=5"
+      },
+      {
+        "text": "Sumpfland",
+        "link": "terrainvorschau.php?id=6"
+      },
+      {
+        "text": "Grashügel",
+        "link": "terrainvorschau.php?id=7"
+      },
+      {
+        "text": "Grasgebirge",
+        "link": "terrainvorschau.php?id=8"
+      },
+      {
+        "text": "Eiswüste",
+        "link": "terrainvorschau.php?id=9"
+      },
+      {
+        "text": "Wüste",
+        "link": "terrainvorschau.php?id=10"
+      },
+      {
+        "text": "Tropensumpf",
+        "link": "terrainvorschau.php?id=11"
+      },
+      {
+        "text": "Dschungel",
+        "link": "terrainvorschau.php?id=12"
+      },
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Ödhügel",
+        "link": "terrainvorschau.php?id=15"
+      },
+      {
+        "text": "Ödgebirge",
+        "link": "terrainvorschau.php?id=16"
+      },
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Ödfelsland",
+        "link": "terrainvorschau.php?id=19"
+      },
+      {
+        "text": "Steppfelsland",
+        "link": "terrainvorschau.php?id=20"
+      },
+      {
+        "text": "Grünland",
+        "link": "terrainvorschau.php?id=21"
+      },
+      {
+        "text": "Savanne",
+        "link": "terrainvorschau.php?id=22"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      },
+      {
+        "text": "Grünfelsland",
+        "link": "terrainvorschau.php?id=27"
+      },
+      {
+        "text": "Savannenfelsland",
+        "link": "terrainvorschau.php?id=28"
+      },
+      {
+        "text": "Brachland",
+        "link": "terrainvorschau.php?id=29"
+      },
+      {
+        "text": "Brachfelsland",
+        "link": "terrainvorschau.php?id=30"
+      },
+      {
+        "text": "Brachhügel",
+        "link": "terrainvorschau.php?id=31"
+      },
+      {
+        "text": "Brachgebirge",
+        "link": "terrainvorschau.php?id=32"
+      },
+      {
+        "text": "Pampa",
+        "link": "terrainvorschau.php?id=34"
+      },
+      {
+        "text": "Weideland",
+        "link": "terrainvorschau.php?id=35"
+      },
+      {
+        "text": "Regenwald",
+        "link": "terrainvorschau.php?id=36"
+      },
+      {
+        "text": "Pampagebirge",
+        "link": "terrainvorschau.php?id=37"
+      },
+      {
+        "text": "Plateau",
+        "link": "terrainvorschau.php?id=38"
+      },
+      {
+        "text": "Hochnebelwald",
+        "link": "terrainvorschau.php?id=39"
+      },
+      {
+        "text": "Pampafelsland",
+        "link": "terrainvorschau.php?id=40"
+      },
+      {
+        "text": "Weidefelsland",
+        "link": "terrainvorschau.php?id=41"
+      },
+      {
+        "text": "Steinwüste",
+        "link": "terrainvorschau.php?id=42"
+      },
+      "Beschreibung:"
+    ],
+    "Wasser ist die erste und wohl auch wichtigste Ressource für die Existenz auf den Inseln der Verbrannten Zone.\r\nDas kühle Nass ist fast immer in jeder Region zu finden, aber in Massen kommt sie nur im Meer, in den Tropen und in den Sümpfen der Insel vor.\r\nEs kann zum Bewässern von Feldern und für die Industrie genutzt werden, aber der Hauptversorgungsgrund mit Wasser bleibt die Bevölkerung.Wasser ist die erste und wohl auch wichtigste Ressource für die Existenz auf den Inseln der Verbrannten Zone.\r\nDas kühle Nass ist fast immer in jeder Region zu finden, aber in Massen kommt sie nur im Meer, in den Tropen und in den Sümpfen der Insel vor.\r\nEs kann zum Bewässern von Feldern und für die Industrie genutzt werden, aber der Hauptversorgungsgrund mit Wasser bleibt die Bevölkerung.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=2"
+    },
+    "_id": 1,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "2": {
+    "Typ": "geologisch",
+    "Techlevel": "4000",
+    "Suchkosten": "75000",
+    "Findwarscheinlichkeit": {
+      "text": "Grashügel",
+      "link": "terrainvorschau.php?id=7"
+    },
+    "50%": [
+      {
+        "text": "Grasgebirge",
+        "link": "terrainvorschau.php?id=8"
+      },
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      }
+    ],
+    "75%": [
+      {
+        "text": "Eiswüste",
+        "link": "terrainvorschau.php?id=9"
+      },
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      },
+      {
+        "text": "Brachgebirge",
+        "link": "terrainvorschau.php?id=32"
+      },
+      "Beschreibung:"
+    ],
+    "100%": {
+      "text": "Ödgebirge",
+      "link": "terrainvorschau.php?id=16"
+    },
+    "Ob als Stein- oder Braunkohle, beides kann dazu verwendet werden, um Maschinen anzutreiben, chemische Prozesse zu beeinflussen oder um es für die Wärmegwinnung einzusetzen.\r\nSchon früher wurde Kohle für die Verhüttung jeglicher Metalle verwendet und ist noch heute ein wichtiger Bestandteil davon.\r\nMan findet die Kohlevorkommen immer dort, wo auch massive Berge zufinden sind.\r\n\r\nGerüchten zur Folge sollen in den Eiswüsten Vorkommen dieser Ressource aufgetaucht sein.Ob als Stein- oder Braunkohle, beides kann dazu verwendet werden, um Maschinen anzutreiben, chemische Prozesse zu beeinflussen oder um es für die Wärmegwinnung einzusetzen.\r\nSchon früher wurde Kohle für die Verhüttung jeglicher Metalle verwendet und ist noch heute ein wichtiger Bestandteil davon.\r\nMan findet die Kohlevorkommen immer dort, wo auch massive Berge zufinden sind.\r\n\r\nGerüchten zur Folge sollen in den Eiswüsten Vorkommen dieser Ressource aufgetaucht sein.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=3"
+    },
+    "_id": 2,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "3": {
+    "Typ": "geologisch",
+    "Techlevel": "2400",
+    "Suchkosten": "50000",
+    "Findwarscheinlichkeit": {
+      "text": "Grashügel",
+      "link": "terrainvorschau.php?id=7"
+    },
+    "50%": [
+      {
+        "text": "Grasgebirge",
+        "link": "terrainvorschau.php?id=8"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      }
+    ],
+    "75%": [
+      {
+        "text": "Eiswüste",
+        "link": "terrainvorschau.php?id=9"
+      },
+      {
+        "text": "Ödgebirge",
+        "link": "terrainvorschau.php?id=16"
+      },
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      },
+      {
+        "text": "Brachgebirge",
+        "link": "terrainvorschau.php?id=32"
+      },
+      "Beschreibung:"
+    ],
+    "100%": {
+      "text": "Felsgebirge",
+      "link": "terrainvorschau.php?id=14"
+    },
+    "Eisen (lat. Ferrum) ist das am häufigsten, verwendete Material für solide Gebäude, Gegenstände, Waffen und Rüstungen. Geschichtlichen Aufzeichnungen zur Folge, gab es eine Zeit, die die Industrielle Revolution genannt wurde, in der Eisen ein Hauptbestandteil von fast allem war.\r\nDank neuer Techniken, kann das Eisenerz besser verwertet und verarbeitet werden. Die Eiswüsten bieten reiche Erzvorkommen, aber Wissenschaftler sind sich noch nicht einig, wie es dorthin gelangte.Eisen (lat. Ferrum) ist das am häufigsten, verwendete Material für solide Gebäude, Gegenstände, Waffen und Rüstungen. Geschichtlichen Aufzeichnungen zur Folge, gab es eine Zeit, die die Industrielle Revolution genannt wurde, in der Eisen ein Hauptbestandteil von fast allem war.\r\nDank neuer Techniken, kann das Eisenerz besser verwertet und verarbeitet werden. Die Eiswüsten bieten reiche Erzvorkommen, aber Wissenschaftler sind sich noch nicht einig, wie es dorthin gelangte.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=4"
+    },
+    "_id": 3,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "4": {
+    "Typ": "geologisch",
+    "Techlevel": "10000",
+    "Suchkosten": "150000",
+    "Findwarscheinlichkeit": {
+      "text": "Grashügel",
+      "link": "terrainvorschau.php?id=7"
+    },
+    "10%": [
+      {
+        "text": "Grasgebirge",
+        "link": "terrainvorschau.php?id=8"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      }
+    ],
+    "20%": [
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      }
+    ],
+    "30%": [
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      "Beschreibung:"
+    ],
+    "40%": {
+      "text": "Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "Ohne Silber wäre die Münzproduktion unmöglich. Es glänzt, sieht gut aus und ist gut zu verarbeiten. Viele Staaten benutzen es um Schmuck herzustellen oder um es in kleine, handgerechte Münzen zu verwandeln. Die Wahrscheinlichkeit, es in den hiesigen Gebirgen zu finden, liegt bei ca. 15%, dafür eignet es sich gut als Handelsgut und Zahlungsmittel.Ohne Silber wäre die Münzproduktion unmöglich. Es glänzt, sieht gut aus und ist gut zu verarbeiten. Viele Staaten benutzen es um Schmuck herzustellen oder um es in kleine, handgerechte Münzen zu verwandeln. Die Wahrscheinlichkeit, es in den hiesigen Gebirgen zu finden, liegt bei ca. 15%, dafür eignet es sich gut als Handelsgut und Zahlungsmittel.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=5"
+    },
+    "_id": 4,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "5": {
+    "Typ": "geologisch",
+    "Techlevel": "16000",
+    "Suchkosten": "180000",
+    "Findwarscheinlichkeit": {
+      "text": "Grasgebirge",
+      "link": "terrainvorschau.php?id=8"
+    },
+    "10%": [
+      {
+        "text": "Eiswüste",
+        "link": "terrainvorschau.php?id=9"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      }
+    ],
+    "20%": [
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      },
+      "Beschreibung:"
+    ],
+    "30%": {
+      "text": "Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "Ein Erz, wofür viele Leute und Staaten töten würden. Gold ist wohl eines der bekanntesten Edelmetalle auf der Erde und in den Verbrannten Zonen. Es dient zur Schmuck- und Münzherstellung, aber es ist nur schwer in den Gebirgen zu lokalisieren. Dies ist auch der Grund, weshalb es auf der Erde einen so hohen Stellenwert erlangt hat. Forscher ermittelten, dass das Golderz nur zu ca. 6-9% zu finden sei.Ein Erz, wofür viele Leute und Staaten töten würden. Gold ist wohl eines der bekanntesten Edelmetalle auf der Erde und in den Verbrannten Zonen. Es dient zur Schmuck- und Münzherstellung, aber es ist nur schwer in den Gebirgen zu lokalisieren. Dies ist auch der Grund, weshalb es auf der Erde einen so hohen Stellenwert erlangt hat. Forscher ermittelten, dass das Golderz nur zu ca. 6-9% zu finden sei.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=6"
+    },
+    "_id": 5,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "6": {
+    "Typ": "geologisch",
+    "Techlevel": "6400",
+    "Suchkosten": "120000",
+    "Findwarscheinlichkeit": {
+      "text": "Grasgebirge",
+      "link": "terrainvorschau.php?id=8"
+    },
+    "25%": [
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      }
+    ],
+    "75%": {
+      "text": "Steppgebirge",
+      "link": "terrainvorschau.php?id=18"
+    },
+    "50%": [
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      },
+      "Beschreibung:"
+    ],
+    "Was ist das Geruchsmerkmal eines Vulkans ... Schwefel ! Viele Leute kennen diesen gelben, porösen Stoff, doch nur wenige wissen etwas mit ihm anzufangen. Der Stoff wird für die Waffenindustrie benötigt und wird dort in Schwarzpulver und Sprengstoffen verarbeitet. Ausserdem erhält es auch einen wichtigen Nutzen in der Chemieindustrie zur Herstellung der allseits bekannten Schwefelsäure. Trotz seiner hohen Verwendungsmöglichkeit, ist es nur in einigen Gebirgen aufzufinden.Was ist das Geruchsmerkmal eines Vulkans ... Schwefel ! Viele Leute kennen diesen gelben, porösen Stoff, doch nur wenige wissen etwas mit ihm anzufangen. Der Stoff wird für die Waffenindustrie benötigt und wird dort in Schwarzpulver und Sprengstoffen verarbeitet. Ausserdem erhält es auch einen wichtigen Nutzen in der Chemieindustrie zur Herstellung der allseits bekannten Schwefelsäure. Trotz seiner hohen Verwendungsmöglichkeit, ist es nur in einigen Gebirgen aufzufinden.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=7"
+    },
+    "_id": 6,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "7": {
+    "Typ": "Oberfläche",
+    "Techlevel": "660",
+    "Suchkosten": "15000",
+    "Findwarscheinlichkeit": {
+      "text": "Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "50%": [
+      {
+        "text": "Grasfelsland",
+        "link": "terrainvorschau.php?id=5"
+      },
+      {
+        "text": "Wüste",
+        "link": "terrainvorschau.php?id=10"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      }
+    ],
+    "75%": [
+      {
+        "text": "Grashügel",
+        "link": "terrainvorschau.php?id=7"
+      },
+      {
+        "text": "Steppfelsland",
+        "link": "terrainvorschau.php?id=20"
+      },
+      {
+        "text": "Savanne",
+        "link": "terrainvorschau.php?id=22"
+      },
+      {
+        "text": "Grünfelsland",
+        "link": "terrainvorschau.php?id=27"
+      },
+      {
+        "text": "Savannenfelsland",
+        "link": "terrainvorschau.php?id=28"
+      },
+      "Beschreibung:"
+    ],
+    "90%": [
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      }
+    ],
+    "Eine weitere Möglichkeit den wichtigen Baustoff Kies abzubauen ist der Sedimenttagebau. Hier werden mit Hilfe einer Vielzahl von Werkzeugen große Löscher gegraben um Kies und Sand abzubauen.Eine weitere Möglichkeit den wichtigen Baustoff Kies abzubauen ist der Sedimenttagebau. Hier werden mit Hilfe einer Vielzahl von Werkzeugen große Löscher gegraben um Kies und Sand abzubauen.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=8"
+    },
+    "_id": 7,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "8": {
+    "Typ": "Oberfläche",
+    "Techlevel": "60",
+    "Suchkosten": "5000",
+    "Findwarscheinlichkeit": {
+      "text": "Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "90%": [
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      }
+    ],
+    "75%": [
+      {
+        "text": "Steppfelsland",
+        "link": "terrainvorschau.php?id=20"
+      },
+      {
+        "text": "Savannenfelsland",
+        "link": "terrainvorschau.php?id=28"
+      }
+    ],
+    "50%": [
+      {
+        "text": "Savanne",
+        "link": "terrainvorschau.php?id=22"
+      },
+      "Beschreibung:"
+    ],
+    "Kinder lieben es mit Lehm zu spielen, denn diese Ressource ermöglicht es unter Wärmezufuhr, feste Ziegel herzustellen. Die Öd- und Brachlanden sind wahre Fundgruben für Lehm. Noch nie hat dort jemand kein Lehm gefunden, doch ausserhalb wird es schon schwieriger den Rohstoff zu finden. Viele Einwohner bauen sich in den Anfängen einer Provinz, ihr Haus aus Lehm oder Lehmziegeln. Später werden dann die Ziegel für solidere Bauten oder auch Burgen und Festungen verwendet.Kinder lieben es mit Lehm zu spielen, denn diese Ressource ermöglicht es unter Wärmezufuhr, feste Ziegel herzustellen. Die Öd- und Brachlanden sind wahre Fundgruben für Lehm. Noch nie hat dort jemand kein Lehm gefunden, doch ausserhalb wird es schon schwieriger den Rohstoff zu finden. Viele Einwohner bauen sich in den Anfängen einer Provinz, ihr Haus aus Lehm oder Lehmziegeln. Später werden dann die Ziegel für solidere Bauten oder auch Burgen und Festungen verwendet.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=9"
+    },
+    "_id": 8,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "9": {
+    "Typ": "Oberfläche",
+    "Techlevel": "30",
+    "Suchkosten": "2500",
+    "Findwarscheinlichkeit": {
+      "text": "Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "80%": [
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      }
+    ],
+    "50%": [
+      {
+        "text": "Steppfelsland",
+        "link": "terrainvorschau.php?id=20"
+      },
+      {
+        "text": "Savanne",
+        "link": "terrainvorschau.php?id=22"
+      },
+      {
+        "text": "Savannenfelsland",
+        "link": "terrainvorschau.php?id=28"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=10"
+      }
+    ],
+    "_id": 9,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "10": {
+    "Typ": "Oberfläche",
+    "Techlevel": "660",
+    "Suchkosten": "12000",
+    "Findwarscheinlichkeit": {
+      "text": "Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "50%": [
+      {
+        "text": "Grasfelsland",
+        "link": "terrainvorschau.php?id=5"
+      },
+      {
+        "text": "Grashügel",
+        "link": "terrainvorschau.php?id=7"
+      },
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      },
+      {
+        "text": "Savanne",
+        "link": "terrainvorschau.php?id=22"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      },
+      {
+        "text": "Savannenfelsland",
+        "link": "terrainvorschau.php?id=28"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=11"
+      }
+    ],
+    "75%": [
+      {
+        "text": "Steppfelsland",
+        "link": "terrainvorschau.php?id=20"
+      },
+      {
+        "text": "Grünfelsland",
+        "link": "terrainvorschau.php?id=27"
+      }
+    ],
+    "_id": 10,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "11": {
+    "Typ": "geologisch",
+    "Techlevel": "6000",
+    "Suchkosten": "100000",
+    "Findwarscheinlichkeit": {
+      "text": "Grashügel",
+      "link": "terrainvorschau.php?id=7"
+    },
+    "25%": [
+      {
+        "text": "Grasgebirge",
+        "link": "terrainvorschau.php?id=8"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      }
+    ],
+    "50%": [
+      {
+        "text": "Eiswüste",
+        "link": "terrainvorschau.php?id=9"
+      },
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      }
+    ],
+    "75%": [
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=12"
+      }
+    ],
+    "_id": 11,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "12": {
+    "Typ": "geologisch",
+    "Techlevel": "26000",
+    "Suchkosten": "120000",
+    "Findwarscheinlichkeit": {
+      "text": "Eiswüste",
+      "link": "terrainvorschau.php?id=9"
+    },
+    "50%": {
+      "text": "Wüste",
+      "link": "terrainvorschau.php?id=10"
+    },
+    "25%": [
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=13"
+      }
+    ],
+    "_id": 12,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "13": {
+    "Typ": "Oberfläche",
+    "Techlevel": "1600",
+    "Suchkosten": "20000",
+    "Findwarscheinlichkeit": {
+      "text": "Grashügel",
+      "link": "terrainvorschau.php?id=7"
+    },
+    "75%": [
+      {
+        "text": "Grasgebirge",
+        "link": "terrainvorschau.php?id=8"
+      },
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=14"
+      }
+    ],
+    "90%": {
+      "text": "Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "_id": 13,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "14": {
+    "Typ": "geologisch",
+    "Techlevel": "22000",
+    "Suchkosten": "250000",
+    "Findwarscheinlichkeit": {
+      "text": "Grashügel",
+      "link": "terrainvorschau.php?id=7"
+    },
+    "50%": [
+      {
+        "text": "Grasgebirge",
+        "link": "terrainvorschau.php?id=8"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      }
+    ],
+    "75%": [
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Stepphügel",
+        "link": "terrainvorschau.php?id=17"
+      },
+      {
+        "text": "Grünhügel",
+        "link": "terrainvorschau.php?id=23"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=15"
+      }
+    ],
+    "_id": 14,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "15": {
+    "Typ": "unt. Seen",
+    "Techlevel": "20000",
+    "Suchkosten": "150000",
+    "Findwarscheinlichkeit": {
+      "text": "Eiswüste",
+      "link": "terrainvorschau.php?id=9"
+    },
+    "50%": [
+      {
+        "text": "Wüste",
+        "link": "terrainvorschau.php?id=10"
+      },
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      "Beschreibung:"
+    ],
+    "*Das schwarze Gold*\r\n\r\nDie wohl ruhmreichste Entdeckung für die \"neue\" Erdbevölkerung.\r\nWelch unvorstellbare neue Möglichkeiten wird uns die Entdeckung dieser Ressource wohl bescheren? \r\nEinige wenige Menschen wissen von Erzähungen, die von Generation zu Generation weitergegeben wurden, dass das schwarze Gold einst für den Zerfall der Erde und die große Katastrophe verantwortlich gewesen sein soll...\r\nWir müssen bedacht vorgehen und uns Gedanken um eine sinnvolle Verarbeitung dieses Rohstoffes machen. Können die Bewohner der verbrannten Zone es nun besser machen, als ihre Vorfahren? Oder beschert uns das schwarze Gold erneut Leid, Elend, Kriege und letztlich den Untergang der Zivilisationen?...*Das schwarze Gold*\r\n\r\nDie wohl ruhmreichste Entdeckung für die \"neue\" Erdbevölkerung.\r\nWelch unvorstellbare neue Möglichkeiten wird uns die Entdeckung dieser Ressource wohl bescheren? \r\nEinige wenige Menschen wissen von Erzähungen, die von Generation zu Generation weitergegeben wurden, dass das schwarze Gold einst für den Zerfall der Erde und die große Katastrophe verantwortlich gewesen sein soll...\r\nWir müssen bedacht vorgehen und uns Gedanken um eine sinnvolle Verarbeitung dieses Rohstoffes machen. Können die Bewohner der verbrannten Zone es nun besser machen, als ihre Vorfahren? Oder beschert uns das schwarze Gold erneut Leid, Elend, Kriege und letztlich den Untergang der Zivilisationen?...": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=16"
+    },
+    "_id": 15,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "16": {
+    "Typ": "Oberfläche",
+    "Techlevel": "2000",
+    "Suchkosten": "50000",
+    "Findwarscheinlichkeit": {
+      "text": "Wüste",
+      "link": "terrainvorschau.php?id=10"
+    },
+    "50%": [
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      "Beschreibung:"
+    ],
+    "75%": {
+      "text": "Felsgebirge",
+      "link": "terrainvorschau.php?id=14"
+    },
+    "90%": {
+      "text": "Steinwüste",
+      "link": "terrainvorschau.php?id=42"
+    },
+    "Ein Nitrat, das zur Herstellung von Schwarzpulver benötigt wird.Ein Nitrat, das zur Herstellung von Schwarzpulver benötigt wird.": {
+      "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+      "link": "vorkommenvorschau.php?id=17"
+    },
+    "_id": 16,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "17": {
+    "Typ": "Oberfläche",
+    "Techlevel": "12000",
+    "Suchkosten": "130000",
+    "Findwarscheinlichkeit": {
+      "text": "Wüste",
+      "link": "terrainvorschau.php?id=10"
+    },
+    "50%": [
+      {
+        "text": "Sanddünen",
+        "link": "terrainvorschau.php?id=13"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=18"
+      }
+    ],
+    "25%": [
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Steinwüste",
+        "link": "terrainvorschau.php?id=42"
+      }
+    ],
+    "_id": 17,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "18": {
+    "Typ": "Oberfläche",
+    "Techlevel": "1360",
+    "Suchkosten": "35000",
+    "Findwarscheinlichkeit": {
+      "text": "Steppe",
+      "link": "terrainvorschau.php?id=2"
+    },
+    "25%": [
+      {
+        "text": "Wüste",
+        "link": "terrainvorschau.php?id=10"
+      },
+      {
+        "text": "Savannenhügel",
+        "link": "terrainvorschau.php?id=24"
+      }
+    ],
+    "75%": {
+      "text": "Sanddünen",
+      "link": "terrainvorschau.php?id=13"
+    },
+    "90%": {
+      "text": "Stepphügel",
+      "link": "terrainvorschau.php?id=17"
+    },
+    "50%": [
+      {
+        "text": "Savanne",
+        "link": "terrainvorschau.php?id=22"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=19"
+      }
+    ],
+    "_id": 18,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "19": {
+    "Typ": "geologisch",
+    "Techlevel": "200000",
+    "Suchkosten": "300000",
+    "Findwarscheinlichkeit": {
+      "text": "Grasgebirge",
+      "link": "terrainvorschau.php?id=8"
+    },
+    "25%": [
+      {
+        "text": "Eiswüste",
+        "link": "terrainvorschau.php?id=9"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=20"
+      }
+    ],
+    "50%": {
+      "text": "Felsgebirge",
+      "link": "terrainvorschau.php?id=14"
+    },
+    "_id": 19,
+    "_title": "Verbrannte Zone 3 - Body"
+  },
+  "20": {
+    "Typ": "geologisch",
+    "Techlevel": "760000",
+    "Suchkosten": "500000",
+    "Findwarscheinlichkeit": {
+      "text": "Grasgebirge",
+      "link": "terrainvorschau.php?id=8"
+    },
+    "75%": [
+      {
+        "text": "Felsgebirge",
+        "link": "terrainvorschau.php?id=14"
+      },
+      {
+        "text": "Ödgebirge",
+        "link": "terrainvorschau.php?id=16"
+      },
+      {
+        "text": "Steppgebirge",
+        "link": "terrainvorschau.php?id=18"
+      },
+      {
+        "text": "Grüngebirge",
+        "link": "terrainvorschau.php?id=25"
+      },
+      {
+        "text": "Savannengebirge",
+        "link": "terrainvorschau.php?id=26"
+      },
+      {
+        "text": "vorheriges Vorkommen / Vorkommen Liste / nächstes Vorkommen",
+        "link": "vorkommenvorschau.php?id=1"
+      }
+    ],
+    "_id": 20,
+    "_title": "Verbrannte Zone 3 - Body"
+  }
+}

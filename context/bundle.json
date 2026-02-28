@@ -1,0 +1,68 @@
+{
+  "version": "2.2.0",
+  "name": "Wasteland Context Bundle",
+  "date": "2026-02-27",
+  "description": "Canonical, vibed, platform-agnostic context for LLM-driven development",
+  "platforms": [
+    {"id": "google_antigravity", "weight": 1.0},
+    {"id": "opencode", "weight": 0.8},
+    {"id": "perplexity", "weight": 0.8}
+  ],
+  "vibe": {
+    "default": "balanced",
+    "length_limit_chars": 1200,
+    "tone": "neutral",
+    "verbosity": "medium",
+    "fallbacks": ["compact","verbose"]
+  },
+  "sources": {
+    "core": ["core/ontology.json","core/data_contracts.json","core/api_contracts.json"],
+    "domains": [
+      "domains/production.json",
+      "domains/transport.json",
+      "domains/buildings.json",
+      "domains/provinces.json",
+      "domains/resources.json"
+    ],
+    "vibes": ["vibes/vibe_master.json"],
+    "adapters": [
+      "adapters/google_antigravity",
+      "adapters/opencode",
+      "adapters/perplexity"
+    ]
+  },
+  "entities": ["Player","Province","Building","Road","Vorkommen","Resource","Production"],
+  "relationships": [
+    {"from":"Player","to":"Province","type":"owns"},
+    {"from":"Province","to":"Building","type":"has"},
+    {"from":"Province","to":"Road","type":"has"},
+    {"from":"Building","to":"Production","type":"produces"}
+  ],
+  "endpoints": [
+    {"path": "/player/{id}", "method": "GET", "description": "Spieler-Daten"},
+    {"path": "/player/{id}/resources/produce", "method": "POST", "description": "Ressourcen produzieren"},
+    {"path": "/player/{id}/roads/upgrade", "method": "POST", "description": "Weg upgraden"},
+    {"path": "/player/{id}/province/{x}/{y}", "method": "GET", "description": "Provinz-Daten"},
+    {"path": "/player/{id}/buildings", "method": "POST", "description": "Gebäude bauen"},
+    {"path": "/player/{id}/buildings/{building_x}/{building_y}", "method": "DELETE", "description": "Gebäude entfernen"},
+    {"path": "/vorkommen", "method": "GET", "description": "Alle Vorkommen"},
+    {"path": "/ressourcen", "method": "GET", "description": "Alle Ressourcen"},
+    {"path": "/gebaeude", "method": "GET", "description": "Alle Gebäudetypen"},
+    {"path": "/provinz/feldtypen", "method": "GET", "description": "Alle Feldtypen"}
+  ],
+  "sample_payloads": {
+    "player_get": {
+      "id": 1,
+      "name": "Spieler 1",
+      "iron": 10000,
+      "steel": 0,
+      "fuel": 0
+    },
+    "produce_response": {
+      "message": "Ressourcen produziert",
+      "iron": 10100,
+      "steel": 0,
+      "fuel": 0
+    }
+  }
+}

@@ -1,0 +1,16 @@
+id: "b-team-notes"
+type: "context"
+title: "Team Notes"
+domain: "planning"
+summary: "Kurze Team-Notizen zu Entscheidungen und offenen Fragen"
+details: |
+  - Diskussionen zur Blockstruktur, Naming, und Acceptance-Kriterien fortsetzen.
+  - Offene Punkte: Konsistenz der Felder, Mapping von Markdown zu Blöcken, Seed-Inputs.
+sources:
+  - "README.md"
+related_codes:
+  - "context/v2.2.0/index.json"
+created_at: "2026-02-28T16:00:00Z"
+updated_at: "2026-02-28T16:00:00Z"
+status: "open"
+tokens_estimate: 40

@@ -1,0 +1,17 @@
+id: "b-nchste-schritte"
+type: "context"
+title: "Nächste Schritte"
+domain: "misc"
+summary: "Nächste Schritte"
+details: |
+  1. **Data Scraping:** Ausführung von `scrape_v3.py`, um die Datenbank mit echten Werten für alle Gebäudetypen und Ressourcen zu füllen.
+  2. **Financing & Population:** Implementierung der Logik für Geld/Steuern und komplexeres Bevölkerungswachstum.
+  3. **Gameplay-Testing:** Balancing der Terrain-Boni und Baukosten.
+sources:
+  - "CONTEXT_v2.2.0.md"
+related_codes:
+  - "CONTEXT_v2.2.0.md"
+created_at: "2026-02-28T18:49:09Z"
+updated_at: "2026-02-28T18:49:09Z"
+status: "open"
+tokens_estimate: 60

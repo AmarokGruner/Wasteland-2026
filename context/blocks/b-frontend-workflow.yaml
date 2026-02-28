@@ -1,0 +1,19 @@
+id: "b-frontend-workflow"
+type: "context"
+title: "Frontend Workflow"
+domain: "frontend"
+summary: "Lifecycle of frontend app: build, test, bundle, serve."
+details: |
+  - Develop UI components and pages in Vanilla JS (ES6+)
+  - Bundle assets (minify, cache-busting)
+  - Run unit/integration tests for frontend logic
+  - Serve via static hosting or simple dev server
+  - Integrate with backend API endpoints
+sources:
+  - "README.md"
+related_codes:
+  - "js/app.js"
+created_at: "2026-02-28T13:00:00Z"
+updated_at: "2026-02-28T13:00:00Z"
+status: "open"
+tokens_estimate: 70

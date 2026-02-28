@@ -1,0 +1,17 @@
+id: "b-risks"
+type: "risk"
+title: "Project Risks (Early)"
+domain: "planning"
+summary: "Identified risks in early project phase (repo absence, deployment, asset readiness)."
+details: |
+  - Kein bestehendes Git-Repo, daher kein Versions- oder Revsion-Mechanismus vorhanden.
+  - Fehlen von Core-Backend-/Frontend-Dateien gemäß README; Risiko von Verzögerungen beim Start.
+  - Asset-Management: Terrain-PNGs möglicherweise noch nicht Bestandteil des Repos.
+  - Deployment/CI sind noch nicht etabliert.
+sources:
+  - "README.md"
+related_codes: []
+created_at: "2026-02-28T12:30:00Z"
+updated_at: "2026-02-28T12:30:00Z"
+status: "open"
+tokens_estimate: 40

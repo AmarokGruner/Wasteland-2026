@@ -1,0 +1,16 @@
+id: "b-datenbank-migrationen"
+type: "context"
+title: "Datenbank-Migrationen"
+domain: "misc"
+summary: "Datenbank-Migrationen"
+details: |
+  - **provinzen Tabelle:** Spalte `terrain` (TEXT) hinzugefügt.
+  - **fix_provinces.py:** Skript zur Migration bestehender Provinzen (liest Terrain-Daten aus `world-data.js`).
+sources:
+  - "CONTEXT_v2.2.0.md"
+related_codes:
+  - "CONTEXT_v2.2.0.md"
+created_at: "2026-02-28T18:49:09Z"
+updated_at: "2026-02-28T18:49:09Z"
+status: "open"
+tokens_estimate: 60

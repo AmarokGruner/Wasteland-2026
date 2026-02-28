@@ -1,0 +1,27 @@
+id: "b-wichtige-nderungen-in-v2-2-0"
+type: "context"
+title: "Wichtige Änderungen in v2.2.0"
+domain: "misc"
+summary: "Wichtige Änderungen in v2.2.0"
+details: |
+  ### 1. Backend-Erweiterungen (main.py)
+  - **Produktions-System:** Die Turn-Logik berechnet nun Ressourcenerträge basierend auf Gebäuden, Stufen und Terrain.
+  - **Aggregierte Ressourcen:** Neuer Endpoint `/player/{id}/resources/total` liefert die Summe aller Ressourcen über alle Provinzen hinweg (für das globale Dashboard).
+  - **Produktions-Statistik:** Neuer Endpoint `/player/{id}/production/stats` für die globale Übersicht.
+  - **Gebäude-Upgrades:** Logik für den Ausbau von Gebäuden (Kostenberechnung, Ressourcenabzug, Stufen-Inkrement) implementiert.
+  - **Terrain-System:** Die Tabelle `provinzen` wurde um die Spalte `terrain` erweitert. Die Produktionslogik berücksichtigt nun `terrain_effektivitaet` Profile.
+  
+  ### 2. Frontend-Entwicklungen
+  - **Dashboard:** Echtzeit-Anzeige der globalen Ressourcen.
+  - **Provinz-Ansicht:** Visualisierung der Infrastruktur, Baumenü für neue Gebäude und Upgrade-Funktion.
+  - **Besetzen-Logik:** Unbesetzte Provinzen auf der Weltkarte können nun über einen Button beansprucht werden. Dabei wird das Terrain der Weltkarte automatisch übernommen.
+  - **Produktionsübersicht:** Eine neue globale Ansicht zeigt die Bilanz (Produktion vs. Verbrauch) aller Provinzen in einer Tabelle.
+  - **Warentransport:** Voll funktionsfähiges UI für den Versandt von Ressourcen zwischen Provinzen inkl. Kapazitätsprüfung.
+sources:
+  - "CONTEXT_v2.2.0.md"
+related_codes:
+  - "CONTEXT_v2.2.0.md"
+created_at: "2026-02-28T18:49:09Z"
+updated_at: "2026-02-28T18:49:09Z"
+status: "open"
+tokens_estimate: 60

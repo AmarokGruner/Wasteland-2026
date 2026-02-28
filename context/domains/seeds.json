@@ -1,0 +1,18 @@
+{
+  "players": [
+    {"id": 1, "name": "Spieler 1", "iron": 10000, "steel": 0, "fuel": 0},
+    {"id": 2, "name": "Spieler 2", "iron": 8000, "steel": 200, "fuel": 50}
+  ],
+  "provinces": [
+    {"id": 1, "world_x": 12, "world_y": 20, "lagerkapazitaet": 1000},
+    {"id": 2, "world_x": 13, "world_y": 20, "lagerkapazitaet": 800}
+  ],
+  "buildings": [
+    {"player_id": 1, "world_x": 12, "world_y": 20, "building_x": 0, "building_y": 0, "building_type": "building_mine"},
+    {"player_id": 2, "world_x": 13, "world_y": 20, "building_x": 2, "building_y": 1, "building_type": "building_factory"}
+  ],
+  "resources": [
+    {"id": 1, "name": "Eisen", "type": "Baustoff", "amount": 100},
+    {"id": 2, "name": "Lehm", "type": "Baustoff", "amount": 50}
+  ]
+}

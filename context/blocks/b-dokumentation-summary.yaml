@@ -1,0 +1,19 @@
+id: "b-dokumentation-summary"
+type: "context"
+title: "Dokumentation Summary"
+domain: "docs"
+summary: "Kompakte Zusammenfassung der CONTEXT_DOKUMENTATION.md"
+details: |
+  Inhalt von CONTEXT_DOKUMENTATION.md zusammengefasst:
+  - Projektstruktur-Überblick
+  - Terrain-System und API-Übersicht
+  - Deployment/Environment, Build- und Release-Hinweise
+  - Offene Punkte und nächste Schritte
+sources:
+  - "CONTEXT_DOKUMENTATION.md"
+related_codes:
+  - "CONTEXT_MASTER.md"
+created_at: "2026-02-28T19:30:00Z"
+updated_at: "2026-02-28T19:30:00Z"
+status: "open"
+tokens_estimate: 80

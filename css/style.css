@@ -1,0 +1,703 @@
+/* ============================================================
+   Verbrannte Zone – Hauptstyles
+   ============================================================ */
+
+:root {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2a2a2a;
+  --bg-card: #3a3a3a;
+  --accent-danger: #ff4444;
+  --accent-warning: #ffaa00;
+  --accent-success: #44ff44;
+  --accent-info: #4488ff;
+  --text-primary: #e0e0e0;
+  --text-muted: #888;
+  --border: #555;
+  --glow: 0 0 10px rgba(255, 68, 68, 0.3);
+  --cell-size: 45px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 250px 1fr 300px;
+  grid-template-rows: 60px 1fr;
+  gap: 10px;
+  padding: 10px;
+  height: 100vh;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+header {
+  grid-column: 1 / -1;
+  background: var(--bg-card);
+  padding: 15px 20px;
+  border: 2px solid var(--accent-danger);
+  border-radius: 8px;
+  box-shadow: var(--glow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  font-size: 24px;
+  color: var(--accent-danger);
+  text-shadow: 0 0 10px var(--accent-danger);
+}
+
+.status {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.status span {
+  padding: 5px 10px;
+  background: var(--bg-secondary);
+  border-radius: 5px;
+}
+
+/* ── Linke Sidebar ───────────────────────────────────────── */
+.sidebar-left {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.resource-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border-radius: 5px;
+  border-left: 4px solid var(--accent-info);
+}
+
+.resource-box h3 {
+  font-size: 14px;
+  color: var(--accent-info);
+  margin-bottom: 8px;
+}
+
+.resource-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 13px;
+}
+
+/* ── Hauptansicht ────────────────────────────────────────── */
+.main-view {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  overflow: auto;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+#worldmap-view,
+#province-view {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 20px;
+}
+
+.view-controls {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+/* ── Buttons (allgemein) ─────────────────────────────────── */
+button {
+  padding: 8px 16px;
+  background: var(--accent-danger);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background: #ff6666;
+  box-shadow: 0 0 15px var(--accent-danger);
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* ── Weltkarte ───────────────────────────────────────────── */
+/* FIX: ID-Selektor (#worldmap) statt Klasse (.worldmap) */
+#worldmap,
+.worldmap {
+  display: inline-grid;
+  gap: 1px;
+  background: #000;
+  border: 2px solid var(--border);
+}
+
+.world-cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.world-cell:hover {
+  transform: scale(1.3);
+  z-index: 10;
+  box-shadow: 0 0 5px white;
+}
+
+.world-cell.ocean {
+  background: #1a4d7a;
+}
+
+.world-cell.desert {
+  background: #d4a76a;
+}
+
+.world-cell.grass {
+  background: #5a8c3a;
+}
+
+.world-cell.mountain {
+  background: #888888;
+}
+
+.world-cell.forest {
+  background: #2d5016;
+}
+
+.world-cell.wasteland {
+  background: #3a2a1a;
+}
+
+.world-cell.player {
+  background: var(--accent-danger);
+  box-shadow: 0 0 8px var(--accent-danger);
+}
+
+/* ── Provinzkarte ────────────────────────────────────────── */
+#province-grid {
+  display: inline-grid;
+  gap: 0;
+  border: 2px solid var(--accent-warning);
+  box-shadow: 0 0 20px rgba(255, 170, 0, 0.3);
+}
+
+.province-cell {
+  cursor: pointer;
+  border: 1px solid #222;
+  transition: all 0.2s;
+  position: relative;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.province-cell:hover {
+  border-color: var(--accent-warning);
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 0 5px var(--accent-warning);
+}
+
+.placed-building-icon {
+  user-select: none;
+  pointer-events: none;
+}
+
+.lvl-tag {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 1px 3px;
+  border-radius: 3px;
+  color: white;
+  pointer-events: none;
+}
+
+/* ── Rechte Sidebar ──────────────────────────────────────── */
+.sidebar-right {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.info-panel {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border-radius: 5px;
+}
+
+.info-panel h3 {
+  font-size: 14px;
+  color: var(--accent-success);
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 5px;
+}
+
+.info-panel p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-danger);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6666;
+}
+
+
+/* ============================================================
+   PROVINZ-SIDEBAR MENÜ
+   ============================================================ */
+
+.province-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.province-menu-item {
+  background: #1a1a2e;
+  color: #c0c0c0;
+  border: 1px solid #3a3a5c;
+  border-radius: 4px;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-weight: normal;
+  box-shadow: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.province-menu-item:hover {
+  background: #22223e;
+  border-color: #48bb78;
+  color: #e0e0e0;
+  box-shadow: none;
+}
+
+.province-menu-item.active {
+  border-color: #48bb78;
+  color: #48bb78;
+  background: #1a2e1a;
+  font-weight: 600;
+}
+
+.btn-back {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  background: #111128;
+  color: #a0a0b0;
+  border: 1px solid #3a3a5c;
+  border-radius: 4px;
+  padding: 9px 14px;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: normal;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-back:hover {
+  background: #1e1e38;
+  color: #c0c0d0;
+  box-shadow: none;
+}
+
+/* ============================================================
+   PROVINZLAGER – HEADER
+   ============================================================ */
+
+.lager-header {
+  margin-bottom: 16px;
+}
+
+.lager-header h2 {
+  font-size: 1.25rem;
+  color: #e0e0e0;
+  margin: 0 0 4px 0;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* ============================================================
+   PROVINZLAGER – KAPAZITÄTSBALKEN
+   ============================================================ */
+
+.lager-kapazitaet {
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  background: #12121e;
+  border: 1px solid #2a2a48;
+  border-radius: 6px;
+}
+
+.lager-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #9090a8;
+  margin-bottom: 6px;
+}
+
+.lager-bar-bg {
+  width: 100%;
+  height: 10px;
+  background: #2a2a44;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.lager-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: #48bb78;
+  transition: width 0.4s ease;
+}
+
+/* ============================================================
+   PROVINZLAGER – TABELLE
+   ============================================================ */
+
+.lager-tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.lager-tabelle th {
+  background: #12121e;
+  color: #7070a0;
+  padding: 8px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #2a2a44;
+}
+
+.lager-tabelle td {
+  padding: 8px 20px;
+  color: #c0c0d0;
+  border-bottom: 1px solid #1e1e34;
+  vertical-align: middle;
+}
+
+.lager-tabelle tr:last-child td {
+  border-bottom: none;
+}
+
+.lager-tabelle tr:hover td {
+  background: #15152a;
+}
+
+.lager-menge {
+  text-align: right;
+  font-family: 'Courier New', Courier, monospace;
+  color: #48bb78;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.lager-typ {
+  color: #606080;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-left: 6px;
+}
+
+/* ============================================================
+   PROVINZ – WARENTRANSPORT
+   ============================================================ */
+
+.transport-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.transport-box {
+  background: #12121e;
+  border: 1px solid #2a2a48;
+  border-radius: 6px;
+  padding: 15px;
+  flex: 1;
+}
+
+.transport-box h3 {
+  font-size: 1.1rem;
+  color: #48bb78;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #2a2a48;
+  padding-bottom: 8px;
+}
+
+.route-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.route-form label {
+  font-size: 0.85rem;
+  color: #9090a8;
+}
+
+.route-form select,
+.route-form input {
+  background: #1a1a2e;
+  border: 1px solid #3a3a5c;
+  color: #e0e0e0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: inherit;
+  width: 100%;
+}
+
+.cart-info {
+  background: #1a1a2e;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #e0e0e0;
+}
+
+.btn-transport {
+  background: #48bb78;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-transport:hover {
+  background: #3da066;
+}
+
+/* ============================================================
+   AKTIONEN & GEBÄUDE OPTIONEN
+   ============================================================ */
+
+.btn-action {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  background: #2a2a48;
+  color: #e0e0e0;
+  border: 1px solid #3a3a5c;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.btn-action:hover {
+  background: #3a3a6c;
+}
+
+.btn-action.danger {
+  border-color: #822;
+}
+
+.btn-action.danger:hover {
+  background: #511;
+}
+
+.build-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-top: 5px;
+  background: #1a1a2e;
+  border: 1px solid #3a3a5c;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.build-option:hover {
+  background: #2a2a48;
+  border-color: #48bb78;
+}
+/* ============================================================
+   PROVINZ-VORSCHAU & ZEIT-SYSTEM
+   ============================================================ */
+
+.editable-title {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--accent-color);
+  font-weight: bold;
+  font-size: 1.1em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  width: 200px;
+  transition: all 0.2s;
+}
+
+.editable-title:hover {
+  background: #222;
+  border-color: #444;
+}
+
+.editable-title:focus {
+  background: #000;
+  border-color: var(--accent-success);
+  outline: none;
+  box-shadow: 0 0 5px var(--accent-success);
+}
+
+.credit-badge {
+  background: #1a2e3e;
+  color: #a0d0ff;
+  border: 1px solid #3a5c7c;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 10px rgba(68, 136, 255, 0.2);
+}
+
+.credit-badge strong {
+  color: #fff;
+  font-family: monospace;
+}
+
+.preview-header {
+  background: #12121e;
+  border: 1px solid #2a2a48;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+.preview-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.preview-controls span {
+  font-size: 0.9rem;
+  color: #9090a8;
+}
+
+#preview-hours-select {
+  background: #1a1a2e;
+  border: 1px solid #3a3a5c;
+  color: #e0e0e0;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.btn-action.success {
+  background: #2d5a27;
+  border-color: #48bb78;
+  color: #fff;
+}
+
+.btn-action.success:hover {
+  background: #387031;
+}
+
+.delta-pos {
+  color: var(--accent-success);
+  font-weight: bold;
+}
+
+.delta-neg {
+  color: var(--accent-danger);
+  font-weight: bold;
+}
+
+.delta-neu {
+  color: var(--text-muted);
+}
+
+.preview-table-container {
+  overflow-x: auto;
+}
+
+.preview-section-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #7070a0;
+  padding: 15px 10px 5px 10px;
+  border-bottom: 1px solid #2a2a44;
+  margin-top: 10px;
+}

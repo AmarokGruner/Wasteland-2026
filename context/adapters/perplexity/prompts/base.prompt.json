@@ -1,0 +1,17 @@
+{
+  "task": "Summarize and normalize canonical context into JSON for Perplexity.",
+  "style": {
+    "vibe": "balanced",
+    "length_limit_chars": 1200,
+    "tone": "neutral"
+  },
+  "inputs": {
+    "bundle_version": "2.2.0",
+    "source": "canonical",
+    "target_format": "json"
+  },
+  "outputs": {
+    "bundle": "JSON",
+    "metadata": {}
+  }
+}

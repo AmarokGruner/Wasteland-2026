@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "size": {
+    "width": 50,
+    "height": 50
+  },
+  "description": "Feste Weltkarte mit 2 Hauptinseln",
+  "player_start": {
+    "x": 15,
+    "y": 20,
+    "name": "Bunker 001"
+  },
+  "islands": [
+    {
+      "id": 1,
+      "center": {
+        "x": 15,
+        "y": 20
+      },
+      "radius": 12,
+      "terrain_mix": {
+        "desert": 0.5,
+        "grass": 0.5
+      }
+    },
+    {
+      "id": 2,
+      "center": {
+        "x": 35,
+        "y": 30
+      },
+      "radius": 10,
+      "terrain_mix": {
+        "desert": 0.5,
+        "grass": 0.5
+      }
+    }
+  ],
+  "notes": "Diese Karte wird zur Laufzeit generiert, aber die Strukturdaten sind hier hinterlegt."
+}

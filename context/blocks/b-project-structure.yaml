@@ -1,0 +1,16 @@
+id: "b-project-structure"
+type: "context"
+title: "Project Structure Overview"
+domain: "docs"
+summary: "Zusammenfassung der Projektstruktur (Frontend, Backend, Daten, Terrains)"
+details: |
+  Struktur gemäß README: Backend (main.py), Frontend (JS/CSS), Terrains, Data, Terrains, etc.
+  Hinweise auf Verzeichnisse: css/, js/, terrains/, data/
+sources:
+  - "README.md"
+related_codes:
+  - "CONTEXT_MASTER.md"
+created_at: "2026-02-28T18:15:00Z"
+updated_at: "2026-02-28T18:15:00Z"
+status: "open"
+tokens_estimate: 40

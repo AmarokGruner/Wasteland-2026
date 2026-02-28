@@ -1,0 +1,19 @@
+id: "b-security-policy"
+type: "context"
+title: "Security Policy"
+domain: "infra"
+summary: "High level security considerations and policy for the project"
+details: |
+  Ziel ist eine sichere Betriebsweise:
+  - Zugangskontrollen (Role-based Access) und Secrets-Management
+  - Netzwerksegmentierung und minimale Offenes-Port-Exposure
+  - Logging, Audit-Trails, und regelmäßige Security-Checks
+  - Sichere Speicherung von Konfigurationsdaten
+sources:
+  - "b-merged-master.yaml"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T19:45:00Z"
+updated_at: "2026-02-28T19:45:00Z"
+status: "open"
+tokens_estimate: 70

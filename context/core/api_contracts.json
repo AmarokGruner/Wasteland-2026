@@ -1,0 +1,15 @@
+{
+  "endpoints": [
+    {"path": "/", "method": "GET", "notes": "Frontend entry point"},
+    {"path": "/player/{id}", "method": "GET", "notes": "Return core player data"},
+    {"path": "/player/{id}/resources/produce", "method": "POST", "notes": "Run production for player"},
+    {"path": "/player/{id}/roads/upgrade", "method": "POST", "notes": "Upgrade a road"},
+    {"path": "/player/{id}/province/{world_x}/{world_y}", "method": "GET", "notes": "Get province data"},
+    {"path": "/player/{id}/buildings", "method": "POST", "notes": "Build a new building"},
+    {"path": "/player/{id}/buildings/{building_x}/{building_y}", "method": "DELETE", "notes": "Remove a building"}
+  ],
+  "data_schemas": {
+    "player": {"id": "integer", "name": "string", "iron": "integer", "steel": "integer", "fuel": "integer"},
+    "building": {"building_type": "string", "x": "integer", "y": "integer"}
+  }
+}

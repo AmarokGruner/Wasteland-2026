@@ -1,0 +1,20 @@
+{
+  "title": "Kompakte Kontext-Zusammenfassung",
+  "input": {
+    "bundle_version": "2.2.0",
+    "section": "Core",
+    "notes": "Konsolidierte Inhalte"
+  },
+  "instructions": {
+    "vibe": "balanced",
+    "length_limit_chars": 1200,
+    "tone": "neutral",
+    "verbosity": "medium"
+  },
+  "output": {
+    "summary": "",
+    "key_entities": [],
+    "api_contracts": [],
+    "next_steps": []
+  }
+}

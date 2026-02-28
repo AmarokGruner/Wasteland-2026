@@ -1,0 +1,48 @@
+{
+  "source": "CONTEXT_MASTER.md",
+  "migration_date": "2026-02-27",
+  "version": "2.2.0",
+  "sections": {
+    "project_structure": {
+      "files": [
+        "index.html","main.py","seed_buildings.py","seed_patch_bunker_v1.py","verbrannte_zone.db","css/style.css","js/app.js","js/worldmap.js","js/world-data.js","js/terrain-types.js","js/buildings-data.js","js/province.js","js/transport.js" ,"terrains/"
+      ],
+      "notes": "Referenz-Dateien aus CONTEXT_MASTER.md; Ziel ist eine Migration in die v2.2.0-Struktur."
+    },
+    "terrain_system": {
+      "notes": "Kern: TERRAIN_FILENAME_MAP lower-case keys; Preloader; normalisierte Terrain-Schlüssel"
+    },
+    "buildings": {
+      "notes": "Beispiele bunker, lagerhütte; Seed enthält 98 Gebäudetypen; Kosten-/Produktionstabelle in CONTEXT_MASTER.md"
+    },
+    "database_schema": {
+      "tables": [
+        {"name": "gebaeude_typen", "columns": ["id", "name", "kategorie", "bautyp", "baubar", "ausbaubar", "unique_gebaeude", "nur_kueste", "ist_feld", "tech_level", "bau_kosten", "energiebedarf", "arbeiter", "wohnraum", "lagerkapazitaet", "beschreibung", "rohstoffbedarf_bau", "rohstoffverbrauch", "produktion", "terrain_effektivitaet", "spezial_eigenschaften", "schlachtfeld", "updated_at"]},
+        {"name": "handelskarren_transport", "columns": ["id", "player_id", "von_provinz_id", "nach_provinz_id", "ressource_id", "menge", "karren_benoetigt", "status", "distanz", "delay_minuten", "ankunft_planned", "created_at", "angekommen_at"]}
+      ]
+    },
+    "api_endpoints": {
+      "summary": "Vollständige API-Route-Liste (siehe CONTEXT_MASTER.md) mit Status, Deployment und Backlog",
+      "endpoints": [
+        { "path": "/", "method": "GET", "description": "Frontend (index.html)" },
+        { "path": "/player/{id}", "method": "GET", "description": "Spieler-Daten" },
+        { "path": "/player/{id}/resources/produce", "method": "POST", "description": "Ressourcen produzieren" },
+        { "path": "/player/{id}/roads/upgrade", "method": "POST", "description": "Weg upgraden" },
+        { "path": "/player/{id}/province/{world_x}/{world_y}", "method": "GET", "description": "Provinz-Daten" },
+        { "path": "/player/{id}/buildings", "method": "POST", "description": "Gebäude bauen" },
+        { "path": "/player/{id}/buildings/{building_x}/{building_y}", "method": "DELETE", "description": "Gebäude entfernen" },
+        { "path": "/gebaeude", "method": "GET", "description": "Gebäudetypen" },
+        { "path": "/ressourcen", "method": "GET", "description": "Ressourcen" },
+        { "path": "/vorkommen", "method": "GET", "description": "Vorkommen" },
+        { "path": "/provinz/feldtypen", "method": "GET", "description": "Feldtypen" }
+      ]
+    },
+    "deployment": {
+      "notes": "Lokale: uvicorn; Raspberry PI: seed-skripte + systemd-Neustart"
+    },
+    "backlog": {
+      "current": ["Transport-UI testen", "weiter Gebäude-Datensätze nach Bunker-Schema", "Produktionsdaten im Seed erweitern"],
+      "future": ["Multiplayer-Vorbereitung", "Speichern/Laden"]
+    }
+  }
+}

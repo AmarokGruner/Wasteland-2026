@@ -1,0 +1,12 @@
+{
+  "name": "balanced",
+  "description": "ausgewogener Stil, klare Struktur, genügend Details",
+  "length_limit_chars": 1200,
+  "tone": "neutral",
+  "verbosity": "medium",
+  "platform_weights": {
+    "google_antigravity": 1.0,
+    "opencode": 0.8,
+    "perplexity": 0.8
+  }
+}

@@ -1,0 +1,18 @@
+id: "b-next-steps"
+type: "planning"
+title: "Nächste Schritte"
+domain: "planning"
+summary: "Konkrete nächsten Tasks für Kontext-Umwandlung und Feature-Entwicklung"
+details: |
+  - Migrating remaining CONTEXT-* Inhalte (mit Dry-Run). Migration planen, Block-IDs konsistent halten.
+  - Konkrete Blöcke hinzufügen (QA, Accessibility, Deployment-Plan) und Index aktualisieren.
+  - OpenAPI-/CI-CD-Blöcke prüfen und ggf. ergänzen.
+  - Rolle des Master-Blocks b-merged-master weiter verfeinern.
+sources:
+  - "README.md"
+related_codes:
+  - "context/v2.2.0/index.yaml"
+created_at: "2026-02-28T18:30:00Z"
+updated_at: "2026-02-28T18:30:00Z"
+status: "open"
+tokens_estimate: 55

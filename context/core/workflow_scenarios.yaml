@@ -1,0 +1,11 @@
+steps:
+  - name: initialize
+    description: Initialize players, provinces, seeds, and baseline state
+  - name: seed_validation
+    description: Validate seed data integrity and relations
+  - name: production_cycle
+    description: Execute production round across provinces/buildings
+  - name: transport_cycle
+    description: Execute a transport cycle between provinces
+  - name: audit
+    description: Sanity checks and consistency verification

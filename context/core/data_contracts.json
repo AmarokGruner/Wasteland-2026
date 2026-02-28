@@ -1,0 +1,34 @@
+{
+  "endpoints": [
+    {"path": "/", "method": "GET"},
+    {"path": "/player/{id}", "method": "GET"},
+    {"path": "/player/{id}/resources/produce", "method": "POST"},
+    {"path": "/player/{id}/roads/upgrade", "method": "POST"},
+    {"path": "/player/{id}/province/{world_x}/{world_y}", "method": "GET"},
+    {"path": "/player/{id}/buildings", "method": "POST"},
+    {"path": "/player/{id}/buildings/{building_x}/{building_y}", "method": "DELETE"},
+    {"path": "/gebaeude", "method": "GET"},
+    {"path": "/gebaeude/{id}", "method": "GET"},
+    {"path": "/ressourcen", "method": "GET"},
+    {"path": "/ressourcen/typen", "method": "GET"},
+    {"path": "/ressourcen/{id}", "method": "GET"},
+    {"path": "/vorkommen", "method": "GET"},
+    {"path": "/vorkommen/typen", "method": "GET"},
+    {"path": "/vorkommen/{id}", "method": "GET"},
+    {"path": "/provinz/feldtypen", "method": "GET"},
+    {"path": "/provinz/feldtypen/{id}", "method": "GET"},
+    {"path": "/world/provinzen", "method": "GET"},
+    {"path": "/player/{id}/provinzen", "method": "GET"},
+    {"path": "/player/{id}/provinzen", "method": "POST"},
+    {"path": "/player/{id}/provinzen/{pid}", "method": "GET"},
+    {"path": "/player/{id}/provinzen/{pid}/lager", "method": "GET"},
+    {"path": "/player/{id}/provinzen/{pid}/lager", "method": "PUT"},
+    {"path": "/player/{id}/provinzen/{pid}/lager", "method": "PATCH"},
+    {"path": "/player/{id}/provinzen/{pid}/transport", "method": "POST"},
+    {"path": "/player/{id}/transport", "method": "GET"}
+  ],
+  "data_schemas": {
+    "player": {"id": "integer", "name": "string", "iron": "integer", "steel": "integer", "fuel": "integer"},
+    "building": {"building_type": "string", "x": "integer", "y": "integer"}
+  }
+}

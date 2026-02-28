@@ -1,0 +1,20 @@
+id: "b-backend-readme-summary"
+type: "context"
+title: "Backend Readme Summary"
+domain: "backend"
+summary: "Kompakte Zusammenfassung der Backend-Readme (Setup, Endpunkte, Architektur)"
+details: |
+  Ziel ist eine kurze, klare Zusammenfassung der Backend-Readme:
+  - Setup-Anforderungen
+  - Minimalistische API-Surface (zunächst Kern-Endpunkte)
+  - Architektur-Übersicht (Layers, Verantwortlichkeiten)
+  - Testing-Strategie (Unit/Integration)
+sources:
+  - "BACKEND_README.md"
+  - "CONTEXT_MASTER.md"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T19:15:00Z"
+updated_at: "2026-02-28T19:15:00Z"
+status: "open"
+tokens_estimate: 60

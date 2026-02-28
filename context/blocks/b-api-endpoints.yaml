@@ -1,0 +1,21 @@
+id: "b-api-endpoints"
+type: "context"
+title: "API Endpoints Plan"
+domain: "backend"
+summary: "Initial API surface: player management, buildings, resources production."
+details: |
+  Ziel ist es, eine minimale, aber erweiterbare API-Schnittstelle zu definieren:
+  - GET /player/{id}
+  - POST /player
+  - GET /player/{id}/buildings
+  - POST /player/{id}/buildings
+  - POST /player/{id}/resources/produce
+  Diese Endpunkte dienen als Träger für weitere Features (Buildings, Units, Combat).
+sources:
+  - "README.md"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T12:15:00Z"
+updated_at: "2026-02-28T12:15:00Z"
+status: "open"
+tokens_estimate: 120

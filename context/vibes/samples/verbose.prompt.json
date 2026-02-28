@@ -1,0 +1,20 @@
+{
+  "title": "Detaillierte Kontext-Zusammenfassung",
+  "input": {
+    "bundle_version": "2.2.0",
+    "section": "Core",
+    "notes": "Detaillierte Ausführung mit Hintergrund"
+  },
+  "instructions": {
+    "vibe": "verbose",
+    "length_limit_chars": 2500,
+    "tone": "neutral",
+    "verbosity": "high"
+  },
+  "output": {
+    "summary": "",
+    "key_entities": [],
+    "api_contracts": [],
+    "next_steps": []
+  }
+}

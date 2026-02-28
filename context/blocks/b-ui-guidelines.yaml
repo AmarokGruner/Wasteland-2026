@@ -1,0 +1,19 @@
+id: "b-ui-guidelines"
+type: "context"
+title: "UI Guidelines"
+domain: "frontend"
+summary: "Principles for expressive, accessible, and deliberate UI design."
+details: |
+  Ziel ist ein konsistentes, hochwertiges UI-Design über alle Seiten hinweg:
+  - Typografie, Farben, Layout, Abstände und Interaktion bewusst gestalten
+  - Barrierefreiheit (WCAG) berücksichtigen
+  - Animationsnutzung sinnvoll und gezielt einsetzen
+  - Konsistente Komponenten-Sprache; keine generische Bolster-Wilder-Layouts
+sources:
+  - "README.md"
+related_codes:
+  - "css/style.css"
+created_at: "2026-02-28T16:45:00Z"
+updated_at: "2026-02-28T16:45:00Z"
+status: "open"
+tokens_estimate: 90

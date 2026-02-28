@@ -1,0 +1,26 @@
+{
+  "entities": [
+    "Player",
+    "Province",
+    "Building",
+    "Road",
+    "Vorkommen",
+    "Resource",
+    "Production"
+  ],
+  "relationships": [
+    {"from": "Player", "to": "Province", "type": "owns"},
+    {"from": "Province", "to": "Building", "type": "has"},
+    {"from": "Province", "to": "Road", "type": "has"},
+    {"from": "Building", "to": "Production", "type": "produces"}
+  ],
+  "attributes": {
+    "Player": ["id", "name", "iron", "steel", "fuel", "created_at"],
+    "Province": ["world_x", "world_y", "lagerkapazitaet", "terrain"],
+    "Building": ["id", "player_id", "world_x", "world_y", "building_x", "building_y", "building_type", "created_at"],
+    "Road": ["id", "player_id", "world_x", "world_y", "grid_x", "grid_y", "road_type", "level"],
+    "Vorkommen": ["id", "name", "typ", "tech", "suchkosten"],
+    "Resource": ["id", "name", "type", "amount"],
+    "Production": ["id", "player_id", "building_id", "resource_type", "amount", "produced_at"]
+  }
+}

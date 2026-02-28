@@ -1,0 +1,19 @@
+id: "b-api-docs"
+type: "context"
+title: "API Documentation Outline"
+domain: "backend"
+summary: "Plan for API docs and OpenAPI spec generation."
+details: |
+  Ziel ist es, eine klare API-Dokumentation zu erstellen:
+  - OpenAPI/Swagger-Spezifikation der Endpunkte
+  - Request/Response-Beispiele
+  - Authentifizierung und Versionierung
+  - Dokumentations-Generierung in CI integrieren
+sources:
+  - "README.md"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T13:15:00Z"
+updated_at: "2026-02-28T13:15:00Z"
+status: "open"
+tokens_estimate: 70

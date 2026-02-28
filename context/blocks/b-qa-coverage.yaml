@@ -1,0 +1,20 @@
+id: "b-qa-coverage"
+type: "context"
+title: "QA Coverage"
+domain: "qa"
+summary: "Quality assurance coverage plan for backend and frontend."
+details: |
+  Ziel ist eine klare, messbare QA-Abdeckung:
+  - Unit-Tests für Backend-Endpunkte
+  - Integrationstests zwischen Frontend und Backend
+  - API-Contract-Tests (OpenAPI)
+  - Manuelle Smoke-Tests nach Deploy
+  - Regression-Tests bei größeren Änderungen
+sources:
+  - "README.md"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T17:10:00Z"
+updated_at: "2026-02-28T17:10:00Z"
+status: "open"
+tokens_estimate: 70

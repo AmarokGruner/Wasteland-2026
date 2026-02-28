@@ -1,0 +1,19 @@
+id: "b-merged-master"
+type: "context"
+title: "Merged Master Context (Baseline)"
+domain: "documentation"
+summary: "Consolidated master context with updates from CONTEXT Master/Dokumentation and Backend docs."
+details: |
+  Diese Block-Baseline fasst die Kerninformationen aus CONTEXT_MASTER.md sowie CONTEXT_DOKUMENTATION.md und BACKEND_CONTEXT.md / BACKEND_README.md zusammen. Ziel ist eine konsolidierte, fundierte Referenz für das aktuelle Setup und die nächsten Schritte.
+  Inhalte umfassen u.a. Projektstruktur, Regeln, Terrain-System, Datenbank-Layout, API-Endpunkte, Deployment, Tests/Backups sowie Entwicklungs-Konventionen.
+sources:
+  - "CONTEXT_MASTER.md"
+  - "CONTEXT_DOKUMENTATION.md"
+  - "BACKEND_CONTEXT.md"
+  - "BACKEND_README.md"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T17:00:00Z"
+updated_at: "2026-02-28T17:00:00Z"
+status: "open"
+tokens_estimate: 180

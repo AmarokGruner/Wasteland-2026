@@ -1,0 +1,22 @@
+id: "b-backend-architecture"
+type: "context"
+title: "Backend Architecture"
+domain: "backend"
+summary: "High-level architecture of the Python FastAPI backend: layers, routers, services, data layer."
+details: |
+  Ziel ist eine klare Aufteilung der Backend-Komponenten:
+  - API-Routing (FastAPI Router-Module)
+  - Service-Layer mit Geschäftslogik
+  - Persistence-Schicht (SQLite- oder ORM-Ansatz)
+  - Daten-Mapping/DTOs und OpenAPI-Spezifikation
+  - Logging, Config, Observability, Tests-Strategie
+sources:
+  - "CONTEXT_MASTER.md"
+  - "BACKEND_CONTEXT.md"
+  - "BACKEND_README.md"
+related_codes:
+  - "main.py"
+created_at: "2026-02-28T19:00:00Z"
+updated_at: "2026-02-28T19:00:00Z"
+status: "open"
+tokens_estimate: 120
