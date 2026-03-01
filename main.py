@@ -493,6 +493,808 @@ async def delete_building_type(
     conn.close()
     return {"message": "Building type deleted"}
 
+# ─── Admin: Rohstoffe (ressourcen) ────────────────────────────────────────────────
+@app.get("/admin/ressourcen")
+async def list_ressourcen(token: str = None, admin=Depends(require_admin)):
+    """List all resources (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM ressourcen ORDER BY typ, name")
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/admin/ressourcen")
+async def create_ressource(
+    name: str,
+    typ: str = "Sonstiges",
+    wert: int = 0,
+    verbrauch: int = 0,
+    platzbedarf: int = 0,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new resource (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO ressourcen (name, typ, wert, verbrauch, platzbedarf)
+            VALUES (?, ?, ?, ?, ?)
+        """, (name, typ, wert, verbrauch, platzbedarf))
+        conn.commit()
+        ressource_id = cur.lastrowid
+        conn.close()
+        return {"message": f"Ressource {name} created", "ressource_id": ressource_id}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Ressource already exists")
+
+@app.put("/admin/ressourcen/{ressource_id}")
+async def update_ressource(
+    ressource_id: int,
+    name: str = None,
+    typ: str = None,
+    wert: int = None,
+    verbrauch: int = None,
+    platzbedarf: int = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update resource (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if typ is not None:
+        updates.append("typ = ?")
+        values.append(typ)
+    if wert is not None:
+        updates.append("wert = ?")
+        values.append(wert)
+    if verbrauch is not None:
+        updates.append("verbrauch = ?")
+        values.append(verbrauch)
+    if platzbedarf is not None:
+        updates.append("platzbedarf = ?")
+        values.append(platzbedarf)
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    values.append(ressource_id)
+    cur.execute(f"UPDATE ressourcen SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Ressource updated"}
+
+@app.delete("/admin/ressourcen/{ressource_id}")
+async def delete_ressource(
+    ressource_id: int,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete resource (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM ressourcen WHERE id = ?", (ressource_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Ressource not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Ressource deleted"}
+
+# ─── Admin: Vorkommen ─────────────────────────────────────────────────────────────
+@app.get("/admin/vorkommen")
+async def list_vorkommen(token: str = None, admin=Depends(require_admin)):
+    """List all occurrences (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM vorkommen ORDER BY typ, name")
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/admin/vorkommen")
+async def create_vorkommen(
+    name: str,
+    typ: str = "Sonstiges",
+    tech: int = 0,
+    suchkosten: int = 0,
+    beschreibung: str = "",
+    findwahrscheinlichkeit: str = "{}",
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new occurrence (admin only)."""
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        find_data = json.loads(findwahrscheinlichkeit) if isinstance(findwahrscheinlichkeit, str) else findwahrscheinlichkeit
+        cur.execute("""
+            INSERT INTO vorkommen (name, typ, tech, suchkosten, beschreibung, findwahrscheinlichkeit)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, typ, tech, suchkosten, beschreibung, json.dumps(find_data)))
+        conn.commit()
+        vorkommen_id = cur.lastrowid
+        conn.close()
+        return {"message": f"Vorkommen {name} created", "vorkommen_id": vorkommen_id}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Vorkommen already exists")
+
+@app.put("/admin/vorkommen/{vorkommen_id}")
+async def update_vorkommen(
+    vorkommen_id: int,
+    name: str = None,
+    typ: str = None,
+    tech: int = None,
+    suchkosten: int = None,
+    beschreibung: str = None,
+    findwahrscheinlichkeit: str = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update occurrence (admin only)."""
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if typ is not None:
+        updates.append("typ = ?")
+        values.append(typ)
+    if tech is not None:
+        updates.append("tech = ?")
+        values.append(tech)
+    if suchkosten is not None:
+        updates.append("suchkosten = ?")
+        values.append(suchkosten)
+    if beschreibung is not None:
+        updates.append("beschreibung = ?")
+        values.append(beschreibung)
+    if findwahrscheinlichkeit is not None:
+        find_data = json.loads(findwahrscheinlichkeit) if isinstance(findwahrscheinlichkeit, str) else findwahrscheinlichkeit
+        updates.append("findwahrscheinlichkeit = ?")
+        values.append(json.dumps(find_data))
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    values.append(vorkommen_id)
+    cur.execute(f"UPDATE vorkommen SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Vorkommen updated"}
+
+@app.delete("/admin/vorkommen/{vorkommen_id}")
+async def delete_vorkommen(
+    vorkommen_id: int,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete occurrence (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM vorkommen WHERE id = ?", (vorkommen_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Vorkommen not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Vorkommen deleted"}
+
+# ─── Admin: Gebäude-Felder (provinz_feldtypen) ───────────────────────────────────────
+@app.get("/admin/gebaeude_felder")
+async def list_gebaeude_felder(token: str = None, admin=Depends(require_admin)):
+    """List all building field types (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM provinz_feldtypen ORDER BY name")
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/admin/gebaeude_felder")
+async def create_gebaeude_feld(
+    id: str,
+    name: str,
+    beschreibung: str = "",
+    groesse_px: int = 30,
+    ist_baubar: int = 1,
+    bautypen: str = "[]",
+    farbe_leer: str = "#000000",
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new building field type (admin only)."""
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        bautypen_data = json.loads(bautypen) if isinstance(bautypen, str) else bautypen
+        cur.execute("""
+            INSERT INTO provinz_feldtypen (id, name, beschreibung, groesse_px, ist_baubar, bautypen, farbe_leer)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (id, name, beschreibung, groesse_px, ist_baubar, json.dumps(bautypen_data), farbe_leer))
+        conn.commit()
+        conn.close()
+        return {"message": f"Gebaeude-Feld {name} created"}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Gebaeude-Feld already exists")
+
+@app.put("/admin/gebaeude_felder/{feld_id}")
+async def update_gebaeude_feld(
+    feld_id: str,
+    name: str = None,
+    beschreibung: str = None,
+    groesse_px: int = None,
+    ist_baubar: int = None,
+    bautypen: str = None,
+    farbe_leer: str = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update building field type (admin only)."""
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if beschreibung is not None:
+        updates.append("beschreibung = ?")
+        values.append(beschreibung)
+    if groesse_px is not None:
+        updates.append("groesse_px = ?")
+        values.append(groesse_px)
+    if ist_baubar is not None:
+        updates.append("ist_baubar = ?")
+        values.append(ist_baubar)
+    if bautypen is not None:
+        bautypen_data = json.loads(bautypen) if isinstance(bautypen, str) else bautypen
+        updates.append("bautypen = ?")
+        values.append(json.dumps(bautypen_data))
+    if farbe_leer is not None:
+        updates.append("farbe_leer = ?")
+        values.append(farbe_leer)
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    values.append(feld_id)
+    cur.execute(f"UPDATE provinz_feldtypen SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Gebaeude-Feld updated"}
+
+@app.delete("/admin/gebaeude_felder/{feld_id}")
+async def delete_gebaeude_feld(
+    feld_id: str,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete building field type (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM provinz_feldtypen WHERE id = ?", (feld_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Gebaeude-Feld not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Gebaeude-Feld deleted"}
+
+# ─── Admin: Welt-Terrain (world_terrain) ───────────────────────────────────────────
+@app.get("/admin/terrain")
+async def list_terrain(token: str = None, admin=Depends(require_admin)):
+    """List all world terrain types (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM world_terrain ORDER BY name")
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/admin/terrain")
+async def create_terrain(
+    id: str,
+    name: str,
+    farbe: str = "#000000",
+    icon: str = "",
+    beschreibung: str = "",
+    spielbar: int = 1,
+    ressourcen: str = "[]",
+    erlaubte_gebaeude: str = "[]",
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new world terrain type (admin only)."""
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        ressourcen_data = json.loads(ressourcen) if isinstance(ressourcen, str) else ressourcen
+        gebaeude_data = json.loads(erlaubte_gebaeude) if isinstance(erlaubte_gebaeude, str) else erlaubte_gebaeude
+        cur.execute("""
+            INSERT INTO world_terrain (id, name, farbe, icon, beschreibung, spielbar, ressourcen, erlaubte_gebaeude)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (id, name, farbe, icon, beschreibung, spielbar, json.dumps(ressourcen_data), json.dumps(gebaeude_data)))
+        conn.commit()
+        conn.close()
+        return {"message": f"Terrain {name} created"}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Terrain already exists")
+
+@app.put("/admin/terrain/{terrain_id}")
+async def update_terrain(
+    terrain_id: str,
+    name: str = None,
+    farbe: str = None,
+    icon: str = None,
+    beschreibung: str = None,
+    spielbar: int = None,
+    ressourcen: str = None,
+    erlaubte_gebaeude: str = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update world terrain type (admin only)."""
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if farbe is not None:
+        updates.append("farbe = ?")
+        values.append(farbe)
+    if icon is not None:
+        updates.append("icon = ?")
+        values.append(icon)
+    if beschreibung is not None:
+        updates.append("beschreibung = ?")
+        values.append(beschreibung)
+    if spielbar is not None:
+        updates.append("spielbar = ?")
+        values.append(spielbar)
+    if ressourcen is not None:
+        ressourcen_data = json.loads(ressourcen) if isinstance(ressourcen, str) else ressourcen
+        updates.append("ressourcen = ?")
+        values.append(json.dumps(ressourcen_data))
+    if erlaubte_gebaeude is not None:
+        gebaeude_data = json.loads(erlaubte_gebaeude) if isinstance(erlaubte_gebaeude, str) else erlaubte_gebaeude
+        updates.append("erlaubte_gebaeude = ?")
+        values.append(json.dumps(gebaeude_data))
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    values.append(terrain_id)
+    cur.execute(f"UPDATE world_terrain SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Terrain updated"}
+
+@app.delete("/admin/terrain/{terrain_id}")
+async def delete_terrain(
+    terrain_id: str,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete world terrain type (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM world_terrain WHERE id = ?", (terrain_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Terrain not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Terrain deleted"}
+
+# ─── Admin: Artikel ────────────────────────────────────────────────────────────────
+@app.get("/admin/artikel")
+async def list_artikel(token: str = None, admin=Depends(require_admin)):
+    """List all items (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM artikel ORDER BY kategorie, name")
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/admin/artikel")
+async def create_artikel(
+    name: str,
+    beschreibung: str = "",
+    kategorie: str = "Sonstiges",
+    preis_mips: int = 0,
+    preis_muenzen: int = 0,
+    gewicht: int = 0,
+    haltbarkeit: int = -1,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new item (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO artikel (name, beschreibung, kategorie, preis_mips, preis_muenzen, gewicht, haltbarkeit)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (name, beschreibung, kategorie, preis_mips, preis_muenzen, gewicht, haltbarkeit))
+        conn.commit()
+        artikel_id = cur.lastrowid
+        conn.close()
+        return {"message": f"Artikel {name} created", "artikel_id": artikel_id}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Artikel already exists")
+
+@app.put("/admin/artikel/{artikel_id}")
+async def update_artikel(
+    artikel_id: int,
+    name: str = None,
+    beschreibung: str = None,
+    kategorie: str = None,
+    preis_mips: int = None,
+    preis_muenzen: int = None,
+    gewicht: int = None,
+    haltbarkeit: int = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update item (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if beschreibung is not None:
+        updates.append("beschreibung = ?")
+        values.append(beschreibung)
+    if kategorie is not None:
+        updates.append("kategorie = ?")
+        values.append(kategorie)
+    if preis_mips is not None:
+        updates.append("preis_mips = ?")
+        values.append(preis_mips)
+    if preis_muenzen is not None:
+        updates.append("preis_muenzen = ?")
+        values.append(preis_muenzen)
+    if gewicht is not None:
+        updates.append("gewicht = ?")
+        values.append(gewicht)
+    if haltbarkeit is not None:
+        updates.append("haltbarkeit = ?")
+        values.append(haltbarkeit)
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    values.append(artikel_id)
+    cur.execute(f"UPDATE artikel SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Artikel updated"}
+
+@app.delete("/admin/artikel/{artikel_id}")
+async def delete_artikel(
+    artikel_id: int,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete item (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM artikel WHERE id = ?", (artikel_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Artikel not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Artikel deleted"}
+
+# ─── Admin: Einheiten-Typen ────────────────────────────────────────────────────────
+@app.get("/admin/einheiten")
+async def list_einheiten_typen(token: str = None, admin=Depends(require_admin)):
+    """List all unit types (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM einheiten_typen ORDER BY kategorie, name")
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/admin/einheiten")
+async def create_einheiten_typ(
+    name: str,
+    kategorie: str = "Infanterie",
+    kosten_mips: int = 0,
+    kosten_muenzen: int = 0,
+    bevoelkerung_count: int = 1,
+    bewaffnung: str = "",
+    transport_kapazitaet: int = 0,
+    geschwindigkeit: int = 1,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new unit type (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO einheiten_typen (name, kategorie, kosten_mips, kosten_muenzen, bevoelkerung_count, bewaffnung, transport_kapazitaet, geschwindigkeit)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, kategorie, kosten_mips, kosten_muenzen, bevoelkerung_count, bewaffnung, transport_kapazitaet, geschwindigkeit))
+        conn.commit()
+        einheiten_id = cur.lastrowid
+        conn.close()
+        return {"message": f"Einheiten-Typ {name} created", "einheiten_id": einheiten_id}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Einheiten-Typ already exists")
+
+@app.put("/admin/einheiten/{einheiten_id}")
+async def update_einheiten_typ(
+    einheiten_id: int,
+    name: str = None,
+    kategorie: str = None,
+    kosten_mips: int = None,
+    kosten_muenzen: int = None,
+    bevoelkerung_count: int = None,
+    bewaffnung: str = None,
+    transport_kapazitaet: int = None,
+    geschwindigkeit: int = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update unit type (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if kategorie is not None:
+        updates.append("kategorie = ?")
+        values.append(kategorie)
+    if kosten_mips is not None:
+        updates.append("kosten_mips = ?")
+        values.append(kosten_mips)
+    if kosten_muenzen is not None:
+        updates.append("kosten_muenzen = ?")
+        values.append(kosten_muenzen)
+    if bevoelkerung_count is not None:
+        updates.append("bevoelkerung_count = ?")
+        values.append(bevoelkerung_count)
+    if bewaffnung is not None:
+        updates.append("bewaffnung = ?")
+        values.append(bewaffnung)
+    if transport_kapazitaet is not None:
+        updates.append("transport_kapazitaet = ?")
+        values.append(transport_kapazitaet)
+    if geschwindigkeit is not None:
+        updates.append("geschwindigkeit = ?")
+        values.append(geschwindigkeit)
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    values.append(einheiten_id)
+    cur.execute(f"UPDATE einheiten_typen SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Einheiten-Typ updated"}
+
+@app.delete("/admin/einheiten/{einheiten_id}")
+async def delete_einheiten_typ(
+    einheiten_id: int,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete unit type (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM einheiten_typen WHERE id = ?", (einheiten_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Einheiten-Typ not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Einheiten-Typ deleted"}
+
+# ─── Admin: Lebewesen ─────────────────────────────────────────────────────────────
+@app.get("/admin/lebewesen")
+async def list_lebewesen(token: str = None, admin=Depends(require_admin)):
+    """List all creatures (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM lebewesen ORDER BY typ, name")
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/admin/lebewesen")
+async def create_lebewesen(
+    name: str,
+    typ: str = "Neutral",
+    staerke: int = 10,
+    gesundheit: int = 100,
+    bevoelkerung_kosten: int = 0,
+    beschreibung: str = "",
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new creature (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO lebewesen (name, typ, staerke, gesundheit, bevoelkerung_kosten, beschreibung)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, typ, staerke, gesundheit, bevoelkerung_kosten, beschreibung))
+        conn.commit()
+        lebewesen_id = cur.lastrowid
+        conn.close()
+        return {"message": f"Lebewesen {name} created", "lebewesen_id": lebewesen_id}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Lebewesen already exists")
+
+@app.put("/admin/lebewesen/{lebewesen_id}")
+async def update_lebewesen(
+    lebewesen_id: int,
+    name: str = None,
+    typ: str = None,
+    staerke: int = None,
+    gesundheit: int = None,
+    bevoelkerung_kosten: int = None,
+    beschreibung: str = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update creature (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if typ is not None:
+        updates.append("typ = ?")
+        values.append(typ)
+    if staerke is not None:
+        updates.append("staerke = ?")
+        values.append(staerke)
+    if gesundheit is not None:
+        updates.append("gesundheit = ?")
+        values.append(gesundheit)
+    if bevoelkerung_kosten is not None:
+        updates.append("bevoelkerung_kosten = ?")
+        values.append(bevoelkerung_kosten)
+    if beschreibung is not None:
+        updates.append("beschreibung = ?")
+        values.append(beschreibung)
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    values.append(lebewesen_id)
+    cur.execute(f"UPDATE lebewesen SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Lebewesen updated"}
+
+@app.delete("/admin/lebewesen/{lebewesen_id}")
+async def delete_lebewesen(
+    lebewesen_id: int,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete creature (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM lebewesen WHERE id = ?", (lebewesen_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Lebewesen not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Lebewesen deleted"}
+
+# ─── Admin: Regierungsformen ─────────────────────────────────────────────────────
+@app.get("/admin/regierungsformen")
+async def list_regierungsformen(token: str = None, admin=Depends(require_admin)):
+    """List all government forms (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM regierungsformen ORDER BY name")
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/admin/regierungsformen")
+async def create_regierungsform(
+    name: str,
+    beschreibung: str = "",
+    bonus_malus: str = "{}",
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new government form (admin only)."""
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        bonus_data = json.loads(bonus_malus) if isinstance(bonus_malus, str) else bonus_malus
+        cur.execute("""
+            INSERT INTO regierungsformen (name, beschreibung, bonus_malus)
+            VALUES (?, ?, ?)
+        """, (name, beschreibung, json.dumps(bonus_data)))
+        conn.commit()
+        regierungsform_id = cur.lastrowid
+        conn.close()
+        return {"message": f"Regierungsform {name} created", "regierungsform_id": regierungsform_id}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Regierungsform already exists")
+
+@app.put("/admin/regierungsformen/{regierungsform_id}")
+async def update_regierungsform(
+    regierungsform_id: int,
+    name: str = None,
+    beschreibung: str = None,
+    bonus_malus: str = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update government form (admin only)."""
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if beschreibung is not None:
+        updates.append("beschreibung = ?")
+        values.append(beschreibung)
+    if bonus_malus is not None:
+        bonus_data = json.loads(bonus_malus) if isinstance(bonus_malus, str) else bonus_malus
+        updates.append("bonus_malus = ?")
+        values.append(json.dumps(bonus_data))
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    values.append(regierungsform_id)
+    cur.execute(f"UPDATE regierungsformen SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Regierungsform updated"}
+
+@app.delete("/admin/regierungsformen/{regierungsform_id}")
+async def delete_regierungsform(
+    regierungsform_id: int,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete government form (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM regierungsformen WHERE id = ?", (regierungsform_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Regierungsform not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Regierungsform deleted"}
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 def safe_json(val, default):
     if isinstance(val, str):
@@ -1530,4 +2332,10 @@ async def index_page():
 if __name__ == "__main__":
     import uvicorn
     print("🚀 Verbrannte Zone Backend v2.1.0")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000,
+        ssl_keyfile="key.pem",
+        ssl_certfile="cert.pem"
+    )

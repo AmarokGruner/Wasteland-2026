@@ -337,7 +337,15 @@
     <nav>
         <ul>
             <li class="active" onclick="showSection('users')">Benutzer</li>
-            <li onclick="showSection('buildings')">Gebäude-Typen</li>
+            <li onclick="showSection('buildings')">Gebäude</li>
+            <li onclick="showSection('ressourcen')">Rohstoffe</li>
+            <li onclick="showSection('vorkommen')">Vorkommen</li>
+            <li onclick="showSection('gebaeude_felder')">Gebäude-Felder</li>
+            <li onclick="showSection('terrain')">Terrain</li>
+            <li onclick="showSection('artikel')">Artikel</li>
+            <li onclick="showSection('einheiten')">Einheiten</li>
+            <li onclick="showSection('lebewesen')">Lebewesen</li>
+            <li onclick="showSection('regierungsformen')">Regierung</li>
             <li onclick="showSection('players')">Spieler</li>
         </ul>
     </nav>
@@ -395,6 +403,134 @@
             </div>
         </section>
         
+        <!-- Ressourcen Section -->
+        <section id="ressourcenSection" class="section">
+            <div class="card">
+                <h2>Rohstoffe</h2>
+                <button class="btn btn-primary" onclick="showCreateModal('ressourcen')">+ Neuer Rohstoff</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Typ</th><th>Wert</th><th>Verbrauch</th><th>Platz</th><th>Aktionen</th></tr>
+                        </thead>
+                        <tbody id="ressourcenTable"><tr><td colspan="7" class="loading">Laden...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Vorkommen Section -->
+        <section id="vorkommenSection" class="section">
+            <div class="card">
+                <h2>Vorkommen</h2>
+                <button class="btn btn-primary" onclick="showCreateModal('vorkommen')">+ Neues Vorkommen</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Typ</th><th>Tech</th><th>Suchkosten</th><th>Aktionen</th></tr>
+                        </thead>
+                        <tbody id="vorkommenTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Gebäude-Felder Section -->
+        <section id="gebaeude_felderSection" class="section">
+            <div class="card">
+                <h2>Gebaeude-Felder</h2>
+                <button class="btn btn-primary" onclick="showCreateModal('gebaeude_felder')">+ Neues Feld</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Beschreibung</th><th>Groesse</th><th>Baubar</th><th>Aktionen</th></tr>
+                        </thead>
+                        <tbody id="gebaeude_felderTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Terrain Section (Welt-Terrain) -->
+        <section id="terrainSection" class="section">
+            <div class="card">
+                <h2>Terrain</h2>
+                <button class="btn btn-primary" onclick="showCreateModal('terrain')">+ Neues Terrain</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Farbe</th><th>Icon</th><th>Spielbar</th><th>Aktionen</th></tr>
+                        </thead>
+                        <tbody id="terrainTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Artikel Section -->
+        <section id="artikelSection" class="section">
+            <div class="card">
+                <h2>Artikel</h2>
+                <button class="btn btn-primary" onclick="showCreateModal('artikel')">+ Neuer Artikel</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Kategorie</th><th>Preis MIPS</th><th>Preis Münzen</th><th>Aktionen</th></tr>
+                        </thead>
+                        <tbody id="artikelTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Einheiten Section -->
+        <section id="einheitenSection" class="section">
+            <div class="card">
+                <h2>Einheiten-Typen</h2>
+                <button class="btn btn-primary" onclick="showCreateModal('einheiten')">+ Neuer Einheiten-Typ</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Kategorie</th><th>Kosten MIPS</th><th>Kosten Münzen</th><th>Aktionen</th></tr>
+                        </thead>
+                        <tbody id="einheitenTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Lebewesen Section -->
+        <section id="lebewesenSection" class="section">
+            <div class="card">
+                <h2>Lebewesen</h2>
+                <button class="btn btn-primary" onclick="showCreateModal('lebewesen')">+ Neues Lebewesen</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Typ</th><th>Stärke</th><th>Gesundheit</th><th>Aktionen</th></tr>
+                        </thead>
+                        <tbody id="lebewesenTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Regierungsformen Section -->
+        <section id="regierungsformenSection" class="section">
+            <div class="card">
+                <h2>Regierungsformen</h2>
+                <button class="btn btn-primary" onclick="showCreateModal('regierungsformen')">+ Neue Regierungsform</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Beschreibung</th><th>Aktionen</th></tr>
+                        </thead>
+                        <tbody id="regierungsformenTable"><tr><td colspan="4" class="loading">Laden...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
         <!-- Players Section -->
         <section id="playersSection" class="section">
             <div class="card">
@@ -437,6 +573,17 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Erstellen</button>
             </form>
+        </div>
+    </div>
+    
+    <!-- Generic Modal for all entities -->
+    <div id="genericModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Modal</h3>
+                <button class="close" onclick="closeGenericModal()">&times;</button>
+            </div>
+            <form id="genericForm"></form>
         </div>
     </div>
     
@@ -572,6 +719,7 @@
     </div>
     
     <script>
+        console.log('Admin HTML loading...');
         const APIBASE = window.location.protocol === 'https:' 
             ? `https://${window.location.host}` 
             : 'http://localhost:8000';
@@ -601,6 +749,14 @@
             
             if (section === 'users') loadUsers();
             if (section === 'buildings') loadBuildings();
+            if (section === 'ressourcen') loadRessourcen();
+            if (section === 'vorkommen') loadVorkommen();
+            if (section === 'gebaeude_felder') loadGebaeudeFelder();
+            if (section === 'terrain') loadTerrain();
+            if (section === 'artikel') loadArtikel();
+            if (section === 'einheiten') loadEinheiten();
+            if (section === 'lebewesen') loadLebewesen();
+            if (section === 'regierungsformen') loadRegierungsformen();
         }
         
         async function loadUsers() {
@@ -655,6 +811,157 @@
                 `).join('');
             } catch (err) {
                 document.getElementById('buildingsTable').innerHTML = '<tr><td colspan="8">Fehler beim Laden</td></tr>';
+            }
+        }
+        
+        async function loadRessourcen() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/ressourcen?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('ressourcenTable').innerHTML = data.map(r => `
+                    <tr>
+                        <td>${r.id}</td><td>${r.name || '-'}</td><td>${r.typ || '-'}</td>
+                        <td>${r.wert || 0}</td><td>${r.verbrauch || 0}</td><td>${r.platzbedarf || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('ressourcen', ${r.id})">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteItem('ressourcen', ${r.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) {
+                document.getElementById('ressourcenTable').innerHTML = '<tr><td colspan="7">Fehler</td></tr>';
+            }
+        }
+        
+        async function loadVorkommen() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/vorkommen?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('vorkommenTable').innerHTML = data.map(v => `
+                    <tr>
+                        <td>${v.id}</td><td>${v.name || '-'}</td><td>${v.typ || '-'}</td>
+                        <td>${v.tech || 0}</td><td>${v.suchkosten || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('vorkommen', ${v.id})">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteItem('vorkommen', ${v.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) {
+                document.getElementById('vorkommenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
+            }
+        }
+        
+        async function loadGebaeudeFelder() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/gebaeude_felder?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('gebaeude_felderTable').innerHTML = data.map(t => `
+                    <tr>
+                        <td>${t.id}</td><td>${t.name || '-'}</td><td>${(t.beschreibung || '').substring(0, 30)}</td>
+                        <td>${t.groesse_px || 30}</td><td>${t.ist_baubar ? 'Ja' : 'Nein'}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('gebaeude_felder', '${t.id}')">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteItem('gebaeude_felder', '${t.id}')">Loeschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) {
+                document.getElementById('gebaeude_felderTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
+            }
+        }
+        
+        async function loadTerrain() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/terrain?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('terrainTable').innerHTML = data.map(t => `
+                    <tr>
+                        <td>${t.id}</td><td>${t.name || '-'}</td><td><span style="display:inline-block;width:20px;height:20px;background:${t.farbe || '#000'};border:1px solid #fff;"></span></td>
+                        <td>${t.icon || '-'}</td><td>${t.spielbar ? 'Ja' : 'Nein'}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('terrain', '${t.id}')">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteItem('terrain', '${t.id}')">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) {
+                document.getElementById('terrainTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
+            }
+        }
+        
+        async function loadArtikel() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/artikel?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('artikelTable').innerHTML = data.map(a => `
+                    <tr>
+                        <td>${a.id}</td><td>${a.name || '-'}</td><td>${a.kategorie || '-'}</td>
+                        <td>${a.preis_mips || 0}</td><td>${a.preis_muenzen || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('artikel', ${a.id})">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteItem('artikel', ${a.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) {
+                document.getElementById('artikelTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
+            }
+        }
+        
+        async function loadEinheiten() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/einheiten?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('einheitenTable').innerHTML = data.map(e => `
+                    <tr>
+                        <td>${e.id}</td><td>${e.name || '-'}</td><td>${e.kategorie || '-'}</td>
+                        <td>${e.kosten_mips || 0}</td><td>${e.kosten_muenzen || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('einheiten', ${e.id})">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteItem('einheiten', ${e.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) {
+                document.getElementById('einheitenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
+            }
+        }
+        
+        async function loadLebewesen() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/lebewesen?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('lebewesenTable').innerHTML = data.map(l => `
+                    <tr>
+                        <td>${l.id}</td><td>${l.name || '-'}</td><td>${l.typ || '-'}</td>
+                        <td>${l.staerke || 0}</td><td>${l.gesundheit || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('lebewesen', ${l.id})">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteItem('lebewesen', ${l.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) {
+                document.getElementById('lebewesenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
+            }
+        }
+        
+        async function loadRegierungsformen() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/regierungsformen?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('regierungsformenTable').innerHTML = data.map(r => `
+                    <tr>
+                        <td>${r.id}</td><td>${r.name || '-'}</td><td>${(r.beschreibung || '').substring(0, 40)}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('regierungsformen', ${r.id})">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteItem('regierungsformen', ${r.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) {
+                document.getElementById('regierungsformenTable').innerHTML = '<tr><td colspan="4">Fehler</td></tr>';
             }
         }
         
@@ -888,6 +1195,97 @@
             document.getElementById('createBuildingModal').classList.add('active');
         }
         
+        function showCreateModal(type) {
+            const modals = {
+                'ressourcen': { form: 'createRessourcenForm', container: 'createRessourcenModal' },
+                'vorkommen': { form: 'createVorkommenForm', container: 'createVorkommenModal' },
+                'terrain': { form: 'createTerrainForm', container: 'createTerrainModal' },
+                'artikel': { form: 'createArtikelForm', container: 'createArtikelModal' },
+                'einheiten': { form: 'createEinheitenForm', container: 'createEinheitenModal' },
+                'lebewesen': { form: 'createLebewesenForm', container: 'createLebewesenModal' },
+                'regierungsformen': { form: 'createRegierungsformenForm', container: 'createRegierungsformenModal' }
+            };
+            const cfg = modals[type];
+            if (cfg) {
+                document.getElementById(cfg.form)?.reset();
+                document.getElementById(cfg.container).classList.add('active');
+            }
+        }
+        
+        async function editItem(type, id) {
+            const endpoints = {
+                'ressourcen': 'ressourcen',
+                'vorkommen': 'vorkommen',
+                'gebaeude_felder': 'gebaeude_felder',
+                'terrain': 'terrain',
+                'artikel': 'artikel',
+                'einheiten': 'einheiten',
+                'lebewesen': 'lebewesen',
+                'regierungsformen': 'regierungsformen'
+            };
+            
+            if (entityConfig[type]) {
+                try {
+                    const res = await fetch(`${APIBASE}/admin/${endpoints[type]}/${id}?token=${token}`);
+                    const data = await res.json();
+                    openGenericModal('edit', type);
+                    
+                    // Populate form fields
+                    const form = document.getElementById('genericForm');
+                    form.dataset.id = id;
+                    const config = entityConfig[type];
+                    config.fields.forEach(f => {
+                        const input = form.querySelector(`[name="${f.name}"]`);
+                        if (input && data[f.name] !== undefined) {
+                            input.value = data[f.name];
+                        }
+                    });
+                } catch (err) {
+                    alert('Fehler beim Laden');
+                }
+            } else if (type === 'buildings') {
+                editBuilding(id);
+            }
+        }
+        
+        async function deleteItem(type, id) {
+            if (!confirm('Eintrag wirklich loeschen?')) return;
+            const endpoints = {
+                'ressourcen': 'ressourcen',
+                'vorkommen': 'vorkommen',
+                'gebaeude_felder': 'gebaeude_felder',
+                'terrain': 'terrain',
+                'artikel': 'artikel',
+                'einheiten': 'einheiten',
+                'lebewesen': 'lebewesen',
+                'regierungsformen': 'regierungsformen'
+            };
+            try {
+                const res = await fetch(`${APIBASE}/admin/${endpoints[type]}/${id}?token=${token}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadSectionData(type);
+                } else {
+                    alert('Fehler beim Löschen');
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        }
+        
+        function loadSectionData(type) {
+            const loaders = {
+                'ressourcen': loadRessourcen,
+                'vorkommen': loadVorkommen,
+                'gebaeude_felder': loadGebaeudeFelder,
+                'terrain': loadTerrain,
+                'artikel': loadArtikel,
+                'einheiten': loadEinheiten,
+                'lebewesen': loadLebewesen,
+                'regierungsformen': loadRegierungsformen
+            };
+            if (loaders[type]) loaders[type]();
+        }
+        
         function addCreateProductionRow(resource = '', menge = '') {
             const container = document.getElementById('createProductionContainer');
             const row = document.createElement('div');
@@ -1029,6 +1427,206 @@
         
         // Load initial data
         loadUsers();
+        
+        // Entity config for dynamic forms
+        const entityConfig = {
+            ressourcen: {
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'typ', label: 'Typ', type: 'text' },
+                    { name: 'wert', label: 'Wert', type: 'number' },
+                    { name: 'verbrauch', label: 'Verbrauch', type: 'number' },
+                    { name: 'platzbedarf', label: 'Platzbedarf', type: 'number' }
+                ],
+                endpoint: 'ressourcen'
+            },
+            vorkommen: {
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'typ', label: 'Typ', type: 'text' },
+                    { name: 'tech', label: 'Tech', type: 'number' },
+                    { name: 'suchkosten', label: 'Suchkosten', type: 'number' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' }
+                ],
+                endpoint: 'vorkommen'
+            },
+            gebaeude_felder: {
+                fields: [
+                    { name: 'id', label: 'ID', type: 'text', required: true },
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                    { name: 'groesse_px', label: 'Groesse (px)', type: 'number' },
+                    { name: 'ist_baubar', label: 'Baubar', type: 'select', options: [{v:1,label:'Ja'},{v:0,label:'Nein'}] },
+                    { name: 'farbe_leer', label: 'Farbe', type: 'color' }
+                ],
+                endpoint: 'gebaeude_felder'
+            },
+            terrain: {
+                fields: [
+                    { name: 'id', label: 'ID', type: 'text', required: true },
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'farbe', label: 'Farbe', type: 'color' },
+                    { name: 'icon', label: 'Icon', type: 'text' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                    { name: 'spielbar', label: 'Spielbar', type: 'select', options: [{v:1,label:'Ja'},{v:0,label:'Nein'}] }
+                ],
+                endpoint: 'terrain'
+            },
+            artikel: {
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                    { name: 'kategorie', label: 'Kategorie', type: 'text' },
+                    { name: 'preis_mips', label: 'Preis MIPS', type: 'number' },
+                    { name: 'preis_muenzen', label: 'Preis Muenzen', type: 'number' },
+                    { name: 'gewicht', label: 'Gewicht', type: 'number' },
+                    { name: 'haltbarkeit', label: 'Haltbarkeit', type: 'number' }
+                ],
+                endpoint: 'artikel'
+            },
+            einheiten: {
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'kategorie', label: 'Kategorie', type: 'text' },
+                    { name: 'kosten_mips', label: 'Kosten MIPS', type: 'number' },
+                    { name: 'kosten_muenzen', label: 'Kosten Münzen', type: 'number' },
+                    { name: 'bevoelkerung_count', label: 'Bevölkerung', type: 'number' },
+                    { name: 'bewaffnung', label: 'Bewaffnung', type: 'text' },
+                    { name: 'transport_kapazitaet', label: 'Transport', type: 'number' },
+                    { name: 'geschwindigkeit', label: 'Geschwindigkeit', type: 'number' }
+                ],
+                endpoint: 'einheiten'
+            },
+            lebewesen: {
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'typ', label: 'Typ', type: 'text' },
+                    { name: 'staerke', label: 'Stärke', type: 'number' },
+                    { name: 'gesundheit', label: 'Gesundheit', type: 'number' },
+                    { name: 'bevoelkerung_kosten', label: 'Bevölkerungskosten', type: 'number' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' }
+                ],
+                endpoint: 'lebewesen'
+            },
+            regierungsformen: {
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' }
+                ],
+                endpoint: 'regierungsformen'
+            }
+        };
+        
+        function openGenericModal(mode, entityType) {
+            const config = entityConfig[entityType];
+            if (!config) return;
+            
+            const modal = document.getElementById('genericModal');
+            const title = modal.querySelector('h3');
+            const form = document.getElementById('genericForm');
+            
+            title.textContent = mode === 'create' ? `Neuer ${entityType}` : `${entityType} bearbeiten`;
+            form.dataset.mode = mode;
+            form.dataset.entity = entityType;
+            form.dataset.endpoint = config.endpoint;
+            
+            // Build form fields
+            form.innerHTML = config.fields.map(f => {
+                let input = '';
+                if (f.type === 'select') {
+                    input = `<select name="${f.name}">${f.options.map(o => `<option value="${o.v}">${o.label}</option>`).join('')}</select>`;
+                } else if (f.type === 'textarea') {
+                    input = `<textarea name="${f.name}"></textarea>`;
+                } else if (f.type === 'color') {
+                    input = `<input type="color" name="${f.name}">`;
+                } else {
+                    input = `<input type="${f.type}" name="${f.name}" ${f.required ? 'required' : ''}>`;
+                }
+                return `<div class="form-group"><label>${f.label}</label>${input}</div>`;
+            }).join('');
+            
+            if (mode === 'edit') {
+                form.dataset.id = '';
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeGenericModal() {
+            document.getElementById('genericModal').classList.remove('active');
+        }
+        
+        // Override showCreateModal to use generic
+        const originalShowCreateModal = showCreateModal;
+        showCreateModal = function(type) {
+            if (entityConfig[type]) {
+                openGenericModal('create', type);
+            } else if (type === 'buildings') {
+                showCreateBuildingModal();
+            }
+        };
+        
+        // Override editItem to use generic
+        const originalEditItem = editItem;
+        editItem = async function(type, id) {
+            if (entityConfig[type]) {
+                const config = entityConfig[type];
+                try {
+                    const res = await fetch(`${APIBASE}/admin/${config.endpoint}/${id}?token=${token}`);
+                    const data = await res.json();
+                    const modal = document.getElementById('genericModal');
+                    const form = document.getElementById('genericForm');
+                    form.dataset.mode = 'edit';
+                    form.dataset.entity = type;
+                    form.dataset.endpoint = config.endpoint;
+                    form.dataset.id = id;
+                    modal.querySelector('h3').textContent = `${type} bearbeiten`;
+                    modal.classList.add('active');
+                } catch (err) {
+                    alert('Fehler beim Laden');
+                }
+            } else if (type === 'buildings') {
+                editBuilding(id);
+            }
+        };
+        
+        // Generic form submit
+        document.getElementById('genericForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const mode = form.dataset.mode;
+            const entity = form.dataset.entity;
+            const endpoint = form.dataset.endpoint;
+            const id = form.dataset.id;
+            
+            const formData = new FormData(form);
+            const body = {};
+            for (let [k, v] of formData) body[k] = v;
+            
+            try {
+                let url = `${APIBASE}/admin/${endpoint}?token=${token}`;
+                let method = 'POST';
+                if (mode === 'edit') {
+                    url += `/${id}`;
+                    method = 'PUT';
+                }
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                if (res.ok) {
+                    closeGenericModal();
+                    loadSectionData(entity);
+                } else {
+                    alert('Fehler beim Speichern');
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        });
     </script>
 </body>
 </html>
