@@ -11,7 +11,7 @@ details: |
     version: 2.2.0
     description: OpenAPI-Schema für den Backend-Service der Verbrannten Zone
   servers:
-    - url: http://localhost:8000
+    - url: https://localhost:8000
   paths:
     /player/{player_id}:
       get:

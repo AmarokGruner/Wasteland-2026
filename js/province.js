@@ -95,7 +95,11 @@ async function loadProvince(worldX, worldY) {
             } else if (cellType === 'building') {
                 const terrain = cellData.terrain;
                 cell.style.backgroundColor = getTerrainColor(terrain);
-                cell.title = `Gebäudefeld (${cellData.buildingX}, ${cellData.buildingY})`;
+                if (cellData.placedBuilding) {
+                    cell.title = `${cellData.placedBuilding.name} (${cellData.buildingX}, ${cellData.buildingY})`;
+                } else {
+                    cell.title = `Gebäudefeld (${cellData.buildingX}, ${cellData.buildingY})`;
+                }
 
                 if (cellData.placedBuilding) {
                     const b = cellData.placedBuilding;
@@ -242,15 +246,44 @@ async function selectProvinceCell(cellData, backendData) {
             infoHTML += `<hr style="margin: 10px 0; border-color: var(--border);">`;
             infoHTML += `<p><strong>Gebäude errichten:</strong></p>`;
 
-            // Nutze Fallback-Liste für Bau-Optionen
-            BUILDINGS_FALLBACK.filter(t => t.baubar).forEach(t => {
+            // Nur Gebäude (keine Wege) anzeigen
+            const buildingsOnly = BUILDINGS_FALLBACK.filter(t => t.baubar && t.kategorie !== 'Weg');
+            buildingsOnly.forEach(t => {
+                const cost = t.baukosten_mips || 0;
+                const costText = t.name === 'Bunker' ? 'KOSTENLOS' : (cost + ' Eisen');
                 infoHTML += `
                     <div class="build-option" onclick="placeBuilding('${t.name}', ${bX}, ${bY})">
                         <span>${t.symbol_emoji} ${t.name}</span>
-                        <span style="font-size: 10px; color: var(--text-muted)">Bauen</span>
+                        <span style="font-size: 10px; color: var(--text-muted)">${costText}</span>
                     </div>`;
             });
         }
+    } else if (cellType === 'road' || cellType === 'crossing') {
+        const isCrossing = cellType === 'crossing';
+        infoHTML += `<p><strong>Typ:</strong> ${isCrossing ? 'Kreuzung' : 'Weg'}</p>`;
+        infoHTML += `<p style="color: var(--accent-success);">✅ Bebaubar!</p>`;
+        infoHTML += `<hr style="margin: 10px 0; border-color: var(--border);">`;
+        infoHTML += `<p><strong>Weg bauen:</strong></p>`;
+
+        // Nur Wege anzeigen - nutze ROAD_LEVELS für die Kosten
+        const wayTypes = [
+            { name: 'Feldweg', symbol_emoji: '🛤️', cost: 50 },
+            { name: 'Feldwegkreuzung', symbol_emoji: '🛤️', cost: 80 },
+            { name: 'Kiesweg', symbol_emoji: '🛤️', cost: 100 },
+            { name: 'Kieskreuzung', symbol_emoji: '🛤️', cost: 150 }
+        ];
+        wayTypes.forEach(t => {
+            const isWay = !t.name.toLowerCase().includes('kreuzung');
+            // Bei Kreuzungen nur Kreuzungen anzeigen, bei Wegen nur Wege
+            if ((isCrossing && t.name.toLowerCase().includes('kreuzung')) || 
+                (!isCrossing && !t.name.toLowerCase().includes('kreuzung'))) {
+                infoHTML += `
+                    <div class="build-option" onclick="placeRoad('${t.name}', ${cellData.gridX}, ${cellData.gridY})">
+                        <span>${t.symbol_emoji} ${t.name}</span>
+                        <span style="font-size: 10px; color: var(--text-muted)">${t.cost} Eisen</span>
+                    </div>`;
+            }
+        });
     } else {
         infoHTML += `<p>Keine Aktionen für ${cellType} verfügbar.</p>`;
     }
@@ -265,6 +298,24 @@ async function placeBuilding(type, x, y) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ building_type: type, x: x, y: y })
+        });
+        if (res.ok) {
+            loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
+            window.loadResources();
+        } else {
+            const err = await res.json();
+            alert("Fehler beim Bau: " + (err.detail || "Unbekannt"));
+        }
+    } catch (e) { alert("Serverfehler beim Bau"); }
+}
+
+async function placeRoad(type, x, y) {
+    if (!confirm(`${type} auf (${x},${y}) bauen?`)) return;
+    try {
+        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/roads`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ road_type: type, x: x, y: y })
         });
         if (res.ok) {
             loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);

@@ -32,7 +32,7 @@ pip install fastapi uvicorn
 python main.py
 ```
 
-Server läuft auf: `http://localhost:8000`
+Server läuft auf: `https://localhost:8000` (HTTPS)
 
 ## 🎮 Spielfunktionen
 

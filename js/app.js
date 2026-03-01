@@ -2,9 +2,23 @@
 // Hauptlogik – Verbrannte Zone
 // ============================================================
 
-const APIBASE = 'http://localhost:8000';
+const APIBASE = window.location.protocol === 'https:' 
+  ? `https://${window.location.host}` 
+  : 'http://localhost:8000';
 window.APIBASE = APIBASE;
-window.currentPlayerId = 1;
+
+// Auth check on load
+const savedToken = localStorage.getItem('token');
+const savedPlayerId = localStorage.getItem('player_id');
+const savedUsername = localStorage.getItem('username');
+const savedRole = localStorage.getItem('role');
+
+if (!savedToken || !savedPlayerId) {
+  // Redirect to login if not authenticated
+  window.location.href = 'login.html';
+}
+
+window.currentPlayerId = savedPlayerId ? parseInt(savedPlayerId) : 1;
 window.currentView = 'world';
 window.selectedProvinceCoords = null;
 window.currentProvinzId = null;
@@ -13,11 +27,31 @@ window.resourceMap = {}; // Cache für Ressourcen-Namen [ID] -> Name
 // ── Initialisierung ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Verbrannte Zone lädt...');
+  
+  // Display user info
+  const userDisplay = document.getElementById('user-display');
+  if (userDisplay && savedUsername) {
+    userDisplay.textContent = `👤 ${savedUsername}`;
+  }
+  
   loadResources();
   initWorldMap();
   loadResourceMap(); // Ressourcen-Namen laden
   switchView('world');
 });
+
+// Logout function
+function logout() {
+  const token = localStorage.getItem('token');
+  fetch(`${APIBASE}/auth/logout`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token })
+  }).finally(() => {
+    localStorage.clear();
+    window.location.href = 'login.html';
+  });
+}
 
 // ── Spieler-Ressourcen laden ─────────────────────────────────
 async function loadResources() {

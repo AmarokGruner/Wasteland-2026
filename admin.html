@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verbrannte Zone - Admin Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --bg-dark: #0d0d0d;
+            --bg-card: #1a1a1a;
+            --border: #333;
+            --accent: #cd853f;
+            --accent-hover: #e8a550;
+            --text: #e0e0e0;
+            --text-muted: #888;
+            --danger: #d32f2f;
+            --success: #388e3c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            color: var(--accent);
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        nav {
+            background: var(--bg-card);
+            padding: 0 30px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 0;
+        }
+        
+        nav li {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        nav li:hover {
+            background: rgba(205, 133, 63, 0.1);
+        }
+        
+        nav li.active {
+            border-bottom-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        main {
+            padding: 30px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background: rgba(205, 133, 63, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        
+        .form-group input, 
+        .form-group select,
+        .form-group textarea {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        .form-group textarea {
+            min-height: 80px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+            color: var(--accent);
+        }
+        
+        .close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .json-editor {
+            font-family: monospace;
+            font-size: 12px;
+            min-height: 150px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .badge-admin {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .badge-player {
+            background: var(--success);
+            color: white;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        
+        /* Dynamic row styles */
+        .dynamic-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+        }
+        
+        .dynamic-row select,
+        .dynamic-row input {
+            flex: 1;
+            padding: 6px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+        }
+        
+        .dynamic-row input[type="number"] {
+            max-width: 80px;
+            flex: none;
+        }
+        
+        .dynamic-row select {
+            max-width: 150px;
+            flex: none;
+        }
+        
+        .dynamic-row .btn-remove {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: none;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">🔥 Verbrannte Zone - Admin</div>
+        <div class="user-info">
+            <span id="adminName">Admin</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+    
+    <nav>
+        <ul>
+            <li class="active" onclick="showSection('users')">Benutzer</li>
+            <li onclick="showSection('buildings')">Gebäude-Typen</li>
+            <li onclick="showSection('players')">Spieler</li>
+        </ul>
+    </nav>
+    
+    <main>
+        <!-- Users Section -->
+        <section id="usersSection" class="section active">
+            <div class="card">
+                <h2>Benutzer-Verwaltung</h2>
+                <button class="btn btn-primary" onclick="showCreateUserModal()">+ Neuer Benutzer</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Benutzername</th>
+                                <th>Rolle</th>
+                                <th>Spieler</th>
+                                <th>Erstellt</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr><td colspan="6" class="loading">Laden...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Buildings Section -->
+        <section id="buildingsSection" class="section">
+            <div class="card">
+                <h2>Gebäude-Typen</h2>
+                <button class="btn btn-primary" onclick="showCreateBuildingModal()">+ Neues Gebäude</button>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Kategorie</th>
+                                <th>Kosten</th>
+                                <th>Arbeiter</th>
+                                <th>Wohnraum</th>
+                                <th>Lager</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="buildingsTable">
+                            <tr><td colspan="8" class="loading">Laden...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Players Section -->
+        <section id="playersSection" class="section">
+            <div class="card">
+                <h2>Spieler-Übersicht</h2>
+                <p style="color: var(--text-muted);">Spieler-Daten werden hier angezeigt.</p>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Neuen Benutzer erstellen</h3>
+                <button class="close" onclick="closeModal('createUserModal')">&times;</button>
+            </div>
+            <form id="createUserForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Benutzername</label>
+                        <input type="text" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Passwort</label>
+                        <input type="password" name="password" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rolle</label>
+                        <select name="role">
+                            <option value="player">Spieler</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Spieler-ID (optional)</label>
+                        <input type="number" name="player_id">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Erstellen</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit Building Modal -->
+    <div id="editBuildingModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Gebäude bearbeiten</h3>
+                <button class="close" onclick="closeModal('editBuildingModal')">&times;</button>
+            </div>
+            <form id="editBuildingForm">
+                <input type="hidden" name="building_id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label>Kategorie</label>
+                        <input type="text" name="kategorie">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Baukosten (MIPS)</label>
+                        <input type="number" name="baukosten_mips">
+                    </div>
+                    <div class="form-group">
+                        <label>Arbeiter</label>
+                        <input type="number" name="arbeiter">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Wohnraum</label>
+                        <input type="number" name="wohnraum">
+                    </div>
+                    <div class="form-group">
+                        <label>Lagerkapazität</label>
+                        <input type="number" name="lagerkapazitaet">
+                    </div>
+                </div>
+                
+                <!-- Produktion Section -->
+                <div class="form-group">
+                    <label>Produktion</label>
+                    <div id="productionContainer"></div>
+                    <button type="button" class="btn btn-small" onclick="addProductionRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                </div>
+                
+                <!-- Verbrauch Section -->
+                <div class="form-group">
+                    <label>Verbrauch</label>
+                    <div id="consumptionContainer"></div>
+                    <button type="button" class="btn btn-small" onclick="addConsumptionRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                </div>
+                
+                <!-- Terrain Effectiveness Section -->
+                <div class="form-group">
+                    <label>Terrain-Effektivität</label>
+                    <div id="terrainContainer"></div>
+                    <button type="button" class="btn btn-small" onclick="addTerrainRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Speichern</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Create Building Modal -->
+    <div id="createBuildingModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Neues Gebäude erstellen</h3>
+                <button class="close" onclick="closeModal('createBuildingModal')">&times;</button>
+            </div>
+            <form id="createBuildingForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategorie</label>
+                        <input type="text" name="kategorie">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Baukosten (MIPS)</label>
+                        <input type="number" name="baukosten_mips" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Arbeiter</label>
+                        <input type="number" name="arbeiter" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Wohnraum</label>
+                        <input type="number" name="wohnraum" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Lagerkapazität</label>
+                        <input type="number" name="lagerkapazitaet" value="0">
+                    </div>
+                </div>
+                
+                <!-- Produktion Section -->
+                <div class="form-group">
+                    <label>Produktion</label>
+                    <div id="createProductionContainer"></div>
+                    <button type="button" class="btn btn-small" onclick="addCreateProductionRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                </div>
+                
+                <!-- Verbrauch Section -->
+                <div class="form-group">
+                    <label>Verbrauch</label>
+                    <div id="createConsumptionContainer"></div>
+                    <button type="button" class="btn btn-small" onclick="addCreateConsumptionRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                </div>
+                
+                <!-- Terrain Effectiveness Section -->
+                <div class="form-group">
+                    <label>Terrain-Effektivität</label>
+                    <div id="createTerrainContainer"></div>
+                    <button type="button" class="btn btn-small" onclick="addCreateTerrainRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Erstellen</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const APIBASE = window.location.protocol === 'https:' 
+            ? `https://${window.location.host}` 
+            : 'http://localhost:8000';
+        
+        const RESOURCES = ['Nahrung', 'Wasser', 'Strom', 'Benzin', 'Diesel', 'MIPS', 'Münzen', 'Munition', 'Medikamente', 'Eisen', 'Kupfer', 'Aluminium', 'Plastik', 'Elektronik', 'Holz', 'Stein', 'Beton', 'Textilien'];
+        
+        let token = localStorage.getItem('token');
+        
+        // Check auth
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        // Check admin
+        if (localStorage.getItem('role') !== 'admin') {
+            window.location.href = 'index.html';
+        }
+        
+        document.getElementById('adminName').textContent = localStorage.getItem('username');
+        
+        function showSection(section) {
+            document.querySelectorAll('nav li').forEach(li => li.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(section + 'Section').classList.add('active');
+            
+            if (section === 'users') loadUsers();
+            if (section === 'buildings') loadBuildings();
+        }
+        
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/users?token=${token}`);
+                if (res.status === 401 || res.status === 403) {
+                    logout();
+                    return;
+                }
+                const users = await res.json();
+                
+                document.getElementById('usersTable').innerHTML = users.map(u => `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.username}</td>
+                        <td><span class="badge badge-${u.role}">${u.role}</span></td>
+                        <td>${u.player_name || '-'}</td>
+                        <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                        <td class="actions">
+                            <button class="btn btn-danger" onclick="deleteUser(${u.id})">Löschen</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                document.getElementById('usersTable').innerHTML = '<tr><td colspan="6">Fehler beim Laden</td></tr>';
+            }
+        }
+        
+        async function loadBuildings() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/buildings?token=${token}`);
+                if (res.status === 401 || res.status === 403) {
+                    logout();
+                    return;
+                }
+                const buildings = await res.json();
+                
+                document.getElementById('buildingsTable').innerHTML = buildings.map(b => `
+                    <tr>
+                        <td>${b.id}</td>
+                        <td>${b.name || '-'}</td>
+                        <td>${b.kategorie || '-'}</td>
+                        <td>${b.baukosten_mips || 0}</td>
+                        <td>${b.arbeiter || 0}</td>
+                        <td>${b.wohnraum || 0}</td>
+                        <td>${b.lagerkapazitaet || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editBuilding(${b.id})">Bearbeiten</button>
+                            <button class="btn btn-danger" onclick="deleteBuilding(${b.id})">Löschen</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                document.getElementById('buildingsTable').innerHTML = '<tr><td colspan="8">Fehler beim Laden</td></tr>';
+            }
+        }
+        
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const res = await fetch(`${APIBASE}/admin/users?token=${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: formData.get('username'),
+                        password: formData.get('password'),
+                        role: formData.get('role'),
+                        player_id: formData.get('player_id') ? parseInt(formData.get('player_id')) : null
+                    })
+                });
+                
+                if (res.ok) {
+                    closeModal('createUserModal');
+                    loadUsers();
+                    e.target.reset();
+                } else {
+                    alert('Fehler beim Erstellen');
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        });
+        
+        async function deleteUser(id) {
+            if (!confirm('Benutzer wirklich löschen?')) return;
+            // Implement delete if needed
+            alert('Löschen noch nicht implementiert');
+        }
+        
+        async function editBuilding(id) {
+            try {
+                const res = await fetch(`${APIBASE}/admin/buildings?token=${token}`);
+                const buildings = await res.json();
+                const building = buildings.find(b => b.id === id);
+                
+                if (!building) return;
+                
+                const form = document.getElementById('editBuildingForm');
+                form.building_id.value = building.id;
+                form.name.value = building.name || '';
+                form.kategorie.value = building.kategorie || '';
+                form.baukosten_mips.value = building.baukosten_mips || 0;
+                form.arbeiter.value = building.arbeiter || 0;
+                form.wohnraum.value = building.wohnraum || 0;
+                form.lagerkapazitaet.value = building.lagerkapazitaet || 0;
+                
+                // Parse and display production
+                const production = JSON.parse(building.produktion || '[]');
+                const prodContainer = document.getElementById('productionContainer');
+                prodContainer.innerHTML = '';
+                production.forEach(p => addProductionRow(p.ressource, p.menge));
+                if (production.length === 0) addProductionRow();
+                
+                // Parse and display consumption
+                const consumption = JSON.parse(building.rohstoffverbrauch || '[]');
+                const consContainer = document.getElementById('consumptionContainer');
+                consContainer.innerHTML = '';
+                consumption.forEach(c => addConsumptionRow(c.ressource, c.menge));
+                if (consumption.length === 0) addConsumptionRow();
+                
+                // Parse and display terrain effectiveness
+                const terrain = JSON.parse(building.terrain_effektivitaet || '{}');
+                const terrainContainer = document.getElementById('terrainContainer');
+                terrainContainer.innerHTML = '';
+                Object.entries(terrain).forEach(([bonus, terrains]) => {
+                    addTerrainRow(bonus, terrains);
+                });
+                if (Object.keys(terrain).length === 0) addTerrainRow();
+                
+                document.getElementById('editBuildingModal').classList.add('active');
+            } catch (err) {
+                alert('Fehler beim Laden');
+            }
+        }
+        
+        // Dynamic row functions for production
+        function addProductionRow(resource = '', menge = '') {
+            const container = document.getElementById('productionContainer');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <select class="prod-resource">
+                    <option value="">-- Ressource --</option>
+                    ${RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('')}
+                </select>
+                <input type="number" class="prod-menge" placeholder="Menge" value="${menge}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            container.appendChild(row);
+        }
+        
+        function addConsumptionRow(resource = '', menge = '') {
+            const container = document.getElementById('consumptionContainer');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <select class="cons-resource">
+                    <option value="">-- Ressource --</option>
+                    ${RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('')}
+                </select>
+                <input type="number" class="cons-menge" placeholder="Menge" value="${menge}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            container.appendChild(row);
+        }
+        
+        function addTerrainRow(bonus = '100', terrains = '') {
+            const container = document.getElementById('terrainContainer');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <select class="terrain-bonus">
+                    <option value="100" ${bonus === '100' ? 'selected' : ''}>100%</option>
+                    <option value="125" ${bonus === '125' ? 'selected' : ''}>125%</option>
+                    <option value="75" ${bonus === '75' ? 'selected' : ''}>75%</option>
+                    <option value="50" ${bonus === '50' ? 'selected' : ''}>50%</option>
+                    <option value="25" ${bonus === '25' ? 'selected' : ''}>25%</option>
+                </select>
+                <input type="text" class="terrain-list" placeholder="Terrain-Liste (kommagetrennt)" value="${terrains}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            container.appendChild(row);
+        }
+        
+        function getProductionData() {
+            const rows = document.querySelectorAll('#productionContainer .dynamic-row');
+            const data = [];
+            rows.forEach(row => {
+                const resource = row.querySelector('.prod-resource').value;
+                const menge = parseInt(row.querySelector('.prod-menge').value) || 0;
+                if (resource && menge > 0) {
+                    data.push({ ressource: resource, menge: menge });
+                }
+            });
+            return JSON.stringify(data);
+        }
+        
+        function getConsumptionData() {
+            const rows = document.querySelectorAll('#consumptionContainer .dynamic-row');
+            const data = [];
+            rows.forEach(row => {
+                const resource = row.querySelector('.cons-resource').value;
+                const menge = parseInt(row.querySelector('.cons-menge').value) || 0;
+                if (resource && menge > 0) {
+                    data.push({ ressource: resource, menge: menge });
+                }
+            });
+            return JSON.stringify(data);
+        }
+        
+        function getTerrainData() {
+            const rows = document.querySelectorAll('#terrainContainer .dynamic-row');
+            const data = {};
+            rows.forEach(row => {
+                const bonus = row.querySelector('.terrain-bonus').value;
+                const terrains = row.querySelector('.terrain-list').value;
+                if (terrains.trim()) {
+                    data[bonus] = terrains.split(',').map(t => t.trim()).filter(t => t);
+                }
+            });
+            return JSON.stringify(data);
+        }
+        
+        document.getElementById('editBuildingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const buildingId = formData.get('building_id');
+            
+            try {
+                const res = await fetch(`${APIBASE}/admin/buildings/${buildingId}?token=${token}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        kategorie: formData.get('kategorie'),
+                        baukosten_mips: parseInt(formData.get('baukosten_mips')) || 0,
+                        arbeiter: parseInt(formData.get('arbeiter')) || 0,
+                        wohnraum: parseInt(formData.get('wohnraum')) || 0,
+                        lagerkapazitaet: parseInt(formData.get('lagerkapazitaet')) || 0,
+                        produktion: getProductionData(),
+                        rohstoffverbrauch: getConsumptionData(),
+                        terrain_effektivitaet: getTerrainData()
+                    })
+                });
+                
+                if (res.ok) {
+                    closeModal('editBuildingModal');
+                    loadBuildings();
+                } else {
+                    alert('Fehler beim Speichern');
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        });
+        
+        function logout() {
+            fetch(`${APIBASE}/auth/logout`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+            });
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        function showCreateBuildingModal() {
+            document.getElementById('createBuildingForm').reset();
+            document.getElementById('createProductionContainer').innerHTML = '';
+            document.getElementById('createConsumptionContainer').innerHTML = '';
+            document.getElementById('createTerrainContainer').innerHTML = '';
+            addCreateProductionRow();
+            addCreateConsumptionRow();
+            addCreateTerrainRow();
+            document.getElementById('createBuildingModal').classList.add('active');
+        }
+        
+        function addCreateProductionRow(resource = '', menge = '') {
+            const container = document.getElementById('createProductionContainer');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <select class="prod-resource">
+                    <option value="">-- Ressource --</option>
+                    ${RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('')}
+                </select>
+                <input type="number" class="prod-menge" placeholder="Menge" value="${menge}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            container.appendChild(row);
+        }
+        
+        function addCreateConsumptionRow(resource = '', menge = '') {
+            const container = document.getElementById('createConsumptionContainer');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <select class="cons-resource">
+                    <option value="">-- Ressource --</option>
+                    ${RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('')}
+                </select>
+                <input type="number" class="cons-menge" placeholder="Menge" value="${menge}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            container.appendChild(row);
+        }
+        
+        function addCreateTerrainRow(bonus = '100', terrains = '') {
+            const container = document.getElementById('createTerrainContainer');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <select class="terrain-bonus">
+                    <option value="100" ${bonus === '100' ? 'selected' : ''}>100%</option>
+                    <option value="125" ${bonus === '125' ? 'selected' : ''}>125%</option>
+                    <option value="75" ${bonus === '75' ? 'selected' : ''}>75%</option>
+                    <option value="50" ${bonus === '50' ? 'selected' : ''}>50%</option>
+                    <option value="25" ${bonus === '25' ? 'selected' : ''}>25%</option>
+                </select>
+                <input type="text" class="terrain-list" placeholder="Terrain-Liste (kommagetrennt)" value="${terrains}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            container.appendChild(row);
+        }
+        
+        function getCreateProductionData() {
+            const rows = document.querySelectorAll('#createProductionContainer .dynamic-row');
+            const data = [];
+            rows.forEach(row => {
+                const resource = row.querySelector('.prod-resource').value;
+                const menge = parseInt(row.querySelector('.prod-menge').value) || 0;
+                if (resource && menge > 0) {
+                    data.push({ ressource: resource, menge: menge });
+                }
+            });
+            return JSON.stringify(data);
+        }
+        
+        function getCreateConsumptionData() {
+            const rows = document.querySelectorAll('#createConsumptionContainer .dynamic-row');
+            const data = [];
+            rows.forEach(row => {
+                const resource = row.querySelector('.cons-resource').value;
+                const menge = parseInt(row.querySelector('.cons-menge').value) || 0;
+                if (resource && menge > 0) {
+                    data.push({ ressource: resource, menge: menge });
+                }
+            });
+            return JSON.stringify(data);
+        }
+        
+        function getCreateTerrainData() {
+            const rows = document.querySelectorAll('#createTerrainContainer .dynamic-row');
+            const data = {};
+            rows.forEach(row => {
+                const bonus = row.querySelector('.terrain-bonus').value;
+                const terrains = row.querySelector('.terrain-list').value;
+                if (terrains.trim()) {
+                    data[bonus] = terrains.split(',').map(t => t.trim()).filter(t => t);
+                }
+            });
+            return JSON.stringify(data);
+        }
+        
+        document.getElementById('createBuildingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const res = await fetch(`${APIBASE}/admin/buildings?token=${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        kategorie: formData.get('kategorie'),
+                        baukosten_mips: parseInt(formData.get('baukosten_mips')) || 0,
+                        arbeiter: parseInt(formData.get('arbeiter')) || 0,
+                        wohnraum: parseInt(formData.get('wohnraum')) || 0,
+                        lagerkapazitaet: parseInt(formData.get('lagerkapazitaet')) || 0,
+                        produktion: getCreateProductionData(),
+                        rohstoffverbrauch: getCreateConsumptionData(),
+                        terrain_effektivitaet: getCreateTerrainData()
+                    })
+                });
+                
+                if (res.ok) {
+                    closeModal('createBuildingModal');
+                    loadBuildings();
+                    e.target.reset();
+                } else {
+                    const err = await res.json();
+                    alert('Fehler beim Erstellen: ' + (err.detail || 'Unbekannt'));
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        });
+        
+        async function deleteBuilding(id) {
+            if (!confirm('Gebäude wirklich löschen? Dies kann nicht rückgängig gemacht werden.')) return;
+            
+            try {
+                const res = await fetch(`${APIBASE}/admin/buildings/${id}?token=${token}`, {
+                    method: 'DELETE'
+                });
+                
+                if (res.ok) {
+                    loadBuildings();
+                } else {
+                    alert('Fehler beim Löschen');
+                }
+            } catch (err) {
+                alert('Verbindungsfehler');
+            }
+        }
+        
+        // Load initial data
+        loadUsers();
+    </script>
+</body>
+</html>

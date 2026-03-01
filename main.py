@@ -1,19 +1,64 @@
 #!/usr/bin/env python3
 """main.py v2.1.0 – Verbrannte Zone Backend
-Neu: Provinz-Besitz, Ressourcen-Lager pro Provinz, Handelskarren-Transport"""
-from fastapi import FastAPI, HTTPException
+Neu: Benutzer-Authentifizierung und Admin-Dashboard"""
+from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
-import sqlite3, json, os, math
+import sqlite3, json, os, math, hashlib
 from datetime import datetime, timedelta
+import secrets
 
 DB_PATH = "verbrannte_zone.db"
+SECRET_KEY = "vz-secret-key-change-in-production"
+
+# JWT helper functions
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def create_token(user_id, username, role):
+    """Create a simple token (for demo - use JWT in production)."""
+    data = f"{user_id}:{username}:{role}:{datetime.now().timestamp()}"
+    return hashlib.sha256(data.encode()).hexdigest()[:32]
+
+def verify_token(token):
+    """Verify token and return user info."""
+    conn = get_db()
+    cur = conn.cursor()
+    import json
+    cur.execute("SELECT id, username, role, player_id FROM users WHERE token = ?", (token,))
+    user = cur.fetchone()
+    conn.close()
+    if user:
+        return {"id": user[0], "username": user[1], "role": user[2], "player_id": user[3]}
+    return None
+
+def get_current_user(token: str = None):
+    """Dependency to get current user from token."""
+    if not token:
+        return None
+    return verify_token(token)
+
+# Auth Models
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    token: str
+    user_id: int
+    username: str
+    role: str
+    player_id: Optional[int] = None
+
 ROAD_COSTS     = {1:50,  2:100, 3:200, 4:400}
 CROSSING_COSTS = {1:100, 2:200, 3:400, 4:800}
-BUILDING_COSTS = {"building_mine":500,"building_factory":1000,"building_bunker":2000,
-                  "building_powerplant":1500,"building_refinery":1200}
+BUILDING_COSTS = {"building_mine":500,"building_factory":1000,"building_bunker":0,
+                  "building_powerplant":1500,"building_refinery":1202,
+                  "Feldweg":50,"Feldwegkreuzung":80,
+                  "Kiesweg":100,"Kieskreuzung":150}
 HANDELSKARREN_ID       = 1   # Ressource-ID
 HANDELSKARREN_KAPAZITÄT = 100  # Platz pro Karren
 
@@ -194,6 +239,260 @@ init_db()
 # ─── FastAPI ──────────────────────────────────────────────────────────────────
 app = FastAPI(title="Verbrannte Zone API", version="2.1.0")
 
+# ─── Auth Endpoints ─────────────────────────────────────────────────────────
+@app.post("/auth/login", response_model=LoginResponse)
+async def login(credentials: LoginRequest):
+    """Authenticate user and return token."""
+    conn = get_db()
+    cur = conn.cursor()
+    
+    pw_hash = hash_password(credentials.password)
+    cur.execute("""
+        SELECT id, username, role, player_id 
+        FROM users 
+        WHERE username = ? AND password_hash = ?
+    """, (credentials.username, pw_hash))
+    
+    user = cur.fetchone()
+    if not user:
+        conn.close()
+        raise HTTPException(401, "Invalid username or password")
+    
+    # Create token
+    token = create_token(user[0], user[1], user[2])
+    cur.execute("UPDATE users SET token = ? WHERE id = ?", (token, user[0]))
+    conn.commit()
+    conn.close()
+    
+    return LoginResponse(
+        token=token,
+        user_id=user[0],
+        username=user[1],
+        role=user[2],
+        player_id=user[3]
+    )
+
+@app.post("/auth/logout")
+async def logout(request: dict):
+    """Logout user by clearing token."""
+    token = request.get("token") if isinstance(request, dict) else None
+    if token:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE users SET token = NULL WHERE token = ?", (token,))
+        conn.commit()
+        conn.close()
+    return {"message": "Logged out successfully"}
+
+@app.get("/auth/me")
+async def get_me(token: Optional[str] = None):
+    """Get current user info."""
+    if not token:
+        raise HTTPException(401, "Not authenticated")
+    
+    user = verify_token(token)
+    if not user:
+        raise HTTPException(401, "Invalid token")
+    
+    return user
+
+# ─── Admin Endpoints ───────────────────────────────────────────────────────
+def require_admin(token: str = None):
+    """Dependency that requires admin role."""
+    if not token:
+        raise HTTPException(401, "Not authenticated")
+    user = verify_token(token)
+    if not user or user["role"] != "admin":
+        raise HTTPException(403, "Admin access required")
+    return user
+
+@app.get("/admin/users")
+async def list_users(token: str = None, admin=Depends(require_admin)):
+    """List all users (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT u.id, u.username, u.role, u.player_id, u.created_at, p.name as player_name
+        FROM users u
+        LEFT JOIN players p ON u.player_id = p.id
+        ORDER BY u.id
+    """)
+    users = [dict(row) for row in cur.fetchall()]
+    conn.close()
+    return users
+
+@app.post("/admin/users")
+async def create_user(
+    username: str, 
+    password: str, 
+    role: str = "player",
+    player_id: Optional[int] = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new user (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    
+    pw_hash = hash_password(password)
+    try:
+        cur.execute("""
+            INSERT INTO users (username, password_hash, role, player_id)
+            VALUES (?, ?, ?, ?)
+        """, (username, pw_hash, role, player_id))
+        conn.commit()
+        user_id = cur.lastrowid
+        conn.close()
+        return {"message": f"User {username} created", "user_id": user_id}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Username already exists")
+
+@app.get("/admin/buildings")
+async def list_building_types(token: str = None, admin=Depends(require_admin)):
+    """List all building types (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM gebaeude_typen ORDER BY name")
+    buildings = [dict(row) for row in cur.fetchall()]
+    conn.close()
+    return buildings
+
+@app.put("/admin/buildings/{building_id}")
+async def update_building_type(
+    building_id: int,
+    name: str = None,
+    kategorie: str = None,
+    baukosten_mips: int = None,
+    arbeiter: int = None,
+    wohnraum: int = None,
+    lagerkapazitaet: int = None,
+    produktion: str = None,
+    rohstoffverbrauch: str = None,
+    terrain_effektivitaet: str = None,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Update building type (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    
+    # Build dynamic update
+    updates = []
+    values = []
+    if name is not None:
+        updates.append("name = ?")
+        values.append(name)
+    if kategorie is not None:
+        updates.append("kategorie = ?")
+        values.append(kategorie)
+    if baukosten_mips is not None:
+        updates.append("baukosten_mips = ?")
+        values.append(baukosten_mips)
+    if arbeiter is not None:
+        updates.append("arbeiter = ?")
+        values.append(arbeiter)
+    if wohnraum is not None:
+        updates.append("wohnraum = ?")
+        values.append(wohnraum)
+    if lagerkapazitaet is not None:
+        updates.append("lagerkapazitaet = ?")
+        values.append(lagerkapazitaet)
+    if produktion is not None:
+        prod = json.loads(produktion) if isinstance(produktion, str) else produktion
+        updates.append("produktion = ?")
+        values.append(json.dumps(prod))
+    if rohstoffverbrauch is not None:
+        cons = json.loads(rohstoffverbrauch) if isinstance(rohstoffverbrauch, str) else rohstoffverbrauch
+        updates.append("rohstoffverbrauch = ?")
+        values.append(json.dumps(cons))
+    if terrain_effektivitaet is not None:
+        terr = json.loads(terrain_effektivitaet) if isinstance(terrain_effektivitaet, str) else terrain_effektivitaet
+        updates.append("terrain_effektivitaet = ?")
+        values.append(json.dumps(terr))
+    
+    if not updates:
+        raise HTTPException(400, "No fields to update")
+    
+    values.append(building_id)
+    cur.execute(f"UPDATE gebaeude_typen SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    conn.close()
+    return {"message": "Building type updated"}
+
+@app.post("/admin/buildings")
+async def create_building_type(
+    name: str,
+    kategorie: str = "Sonstiges",
+    baukosten_mips: int = 0,
+    arbeiter: int = 0,
+    wohnraum: int = 0,
+    lagerkapazitaet: int = 0,
+    produktion: str = "[]",
+    rohstoffverbrauch: str = "[]",
+    terrain_effektivitaet: str = "{}",
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Create new building type (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    
+    try:
+        import json
+        # Validate and normalize JSON fields from UI
+        prod_data = json.loads(produktion) if isinstance(produktion, str) else produktion
+        cons_data = json.loads(rohstoffverbrauch) if isinstance(rohstoffverbrauch, str) else rohstoffverbrauch
+        terrain_data = json.loads(terrain_effektivitaet) if isinstance(terrain_effektivitaet, str) else terrain_effektivitaet
+        if not isinstance(prod_data, list):
+            raise ValueError('Produktion must be a list')
+        for item in prod_data:
+            if not isinstance(item, dict) or 'ressource' not in item or 'menge' not in item:
+                raise ValueError('Produktion-Elemente müssen Objekte mit keys "ressource" und "menge" sein')
+        if not isinstance(cons_data, list):
+            raise ValueError('Verbrauch muss eine Liste sein')
+        for item in cons_data:
+            if not isinstance(item, dict) or 'ressource' not in item or 'menge' not in item:
+                raise ValueError('Verbrauch-Elemente müssen Objekte mit keys "ressource" und "menge" sein')
+        if not isinstance(terrain_data, dict):
+            raise ValueError('Terrain-Effektivität muss ein Objekt sein')
+        for k, v in terrain_data.items():
+            if not isinstance(k, str) or not isinstance(v, list):
+                raise ValueError('Terrain-Effektivität muss eine Map von String zu Liste sein')
+        prod_json = json.dumps(prod_data)
+        cons_json = json.dumps(cons_data)
+        terrain_json = json.dumps(terrain_data)
+        cur.execute("""
+            INSERT INTO gebaeude_typen (name, kategorie, baukosten_mips, arbeiter, wohnraum, lagerkapazitaet, produktion, rohstoffverbrauch, terrain_effektivitaet)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, kategorie, baukosten_mips, arbeiter, wohnraum, lagerkapazitaet, prod_json, cons_json, terrain_json))
+        conn.commit()
+        building_id = cur.lastrowid
+        conn.close()
+        return {"message": f"Building type {name} created", "building_id": building_id}
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise HTTPException(400, "Building type already exists")
+
+@app.delete("/admin/buildings/{building_id}")
+async def delete_building_type(
+    building_id: int,
+    token: str = None,
+    admin=Depends(require_admin)
+):
+    """Delete building type (admin only)."""
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute("DELETE FROM gebaeude_typen WHERE id = ?", (building_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(404, "Building type not found")
+    
+    conn.commit()
+    conn.close()
+    return {"message": "Building type deleted"}
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 def safe_json(val, default):
     if isinstance(val, str):
@@ -314,10 +613,15 @@ class BuildingUpgrade(BaseModel):
     building_y: int
 
 class RoadUpgrade(BaseModel):
-    crossing_x: int = None
-    crossing_y: int = None
-    road_x: int = None
-    road_y: int = None
+    crossing_x: Optional[int] = None
+    crossing_y: Optional[int] = None
+    road_x: Optional[int] = None
+    road_y: Optional[int] = None
+
+class RoadCreate(BaseModel):
+    road_type: str
+    x: int
+    y: int
 
 class BuildingCreate(BaseModel):
     building_type: str; x: int; y: int
@@ -433,7 +737,8 @@ async def produce_resources(player_id: int, hours: int = 24, preview_only: bool 
                 for v in verbrauch:
                     r_name = (v.get("ressource") or v.get("name", "")).lower()
                     r_id = res_map_name_to_id.get(r_name)
-                    menge_soll = v.get("menge", 0) * lvl
+                    # Werte in DB sind pro Tag (24h), daher durch 24 teilen
+                    menge_soll = (v.get("menge", 0) / 24) * lvl
                     if r_id and lager.get(r_id, 0) < menge_soll:
                         mangel = True; break
                 
@@ -444,7 +749,7 @@ async def produce_resources(player_id: int, hours: int = 24, preview_only: bool 
                     r_name = (v.get("ressource") or v.get("name", "")).lower()
                     r_id = res_map_name_to_id.get(r_name)
                     if r_id: 
-                        menge_v = v.get("menge", 0) * lvl
+                        menge_v = (v.get("menge", 0) / 24) * lvl
                         lager[r_id] -= menge_v
                         delta_lager[r_id] = delta_lager.get(r_id, 0) - menge_v
                 
@@ -454,7 +759,9 @@ async def produce_resources(player_id: int, hours: int = 24, preview_only: bool 
                     if not r_id: continue
                     
                     terrain_bonus = gt_map[b_type]["terrain_eff"].get(prov_terrain, 100) / 100.0
-                    menge_brutto = p.get("menge", 0) * lvl * effizienz * terrain_bonus
+                    # Werte in DB sind pro Tag (24h), daher durch 24 teilen
+                    menge_pro_stunde = p.get("menge", 0) / 24
+                    menge_brutto = menge_pro_stunde * lvl * effizienz * terrain_bonus
                     
                     belegt = get_used_platz(lager)
                     frei = kapazitaet - belegt
@@ -583,12 +890,20 @@ async def build_building(player_id: int, building: BuildingCreate):
     player = cur.fetchone()
     if not player: conn.close(); raise HTTPException(404, "Spieler nicht gefunden")
     cost = BUILDING_COSTS.get(building.building_type)
-    if not cost: conn.close(); raise HTTPException(400, "Ungültiger Gebäude-Typ")
-    if player["iron"] < cost: conn.close(); raise HTTPException(400, "Nicht genug Eisen")
+    if cost is None: conn.close(); raise HTTPException(400, "Ungültiger Gebäude-Typ")
+    
+    if building.building_type == "building_bunker":
+        cur.execute("SELECT id FROM buildings WHERE player_id=? AND (building_type='building_bunker' OR building_type='Bunker')", (player_id,))
+        if cur.fetchone():
+            conn.close(); raise HTTPException(400, "Bunker kann nur einmal pro Spieler gebaut werden")
+    elif player["iron"] < cost:
+        conn.close(); raise HTTPException(400, "Nicht genug Eisen")
+    
     try:
         cur.execute("INSERT INTO buildings (player_id,world_x,world_y,building_x,building_y,building_type) VALUES (?,25,25,?,?,?)",
                     (player_id, building.x, building.y, building.building_type))
-        cur.execute("UPDATE players SET iron=iron-? WHERE id=?", (cost, player_id))
+        if cost > 0:
+            cur.execute("UPDATE players SET iron=iron-? WHERE id=?", (cost, player_id))
         conn.commit()
         cur.execute("SELECT iron FROM players WHERE id=?", (player_id,))
         u = cur.fetchone(); conn.close()
@@ -605,6 +920,37 @@ async def remove_building(player_id: int, bx: int, by: int):
         if cur.rowcount == 0: conn.close(); raise HTTPException(404, "Gebäude nicht gefunden")
         conn.commit(); conn.close()
         return {"message":"Gebäude entfernt"}
+    except Exception as e: conn.rollback(); conn.close(); raise HTTPException(500, str(e))
+
+WAY_TYPES = ["Feldweg", "Feldwegkreuzung", "Kiesweg", "Kieskreuzung"]
+
+@app.post("/player/{player_id}/roads")
+async def build_road(player_id: int, road: RoadCreate):
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("SELECT iron FROM players WHERE id=?", (player_id,))
+    player = cur.fetchone()
+    if not player: conn.close(); raise HTTPException(404, "Spieler nicht gefunden")
+    
+    if road.road_type not in WAY_TYPES:
+        conn.close(); raise HTTPException(400, "Ungültiger Weg-Typ")
+    
+    cost = BUILDING_COSTS.get(road.road_type, 0)
+    if player["iron"] < cost:
+        conn.close(); raise HTTPException(400, "Nicht genug Eisen")
+    
+    is_crossing = "kreuzung" in road.road_type.lower()
+    road_type_db = "crossing" if is_crossing else "road"
+    
+    try:
+        cur.execute("""INSERT INTO roads (player_id,world_x,world_y,grid_x,grid_y,road_type,level) 
+                       VALUES (?,25,25,?,?,?,1)""",
+                    (player_id, road.x, road.y, road_type_db))
+        cur.execute("UPDATE players SET iron=iron-? WHERE id=?", (cost, player_id))
+        conn.commit()
+        cur.execute("SELECT iron FROM players WHERE id=?", (player_id,))
+        u = cur.fetchone(); conn.close()
+        return {"message":f"{road.road_type} gebaut","remaining_iron":u["iron"]}
+    except sqlite3.IntegrityError: conn.close(); raise HTTPException(400, "Feld bereits belegt")
     except Exception as e: conn.rollback(); conn.close(); raise HTTPException(500, str(e))
 
 @app.get("/player/{player_id}/credit")
@@ -723,12 +1069,6 @@ async def get_provinz(player_id: int, provinz_id: int):
     cur.execute("SELECT building_x, building_y, building_type, level FROM buildings WHERE world_x=? AND world_y=?", (prov["world_x"], prov["world_y"]))
     buildings = [dict(b) for b in cur.fetchall()]
     
-    # Vorkommen laden
-    cur.execute("""SELECT r.name, v.menge, v.qualitaet 
-                   FROM vorkommen v JOIN ressourcen r ON v.ressource_id = r.id 
-                   WHERE v.provinz_id=?""", (provinz_id,))
-    vorkommen = [dict(v) for v in cur.fetchall()]
-    
     # Lagerzustand (für Gesamtübersicht)
     cur.execute("""SELECT r.name, pl.menge FROM provinz_lager pl 
                    JOIN ressourcen r ON pl.ressource_id = r.id 
@@ -739,9 +1079,74 @@ async def get_provinz(player_id: int, provinz_id: int):
     return {
         "id": prov["id"], "name": prov["name"], "world_x": prov["world_x"], "world_y": prov["world_y"],
         "buildings": buildings,
-        "vorkommen": vorkommen,
         "lager": lager
     }
+
+@app.post("/player/{player_id}/provinzen/{provinz_id}/build")
+async def build_in_province(player_id: int, provinz_id: int, building: BuildingCreate):
+    conn = get_db(); cur = conn.cursor()
+    
+    # Prüfen ob Spieler existiert
+    cur.execute("SELECT iron FROM players WHERE id=?", (player_id,))
+    player = cur.fetchone()
+    if not player: conn.close(); raise HTTPException(404, "Spieler nicht gefunden")
+    
+    # Prüfen ob Province dem Spieler gehört
+    cur.execute("SELECT world_x, world_y, terrain FROM provinzen WHERE id=? AND player_id=?", (provinz_id, player_id))
+    prov = cur.fetchone()
+    if not prov: conn.close(); raise HTTPException(404, "Provinz nicht gefunden oder gehört nicht dir")
+    
+    # Kosten ermitteln
+    cost = BUILDING_COSTS.get(building.building_type)
+    if cost is None:
+        # Versuche mit Namen aus gebaeude_typen
+        cur.execute("SELECT baukosten_mips FROM gebaeude_typen WHERE name=?", (building.building_type,))
+        row = cur.fetchone()
+        if row:
+            cost = row["baukosten_mips"]
+        else:
+            conn.close(); raise HTTPException(400, "Ungültiger Gebäude-Typ")
+    
+    # Bunker-Spezialfall: einmalig pro Spieler, kostenlos
+    if building.building_type == "building_bunker" or building.building_type == "Bunker":
+        cur.execute("SELECT id FROM buildings WHERE player_id=? AND (building_type='building_bunker' OR building_type='Bunker')", (player_id,))
+        if cur.fetchone():
+            conn.close(); raise HTTPException(400, "Bunker kann nur einmal pro Spieler gebaut werden")
+        cost = 0  # Kostenlos
+    
+    # Eisen-Prüfung (wenn Kosten > 0)
+    if cost > 0 and player["iron"] < cost:
+        conn.close(); raise HTTPException(400, f"Nicht genug Eisen. Benötigt: {cost}")
+    
+    # Prüfen ob Feld bereits belegt
+    cur.execute("""SELECT id FROM buildings 
+                   WHERE player_id=? AND world_x=? AND world_y=? AND building_x=? AND building_y=?""",
+                (player_id, prov["world_x"], prov["world_y"], building.x, building.y))
+    if cur.fetchone():
+        conn.close(); raise HTTPException(400, "Feld bereits bebaut")
+    
+    try:
+        # Gebäude einfügen
+        cur.execute("""INSERT INTO buildings (player_id, world_x, world_y, building_x, building_y, building_type, level) 
+                       VALUES (?, ?, ?, ?, ?, ?, 1)""",
+                    (player_id, prov["world_x"], prov["world_y"], building.x, building.y, building.building_type))
+        
+        # Eisen abziehen wenn Kosten > 0
+        if cost > 0:
+            cur.execute("UPDATE players SET iron=iron-? WHERE id=?", (cost, player_id))
+        
+        conn.commit()
+        
+        # Aktualisierten Eisen-Stand abrufen
+        cur.execute("SELECT iron FROM players WHERE id=?", (player_id,))
+        new_iron = cur.fetchone()["iron"]
+        conn.close()
+        
+        return {"message": f"{building.building_type} gebaut", "cost": cost, "remaining_iron": new_iron}
+    except sqlite3.IntegrityError:
+        conn.close(); raise HTTPException(400, "Feld bereits bebaut")
+    except Exception as e:
+        conn.rollback(); conn.close(); raise HTTPException(500, str(e))
 
 @app.post("/player/{player_id}/provinzen/{provinz_id}/upgrade")
 async def upgrade_building(player_id: int, provinz_id: int, req: BuildingUpgrade):
@@ -757,7 +1162,7 @@ async def upgrade_building(player_id: int, provinz_id: int, req: BuildingUpgrade
     if not b: conn.close(); raise HTTPException(404, "Gebäude nicht gefunden")
     
     # Typ-Infos (Kosten etc.)
-    cur.execute("SELECT ausbaubar, produktions_steigerung_pro_level FROM gebaeude_typen WHERE name=?", (b["building_type"],))
+    cur.execute("SELECT ausbaubar FROM gebaeude_typen WHERE name=?", (b["building_type"],))
     gt = cur.fetchone()
     if not gt or not gt["ausbaubar"]: conn.close(); raise HTTPException(400, "Gebäude nicht ausbaubar")
     
@@ -1108,6 +1513,19 @@ async def get_vorkommen_by_id(vorkommen_id: int):
 app.mount("/css",      StaticFiles(directory="css"),      name="css")
 app.mount("/js",       StaticFiles(directory="js"),       name="js")
 app.mount("/terrains", StaticFiles(directory="terrains"), name="terrains")
+
+# HTML Pages
+@app.get("/login.html")
+async def login_page():
+    return FileResponse("login.html")
+
+@app.get("/admin.html")
+async def admin_page():
+    return FileResponse("admin.html")
+
+@app.get("/index.html")
+async def index_page():
+    return FileResponse("index.html")
 
 if __name__ == "__main__":
     import uvicorn
