@@ -411,7 +411,7 @@
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Typ</th><th>Wert</th><th>Verbrauch</th><th>Platz</th><th>Aktionen</th></tr>
+                            <tr><th>ID</th><th>Name</th><th>Typ</th><th>Prod.-Wert</th><th>Platz (L/W/L)</th><th>Beschreibung</th><th>Aktionen</th></tr>
                         </thead>
                         <tbody id="ressourcenTable"><tr><td colspan="7" class="loading">Laden...</td></tr></tbody>
                     </table>
@@ -720,7 +720,12 @@
     
     <script>
         console.log('Admin HTML loading...');
-        const APIBASE = window.location.protocol === 'https:' 
+        
+        // Make functions globally accessible
+        window.testFunction = function() { return 'test'; };
+        window.editItemTest = function() { console.log('editItem accessible'); };
+        
+        const APIBASE = window.location.protocol === 'https:'
             ? `https://${window.location.host}` 
             : 'http://localhost:8000';
         
@@ -821,11 +826,15 @@
                 const data = await res.json();
                 document.getElementById('ressourcenTable').innerHTML = data.map(r => `
                     <tr>
-                        <td>${r.id}</td><td>${r.name || '-'}</td><td>${r.typ || '-'}</td>
-                        <td>${r.wert || 0}</td><td>${r.verbrauch || 0}</td><td>${r.platzbedarf || 0}</td>
+                        <td>${r.id}</td>
+                        <td>${r.name || '-'}</td>
+                        <td>${r.typ || '-'}</td>
+                        <td>${r.produktionswert || 0}</td>
+                        <td>${r.platz_land || 1}/${r.platz_wasser || 1}/${r.platz_luft || 1}</td>
+                        <td>${(r.beschreibung || '').substring(0, 25)}${(r.beschreibung || '').length > 25 ? '...' : ''}</td>
                         <td class="actions">
                             <button class="btn btn-primary" onclick="editItem('ressourcen', ${r.id})">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('ressourcen', ${r.id})">Löschen</button>
+                            <button class="btn btn-danger" onclick="deleteItem('ressourcen', ${r.id})">Loeschen</button>
                         </td>
                     </tr>`).join('');
             } catch (err) {
@@ -1237,7 +1246,17 @@
                     config.fields.forEach(f => {
                         const input = form.querySelector(`[name="${f.name}"]`);
                         if (input && data[f.name] !== undefined) {
-                            input.value = data[f.name];
+                            // Convert JSON arrays to comma-separated for ressourcen
+                            if (type === 'ressourcen' && (f.name === 'verbraucht_von' || f.name === 'produziert_von')) {
+                                try {
+                                    const arr = JSON.parse(data[f.name]);
+                                    input.value = Array.isArray(arr) ? arr.join(', ') : '';
+                                } catch {
+                                    input.value = '';
+                                }
+                            } else {
+                                input.value = data[f.name];
+                            }
                         }
                     });
                 } catch (err) {
@@ -1428,15 +1447,27 @@
         // Load initial data
         loadUsers();
         
+        // Expose functions to global scope for onclick handlers
+        window.editItem = editItem;
+        window.deleteItem = deleteItem;
+        window.loadSectionData = loadSectionData;
+        window.showCreateModal = showCreateModal;
+        window.openGenericModal = openGenericModal;
+        window.closeGenericModal = closeGenericModal;
+        
         // Entity config for dynamic forms
         const entityConfig = {
             ressourcen: {
                 fields: [
                     { name: 'name', label: 'Name', type: 'text', required: true },
                     { name: 'typ', label: 'Typ', type: 'text' },
-                    { name: 'wert', label: 'Wert', type: 'number' },
-                    { name: 'verbrauch', label: 'Verbrauch', type: 'number' },
-                    { name: 'platzbedarf', label: 'Platzbedarf', type: 'number' }
+                    { name: 'produktionswert', label: 'Produktionswert', type: 'number' },
+                    { name: 'platz_land', label: 'Platz Land', type: 'number' },
+                    { name: 'platz_wasser', label: 'Platz Wasser', type: 'number' },
+                    { name: 'platz_luft', label: 'Platz Luft', type: 'number' },
+                    { name: 'verbraucht_von', label: 'Verbraucht von (Gebäude, kommagetrennt)', type: 'text' },
+                    { name: 'produziert_von', label: 'Produziert von (Gebäude, kommagetrennt)', type: 'text' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' }
                 ],
                 endpoint: 'ressourcen'
             },
@@ -1602,6 +1633,16 @@
             const formData = new FormData(form);
             const body = {};
             for (let [k, v] of formData) body[k] = v;
+            
+            // Convert comma-separated lists to JSON for ressourcen
+            if (entity === 'ressourcen') {
+                if (body.verbraucht_von) {
+                    body.verbraucht_von = JSON.stringify(body.verbraucht_von.split(',').map(s => s.trim()).filter(s => s));
+                }
+                if (body.produziert_von) {
+                    body.produziert_von = JSON.stringify(body.produziert_von.split(',').map(s => s.trim()).filter(s => s));
+                }
+            }
             
             try {
                 let url = `${APIBASE}/admin/${endpoint}?token=${token}`;
