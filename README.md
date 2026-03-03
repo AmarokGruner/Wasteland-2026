@@ -1,110 +1,193 @@
-# Verbrannte Zone - Wasteland Browsergame
+# Verbrannte Zone
 
-Ein rundenbasiertes Strategie-Browsergame mit Postapokalypse-Setting.
+> Rundenbasiertes Postapo-Strategie-Browsergame
 
-## 📁 Projektstruktur
+Erkunde eine verbrannte Welt, erobere Provinzen, baue Gebäude, produziere Ressourcen und handle mit Karren.
+
+---
+
+## Quickstart
+
+```bash
+git clone https://github.com/AmarokGruner/Wasteland.git
+cd verbrannte-zone
+pip install fastapi uvicorn pydantic
+python seed_buildings_v5.py    # DB initialisieren (108 Gebäude + 65 Ressourcen + 20 Vorkommen)
+python main.py                 # Server starten → https://localhost:8000
+```
+
+Öffne im Browser: `http://localhost:8000/login.html`
+
+**Standard-Login (nach Init):**
+```
+Admin:  admin / admin
+Spieler1: fabian / 123456
+Spieler2: felix / 345678
+```
+
+> ⚠️ `SECRET_KEY` in `main.py` vor Produktiv-Deployment ändern!
+
+---
+
+## Features
+
+### Spiel
+- **Weltkarte** – 50×50 Felder, 41 Terrain-Typen, 2 Inseln
+- **Provinzen** – 30×30 Grid, Besitz, Ressourcen-Lager pro Provinz
+- **Ressourcen** – 65 Typen (Nahrung, Baustoffe, Genussgüter, Tiere, Waffen …)
+- **Gebäude** – 108 Typen (Farm, Industrie, Wohnhaus, Küste, Forschung …) mit Level-Ausbau
+- **Vorkommen** – 20 Typen (geologisch, Oberfläche, unt. Seen), terrain-abhängige Fundchance
+- **Produktion** – Zeitbasiert, Terrain-Boni, Arbeiter/Wohnraum, Rohstoff-Ketten
+- **Handel** – Transport per Handelskarren zwischen Provinzen
+
+### System
+- **User-System** – Login/Logout, Token-Auth, Rollen (admin/player)
+- **Admin-Panel** – Verwaltung von Usern, Gebäuden, Ressourcen, Terrain, Regierungsformen u.v.m.
+- **Login-Seite** – `login.html`, Token via localStorage
+
+---
+
+## Projektstruktur
 
 ```
-verbrannte_zone_project/
-├── main.py                 # FastAPI Backend
-├── index.html             # Haupt-HTML (minimalistisch)
-├── css/
-│   └── style.css         # Alle Styles
+verbrannte-zone/
+├── main.py                    # FastAPI Backend
+├── seed_buildings_v5.py       # DB-Init: 108 Gebäude + 65 Ressourcen + 20 Vorkommen
+├── index.html                 # Frontend Entry (requires auth)
+├── login.html                 # Login-Seite
+├── admin.html                 # Admin-Panel (requires admin role)
+├── resources.html             # Ressourcen-Übersicht
 ├── js/
-│   ├── app.js            # Hauptlogik & Initialisierung
-│   ├── worldmap.js       # Weltkarten-Generierung & -Rendering
-│   └── province.js       # Provinz-Ansicht (30x30 Felder)
-├── terrains/              # 30x30px PNG Terrain-Grafiken
-│   └── README.md         # Anleitung zum Erstellen
-└── data/
-    └── worldmap.json     # Feste Weltkarten-Konfiguration
+│   ├── app.js                 # Hauptlogik + Auth-Check
+│   ├── worldmap.js            # Weltkarte
+│   ├── province.js            # Provinz-Ansicht
+│   ├── transport.js           # Handelskarren
+│   ├── resources.js           # Ressourcen-Ansicht
+│   ├── world-data.js          # Welt-Daten
+│   ├── terrain-types.js       # Terrain-Definitionen
+│   └── buildings-data.js
+├── css/
+│   ├── style.css              # Haupt-Styles
+│   └── styles.css             # Admin-Styles
+├── terrains/                  # Terrain-GIFs (41 Stück)
+├── context/                   # AI-Context-System
+│   ├── index.yaml             # Block-Index (Einstieg für Agents)
+│   ├── index.json
+│   └── blocks/                # b-backend-*.yaml, b-admin-*.yaml ...
+├── AGENTS.md                  # AI-Agent Onboarding
+├── CONTEXT_MASTER.md          # Master-Übersicht (Schemas, Ketten, Stand)
+└── verbrannte_zone.db         # SQLite (wird generiert)
 ```
 
-## 🚀 Installation & Start
+---
 
-### Voraussetzungen
-```bash
-pip install fastapi uvicorn
-```
+## Tech Stack
 
-### Server starten
-```bash
-python main.py
-```
+| Schicht | Technologie |
+|---------|-------------|
+| Backend | Python 3, FastAPI, SQLite |
+| Auth | SHA256-Token (localStorage), Rollen: admin/player |
+| Frontend | Vanilla JS (ES6+), Canvas |
+| Admin | admin.html (Standalone, Token-geschützt) |
+| Styling | CSS3, CSS-Variablen |
+| Context | YAML/JSON Blocks (agent-optimiert) |
+| Deployment | Raspberry Pi 3B+ ready |
 
-Server läuft auf: `https://localhost:8000` (HTTPS)
+---
 
-## 🎮 Spielfunktionen
+## Datenbank-Stand
 
-### Weltkarte (50x50)
-- Feste, generierte Karte mit 2 Hauptinseln
-- Ozean (nicht betretbar)
-- Landterrains: Wüste, Grasland
-- Spieler-Startprovinz markiert
+| Datensatz       | Anzahl | Beschreibung |
+|-----------------|--------|--------------|
+| Gebäude-Typen   | 108    | Farm, Industrie, Wohnhaus, Küste, Weg, Vorgabe … |
+| Ressourcen      | 65     | Nahrung, Baustoffe, Verbrauchsgüter, Tiere, Waffen … |
+| Vorkommen       | 20     | Geologisch, Oberfläche, unt. Seen |
+| Terrain-Typen   | 41     | Grasland, Gebirge, Eiswüste, Dschungel … |
 
-### Provinz-Ansicht (30x30)
-- Detailansicht einzelner Provinzen
-- Platzhalter für Gebäude-System
-- Terrain-basierte Ressourcenproduktion (geplant)
+---
 
-### Ressourcen
-- ⚙️ Eisen
-- 🔩 Stahl
-- ⛽ Treibstoff
+## API Endpunkte (Auszug)
 
-### Rundenbasiert
-- Ressourcenproduktion pro Runde
-- Gebäude-Bau (in Entwicklung)
-- Einheiten-Training (geplant)
+### Auth
+| Methode | Pfad | Beschreibung |
+|---------|------|--------------|
+| POST | `/auth/login` | Login → Token |
+| POST | `/auth/logout` | Token invalidieren |
+| GET | `/auth/me` | Aktuellen User prüfen |
 
-## 🔧 Entwicklung
+### Spieler & Welt
+| Methode | Pfad | Beschreibung |
+|---------|------|--------------|
+| GET | `/player/{id}` | Spielerdaten |
+| POST | `/player/{id}/resources/produce` | Produktionsrunde |
+| GET | `/player/{id}/resources/total` | Ressourcen gesamt |
+| GET/POST | `/player/{id}/provinzen` | Provinzen |
+| POST | `/player/{id}/transport` | Handelskarren senden |
 
-### Module bearbeiten
+### Admin (role: admin)
+| Methode | Pfad | Beschreibung |
+|---------|------|--------------|
+| GET/POST | `/admin/users` | User-Verwaltung |
+| GET/PUT/POST/DELETE | `/admin/buildings` | Gebäude-Typen verwalten |
+| GET/POST/PUT/DELETE | `/admin/regierungsformen` | Regierungsformen |
 
-**Styles ändern:**
-```bash
-css/style.css
-```
+Vollständige Doku: `context/blocks/b-api-endpoints.yaml`
 
-**Weltkarten-Logik:**
-```bash
-js/worldmap.js
-```
+---
 
-**Provinz-System:**
-```bash
-js/province.js
-```
+## DB-Tabellen
 
-**Hauptlogik:**
-```bash
-js/app.js
-```
+| Tabelle | Inhalt |
+|---------|--------|
+| `users` | Username, Passwort-Hash, Rolle, Player-ID, Token |
+| `players` | Spieler, Ressourcen, Zeitstempel |
+| `provinzen` | Besitz, Terrain, Koordinaten |
+| `provinz_lager` | Ressourcen pro Provinz |
+| `ressourcen` | 65 Typen |
+| `buildings` | Platzierte Gebäude |
+| `gebaeude_typen` | 108 Definitionen |
+| `regierungsformen` | Regierungsformen mit Bonus/Malus |
+| `roads` | Wege + Kreuzungen |
+| `handelskarren_transport` | Transport-Log |
+| `vorkommen` | 20 Terrain-Vorkommen mit Fundwahrscheinlichkeit |
 
-### API-Endpunkte
+---
 
-- `GET /player/{id}` - Spielerdaten abrufen
-- `POST /player` - Neuen Spieler erstellen
-- `POST /player/{id}/resources/produce` - Runde abschließen
-- `GET /player/{id}/buildings` - Gebäude abrufen
-- `POST /player/{id}/buildings` - Gebäude bauen
+## AI / Agent Onboarding
 
-## 📝 TODO
+1. `AGENTS.md` lesen – Rollen & Workflow
+2. `context/index.yaml` öffnen – Block-Übersicht
+3. `CONTEXT_MASTER.md` – aktueller Datenstand, Schemas, Rohstoff-Ketten
+4. Nur relevante Blocks laden – kein Full-Dump
 
-- [ ] Terrain-Bilder erstellen (30x30 PNG)
-- [ ] Gebäude-Platzierungssystem
-- [ ] Einheiten-System
-- [ ] Kampf-Mechanik
-- [ ] Multiplayer-Funktionen
-- [ ] Persistente Weltkarte im Backend
+---
 
-## 🛠️ Technologie-Stack
+## Admin-Panel
 
-- **Backend:** Python 3, FastAPI, SQLite
-- **Frontend:** Vanilla JavaScript (ES6+)
-- **Styling:** CSS3 mit CSS-Variablen
-- **Deployment:** Raspberry Pi 3B+ ready
+Das Admin-Panel (`admin.html`) verwaltet aktuell:
+- Benutzer (anlegen, Rolle, Player-Zuordnung)
+- Gebäude-Typen (CRUD)
+- Rohstoffe, Vorkommen
+- Gebäude-Felder, Terrain
+- Regierungsformen
 
-## 📄 Lizenz
+**Noch nicht implementiert:**
+- Artikel, Einheiten-Typen, Lebewesen (UI vorhanden, Backend fehlt)
+- Spieler-Übersicht im Admin
+- Passwort-Reset durch Admin
+- Rollenbasierte Seitensperre im Frontend (außer Redirect)
 
-Internes Projekt - Verbrannte Zone Team
+---
+
+## Roadmap
+
+- [ ] Admin: fehlende Backend-Endpoints (Artikel, Einheiten, Lebewesen)
+- [ ] Auth: JWT statt SHA256-Token
+- [ ] Produktions-Logik: Arbeiter/Wohnraum vollständig binden
+- [ ] Stadtfelder rendern
+- [ ] Multiplayer
+- [ ] Docker / Deployment-Skript
+
+---
+
+**License:** MIT | **Updated:** 2026-03-03 | **Version:** v5.7
