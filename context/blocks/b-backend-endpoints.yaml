@@ -23,6 +23,9 @@ details: |
   - GET /provinz/feldtypen
   - GET /provinz/feldtypen/{feldtyp_id}
   - GET /world/provinzen
+  - GET/POST/PUT/DELETE /admin/artikel
+  - GET/POST/PUT/DELETE /admin/einheiten
+  - GET/POST/PUT/DELETE /admin/lebewesen
 sources:
   - "CONTEXT_MASTER.md"
 related_codes:

@@ -1,11 +1,298 @@
 #!/usr/bin/env python3
-"""seed_buildings.py v5.7 – Verbrannte Zone
-98 Gebäude + 20 Vorkommen + 61 Ressourcen. Idempotent (INSERT/UPDATE).
-Merged: seed_building_production.py + seed_patch_bunker_v1.py
-Produktionswerte sind pro Tag (werden durch 24 geteilt für stündliche Berechnung)."""
+"""seed_buildings.py v5.9 – Verbrannte Zone
+99 Gebäude + 7 Einheiten + 20 Vorkommen + 61 Ressourcen + 42 Terrain-Typen. Idempotent (INSERT/UPDATE).
+Merged: seed_building_production.py + seed_patch_bunker_v1.py + terrain_typen
+Produktionswerte sind pro Tag (werden durch 24 geteilt für stündliche Berechnung).
+
+DATENARCHITEKTUR – Terrain/Gebäude-Effektivität:
+  TERRAIN_DATA ist die einzige Quelle der Wahrheit für:
+    - Terrain-Metadaten (ID, Startgebiet, Regen, Auf-/Abwertungen, Beschreibung)
+    - Welche Gebäude auf welchem Terrain mit welcher Effektivität baubar sind
+  Die terrain_effektivitaet-Felder in GEBAEUDE_DATA werden NICHT doppelt gepflegt;
+  stattdessen leitet build_terrain_effektivitaet(name) sie aus TERRAIN_DATA ab.
+  Neue Gebäude brauchen daher nur in TERRAIN_DATA eingetragen werden –
+  GEBAEUDE_DATA selbst enthält kein terrain_effektivitaet mehr für Landwirtschaftsgebäude.
+  Stadtgebäude, Wege, Vorgaben etc. mit pauschal 100 % auf allen Terrains bleiben
+  direkt in GEBAEUDE_DATA (Sonderfall: terrain_effektivitaet bleibt dort gesetzt)."""
 import sqlite3, json
 DB_PATH = "verbrannte_zone.db"
-ALL_TERRAIN_41 = ['Brachfelsland', 'Brachgebirge', 'Brachhügel', 'Brachland', 'Dschungel', 'Eiswüste', 'Felsgebirge', 'Grasfelsland', 'Grasgebirge', 'Grashügel', 'Grasland', 'Grünfelsland', 'Grüngebirge', 'Grünhügel', 'Grünland', 'Hochnebelwald', 'Pampa', 'Pampafelsland', 'Pampagebirge', 'Plateau', 'Regenwald', 'Sanddünen', 'Savanne', 'Savannenfelsland', 'Savannengebirge', 'Savannenhügel', 'Steinwüste', 'Steppe', 'Steppfelsland', 'Steppgebirge', 'Stepphügel', 'Sumpfland', 'Tropensumpf', 'Wald', 'Weidefelsland', 'Weideland', 'Wüste', 'Ödfelsland', 'Ödgebirge', 'Ödhügel', 'Ödland']
+ALL_TERRAIN_42 = ['Brachfelsland', 'Brachgebirge', 'Brachhügel', 'Brachland', 'Dschungel', 'Eiswüste', 'Felsgebirge', 'Grasfelsland', 'Grasgebirge', 'Grashügel', 'Grasland', 'Grünfelsland', 'Grüngebirge', 'Grünhügel', 'Grünland', 'Hochnebelwald', 'Ozean', 'Pampa', 'Pampafelsland', 'Pampagebirge', 'Plateau', 'Regenwald', 'Sanddünen', 'Savanne', 'Savannenfelsland', 'Savannengebirge', 'Savannenhügel', 'Steinwüste', 'Steppe', 'Steppfelsland', 'Steppgebirge', 'Stepphügel', 'Sumpfland', 'Tropensumpf', 'Wald', 'Weidefelsland', 'Weideland', 'Wüste', 'Ödfelsland', 'Ödgebirge', 'Ödhügel', 'Ödland']
+ALL_TERRAIN_41 = [t for t in ALL_TERRAIN_42 if t != 'Ozean']  # Rückwärtskompatibilität
+
+# ---------------------------------------------------------------------------
+# TERRAIN_DATA – Single Source of Truth für alle Terrain-Metadaten UND die
+# Gebäude-Effektivitäten. Schlüssel: Terrain-Name. Felder:
+#   id, startgebiet, regen_pct, aufwertungen, abwertungen, beschreibung,
+#   gebaeude: {gebaeude_name: effektivitaet_pct}
+# ---------------------------------------------------------------------------
+TERRAIN_DATA = {
+    'Grasland': {
+        'id': 1, 'startgebiet': True, 'regen_pct': 30,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Saftige, weite, grüne Wiesen machen das Grasland aus. Kein Wunder also, dass hier viele Tierarten gezüchtet werden können. Doch nicht nur Tiere grasen hier genüsslich, der Boden eignet sich auch hervorragend für den Anbau einer Vielzahl von Nahrungsmitteln oder zum Bau edler Plantagen. Nicht oft, aber immer wieder kommt es vor, dass Kies oder Braunkohle gefunden wird.',
+        'gebaeude': {'Kartoffelfarm': 100, 'Imkerei': 100, 'Apfelplantage': 100, 'Holzfäller': 75, 'kleine Getreidefarm': 100, 'Auffangbecken': 30, 'Hühnerfarm': 100, 'Flachsplantage': 100, 'Sägegrube': 50},
+    },
+    'Steppe': {
+        'id': 2, 'startgebiet': True, 'regen_pct': 25,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Selten benetzt üppiger Regen den trockenen Steppenboden, doch sind Tiere genügsam. So ziehen große Tierherden über die Steppe und ernähren sich von dem gelben, trockenen Gras. Wenige Pflanzen gedeihen nutzbringend auf dem Boden, doch der, der sich auskennt, kann sich wohl ernähren. Oft beherbergt die karge Erde jedoch wertvolle Schätze wie Kies, Lehm oder Ton. Auch kann ab und an Braunkohle und Salpeter gefunden werden.',
+        'gebaeude': {'Kartoffelfarm': 100, 'Holzfäller': 50, 'kleine Getreidefarm': 100, 'Auffangbecken': 25, 'Tongrube': 80, 'Lehmgrube': 90, 'Hühnerfarm': 100, 'Flachsplantage': 100, 'Feldbrandziegelei': 100},
+    },
+    'Ödland': {
+        'id': 3, 'startgebiet': False, 'regen_pct': 6,
+        'aufwertungen': ['Steppe'], 'abwertungen': ['Wüste'],
+        'beschreibung': 'So gut wie nie lässt eine Regenwolke hier ihr kostbares Gut fallen. Zwischen den wenigen Pflanzen, die der Umwelt trotzen, leben in Höhlen und unter Steinen, die gefürchteten roten Scorpione. Das Ödland ist führwahr kein angenehmer, doch ein gefährlicher Ort zum Leben. Große Mengen Lehm können jedoch aus dem Boden gewonnen werden und immer wieder findet sich auch Kies und Sand. Seltener stößt man auf Ton, Braunkohle oder Salpeter. Wenn man tief genug gräbt, hat man sogar die Chance, Erdöl zu finden.',
+        'gebaeude': {'Kartoffelfarm': 50, 'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Wald': {
+        'id': 4, 'startgebiet': True, 'regen_pct': 45,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Das dichte Buschwerk und die mächtigen Bäume des Waldes eigenen sich hervorragend zum Bau großer Gebäude. Außerdem findet man auf einem Streifzug so manche Leckerei. Hungern wird man nicht im Wald, doch sollte man sich vor den Spinnen hüten, die ihre feinen Netze zwischen den Bäumen spannen.',
+        'gebaeude': {'Imkerei': 100, 'Apfelplantage': 100, 'Holzfäller': 100, 'Kräutergarten': 100, 'Auffangbecken': 50, 'Nuggretzucht': 100, 'Sägegrube': 100},
+    },
+    'Grasfelsland': {
+        'id': 5, 'startgebiet': True, 'regen_pct': 30,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Weite Wiesen, die hin und wieder von felsigen Landstrichen unterbrochen werden, machen das Wesen dieser Landschaft aus. Das Grasfelsland ist gut geeignet zur Zucht von Tieren und auch Nahrungsmittel und Wasser sind hier, wenn auch nicht üppig, zur Genüge vorhanden. Vor allem bietet sich aber die Möglichkeit Steine zu gewinnen die zum Bau größerer Gebäude als einfachen Holzhütten benötigt werden. Dieses Terrain bietet recht gute Chancen Kies zu finden, gelegentlich findet man Braunkohle und sehr selten kann auch Erdöl gefunden werden.',
+        'gebaeude': {'Kartoffelfarm': 50, 'Imkerei': 100, 'Apfelplantage': 75, 'Holzfäller': 75, 'Steinmetz': 100, 'kleine Getreidefarm': 50, 'Kiesgrube': 100, 'Auffangbecken': 30, 'Hühnerfarm': 100, 'Sägegrube': 50},
+    },
+    'Sumpfland': {
+        'id': 6, 'startgebiet': True, 'regen_pct': 55,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Sümpfe sind stark bewachsene und sehr feuchte Gebiete. Das Wasser, das man aus diesen Gebieten erhält reicht problemlos, eine zweite Provinz mit zu versorgen. Aufgrund des sehr feuchten und dadurch weichen Bodens ist es unmöglich nach Bodenschätzen wie Erzen, Erdöl oder ähnlichem zu suchen. Dies wird jedoch durch die Möglichkeiten zum Abbau von Holz und dem Anbau verschiedenster Nahrungsmittel und anderer Güter für das Volk mehr als ausgeglichen.',
+        'gebaeude': {'Sojafarm': 100, 'Holzfäller': 100, 'Hanfplantage': 100, 'Kräutergarten': 100, 'Auffangbecken': 50, 'Nuggretzucht': 100, 'Sägegrube': 100, 'Reisfarm': 100},
+    },
+    'Grashügel': {
+        'id': 7, 'startgebiet': True, 'regen_pct': 35,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Saftiges Gras erstreckt sich so weit das Auge reicht über eine von Hügeln durchwachsene Landschaft. Wie jede Art der Graslandschaft bietet auch der Grashügel optimale Bedingungen für die Tierzucht, auch Wasser kann man hier ausreichend finden. Aufgrund der vielen Hügel hat dieses Landschaft allerdings einen kleinen Nachteil in der Produktivität von Plantagen gegenüber dem Grasland. Man hat gute Chancen, in diesem Terrain Braunkohle zu finden, aber auch Lehm und Kalkstein kann von Zeit zu Zeit gefunden werden. Seltener trifft man auf Salpeter- und Diamantenvorkommen.',
+        'gebaeude': {'Kartoffelfarm': 50, 'Imkerei': 100, 'Apfelplantage': 75, 'Holzfäller': 75, 'Auffangbecken': 35, 'Hühnerfarm': 100, 'Flachsplantage': 100, 'Sägegrube': 50},
+    },
+    'Grasgebirge': {
+        'id': 8, 'startgebiet': False, 'regen_pct': 40,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Zu dieser Terrainart gehören Landschaftsstriche, die von Gebirgen geprägt sind, jedoch auch Grasflächen aufweisen. Im Gegensatz zu anderen grasbewachsenen Landschaften eignet sich das Grasgebirge jedoch nicht zur Viehzucht. Dafür kann man hier nahezu alle Bodenschätze mit einer akzeptablen Wahrscheinlichkeit finden und die Wasserversorgung ist durch die häufigen Regengüsse im Gebirge ausgezeichnet.',
+        'gebaeude': {'Apfelplantage': 50, 'Steinmetz': 100, 'Auffangbecken': 40, 'Sägegrube': 50},
+    },
+    'Eiswüste': {
+        'id': 9, 'startgebiet': False, 'regen_pct': 40,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Die Eiswüste ist eine absolut gnadenlose, eiskalte und einsame Einöde. Das einzige, wofür es sich lohnt, dieses Gebiet zu besiedeln ist die relativ gute Chance, Erdöl und andere Vorkommen zu finden. Achtung. Provinzausbau ist auf Camp beschränkt und die meisten Land- und Stadtgebäude sind in der Eiswüste nicht baubar.',
+        'gebaeude': {'Auffangbecken': 40},
+    },
+    'Wüste': {
+        'id': 10, 'startgebiet': False, 'regen_pct': 10,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Eine sehr unwirtliche und sehr harte Gegend. In einer Wüste ohne Hilfe von außen zu überleben ist unglaublich schwierig. Die Wüste bietet kaum Wasser, größere Menschenmengen lassen sich kaum mit Wasser allein aus der Wüste versorgen. Dafür kann man in der Wüste garantiert Sand finden. Oft findet man auch Erdöl und/oder Salz, gelegentlich Salpeter und selten auch Diamanten.',
+        'gebaeude': {'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Tropensumpf': {
+        'id': 11, 'startgebiet': True, 'regen_pct': 60,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Sumpfiger Boden und tropische Hitze machen dieses Terrain aus. Wegen dem feuchten Boden ist die Luft nicht einfach nur heiß, was noch einigermaßen erträglich wäre, sondern hat dazu noch eine sehr hohe Luftfeuchtigkeit. In dieser schwülen Luft zu leben fällt nicht jedem leicht. Aufgrund des sumpfigen, matschigen Bodens ist es unmöglich nach irgendwelchen Vorkommen - abgesehen vom offensichtlich vorhandenen Wasser - zu suchen. Auch der Anbau von Nahrungsmitteln ist sehr aufwändig und ist dem entsprechend erst nach einigen grundlegenden Technischen Fortschritten möglich. Die hier abbaubaren Bauhölzer, Edelhölzer und andere wertvolle Güter, sind jedoch ein willkommenes Tauschgut bei vielen Provinzbesitzern mit einer besseren Nahrungsmittelversorgung.',
+        'gebaeude': {'Palmenplantage': 75, 'Kräutergarten': 100, 'Wollspinnenzucht': 100, 'Auffangbecken': 30, 'Nuggretzucht': 100, 'Kautschukplantage': 100, 'Teehain': 100, 'Sägegrube': 100, 'Tropenholzfäller': 100, 'Reisfarm': 100},
+    },
+    'Dschungel': {
+        'id': 12, 'startgebiet': True, 'regen_pct': 50,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Wer kennt sie nicht, die Geschichten von wilden Tieren und einer Pflanzenwelt die ohne jegliche Ordnung wächst, wie es ihr gefällt? Manche dieser Geschichten sind war, andere nicht. Tatsache ist jedoch, dass der Dschungel wie jedes andere Gelände auch Herausforderungen birgt. Wer hier Fuss gefasst hat, wird weder Hunger leiden, noch im freien schlafen müssen. Der Dschungel bietet genügend Nahrungsmittel, Bau- und Edelholz, sowie Produkte wertvoller Plantagen um sich zu versorgen und Handelspartner in aller Welt finden zu können.',
+        'gebaeude': {'Palmenplantage': 100, 'Wollspinnenzucht': 100, 'Auffangbecken': 50, 'Nuggretzucht': 100, 'Kautschukplantage': 100, 'Sägegrube': 100, 'Tropenholzfäller': 100, 'Bananenhain': 100},
+    },
+    'Sanddünen': {
+        'id': 13, 'startgebiet': False, 'regen_pct': 10,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Ein Gelände ähnlich wie eine Wüste. Der Unterschied besteht darin, dass der Sand auf diesem Gelände sich vom Wind zu kleinen Bergen auftürmen lässt. In den Sanddünen kann man garantiert Sand finden, manchmal auch Salz und selten Diamanten.',
+        'gebaeude': {'Auffangbecken': 2, 'Feldbrandziegelei': 100},
+    },
+    'Felsgebirge': {
+        'id': 14, 'startgebiet': False, 'regen_pct': 15,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Karge und trockene Landschaftszüge machen das Wesen des Felsgebirges aus. Es gibt hier selten Regen und eine autonome Wasserversorgung ist kaum möglich. Dafür kann man in Felsgebirgen nach einer großen Zahl verschiedenster Ressourcen suchen, wovon man sicher den ein oder anderen finden und abbauen kann.',
+        'gebaeude': {'Steinmetz': 100, 'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Ödhügel': {
+        'id': 15, 'startgebiet': False, 'regen_pct': 9,
+        'aufwertungen': ['Stepphügel'], 'abwertungen': ['Sanddünen'],
+        'beschreibung': 'Ödhügel sind sehr einsame und einseitige Landschaften, in denen man kaum flache, waagrechte Gebiete findet. Sie bieten zwar Möglichkeit zur Landwirtschaft, doch ist deren Effektivität zu vernachlässigen. Auch die Wasserversorgung kann sich ohne Hilfe von außen manchmal als schwierig erweisen. Solche kargen Landschaften wie Ödhügel eignen sich eher zum Abbau verschiedenster Rohstoffe. Für Ressourcen wie Lehm, Braunkohle und Sand bestehen gute bis sehr gute Chancen auf einen Fund, Kalkstein, Salz, Salpeter und selten auch Diamanten sind jedoch auch zu finden.',
+        'gebaeude': {'Kartoffelfarm': 25, 'Auffangbecken': 9, 'Feldbrandziegelei': 100},
+    },
+    'Ödgebirge': {
+        'id': 16, 'startgebiet': False, 'regen_pct': 20,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Die Attribute öde und gebirgig bezeichnen dieses Terrain am besten. Beinahe keine Nahrungsmittel lassen sich auf dem kargen und steinigen Boden kultivieren, aber es mag einem sehr wohl gelingen, ein paar der berüchtigten Bluescorpions zu fangen, die hier ihr Jagdrevier haben. Durch die Zucht derselben kann man die Nahrungskette im Ödgebirge teilweise herumdrehen. Die eigentliche Stärke dieser Gebiete liegt aber in ihren Vorkommen an Bodenschätzen und Steinen, die sich in Steinbrüchen brechen und abtransportieren lassen.',
+        'gebaeude': {'Steinmetz': 100, 'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Stepphügel': {
+        'id': 17, 'startgebiet': True, 'regen_pct': 28,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Der Stepphügel ist im Endeffekt lediglich ein etwas besserer Ödhügel. Beide Terrains unterscheiden sich dem Aussehen nach im Groben lediglich um ein wenig Gras. Wirtschaftlich hat dies jedoch weitreichendere Folgen, als es vielleicht auf den ersten Blick ersichtlich ist. Aufgrund der - wenn auch trockenen und mageren - Grasdecke besteht in Stepphügeln die Möglichkeit auf eine recht ausgedehnte Tierzucht. Auch die Wasserversorgung erweist sich hier als besser, als die magere Grasdecke erscheinen lässt. Eines hat der Stepphügel jedoch mit dem Ödhügel gemeinsam: In diesem Terrain besteht ebenfalls die Chance auf eine Vielzahl verschiedenster Ressourcen, die nur darauf warten, gefunden zu werden.',
+        'gebaeude': {'Kartoffelfarm': 75, 'Holzfäller': 50, 'kleine Getreidefarm': 75, 'Auffangbecken': 28, 'Tongrube': 50, 'Lehmgrube': 75, 'Hühnerfarm': 100, 'Flachsplantage': 100, 'Feldbrandziegelei': 100},
+    },
+    'Steppgebirge': {
+        'id': 18, 'startgebiet': False, 'regen_pct': 33,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Das Steppgebirge ist ein weiteres der zahlreichen kargeren Terrains. In der Landwirtschaft kann man eine Hand voll Kartoffeln als das höchste der Gefühle bezeichnen, doch für die Versorgung eines größeren Volkes reicht der Ertrag eines Steppgebirges einfach nicht aus. Wasser dagegen wird man hier ausreichend finden können. Betrachtet man jedoch den Bergbau, so wird man feststellen, dass das Steppgebirge ein sehr ertragreiches Terrain ist. Man kann hier jeglich Art von Metallerz finden, aber auch Ton, Bauxit, Kalkstein, Schwefel, Salpeter und Diamanten.',
+        'gebaeude': {'Kartoffelfarm': 25, 'Steinmetz': 100, 'Auffangbecken': 30, 'Feldbrandziegelei': 100},
+    },
+    'Ödfelsland': {
+        'id': 19, 'startgebiet': False, 'regen_pct': 6,
+        'aufwertungen': ['Steppfelsland'], 'abwertungen': ['Wüste'],
+        'beschreibung': 'Wie bei allen Öd-Gebieten kann man auch beim Ödfelsland nicht von einer wirklich erwähnenswerten oder lohnenswerten Landwirtschaft reden. Auch die Wasserversorgung lässt sehr zu wünschen übrig. Der einzige Grund, weshalb es immer wieder Menschen in solche Einöden zieht, ist die Verlockung des Reichtums, den man durch den Abbau der zahlreichen Ressourcen erlangen kann.',
+        'gebaeude': {'Kartoffelfarm': 25, 'Steinmetz': 100, 'Kiesgrube': 100, 'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Steppfelsland': {
+        'id': 20, 'startgebiet': True, 'regen_pct': 25,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Weite Grassteppen erstrecken sich hier über einen recht steinigen Untergrund. Das Gelände an sich gehört nicht zu den fruchtbarsten, doch es eignet sich recht gut für Tierzuchten. Ansonsten kann das Steppfelsland Ressourcen wie Kies, Lehm, Ton oder Braunkohle anbieten, die man gelegentlich findet. Manchmal auch gewährt das Steppfelsland seinen Bewohnern das, was landläufig als "Schwarzes Gold" bezeichnet wird.',
+        'gebaeude': {'Kartoffelfarm': 75, 'Holzfäller': 50, 'Steinmetz': 100, 'kleine Getreidefarm': 50, 'Kiesgrube': 100, 'Auffangbecken': 25, 'Tongrube': 50, 'Lehmgrube': 50, 'Hühnerfarm': 100, 'Feldbrandziegelei': 100},
+    },
+    'Grünland': {
+        'id': 21, 'startgebiet': True, 'regen_pct': 30,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Das Grünland ist ein Terrain, das wunderbaren Picknicken auf saftigen, grünen Wiesen einlädt. Wie man an diesen saftigen Wiesen unschwer erkennen kann, bietet der Boden hier gute Startbedingungen für eine reichhaltige Landwirtschaft. Nicht oft, aber immer wieder kommt es vor, dass Kies oder Braunkohle gefunden wird.',
+        'gebaeude': {'Orangenplantage': 100, 'Palmenplantage': 75, 'Tabakplantage': 100, 'Kräutergarten': 100, 'Edelholzfäller': 75, 'Auffangbecken': 30, 'Flachsplantage': 100, 'Sägegrube': 50, 'Seidenfarm': 100, 'Seidenspinnerzucht': 100},
+    },
+    'Savanne': {
+        'id': 22, 'startgebiet': True, 'regen_pct': 25,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Selten benetzt üppiger Regen den trockenen Savannenboden, doch sind Tiere genügsam. So ziehen große Ziegenherden über die Steppe und ernähren sich von dem gelben, trockenen Gras. Wenige Planzen gedeihen nutzbringend auf dem Boden, doch der, der sich auskennt, kann sich wohl ernähren und kleiden. Oft beherbergt die karge Erde jedoch wertvolle Schätze wie Kies, Lehm oder Ton. Auch kann ab und an Braunkohle und Salpeter gefunden werden.',
+        'gebaeude': {'Erdnussfarm': 100, 'Dattelnplantage': 100, 'Palmenplantage': 75, 'Ziegenfarm': 100, 'Edelholzfäller': 50, 'Auffangbecken': 25, 'Tongrube': 80, 'Lehmgrube': 90, 'Flachsplantage': 100, 'Feldbrandziegelei': 100},
+    },
+    'Grünhügel': {
+        'id': 23, 'startgebiet': False, 'regen_pct': 35,
+        'aufwertungen': [], 'abwertungen': ['Savannenhügel'],
+        'beschreibung': 'Bewohner eines solchen Terrains dürfen eine ähnliche Landschaft wie Bewohner eines Grünlandes erleben. Der sichtbare Unterschied jedoch ist, dass der Grünhügel, wie der Name schon sagt, ein wenig größere Höhenunterschiede hat. Aufgrund der vielen Hügel hat dieses Landschaft allerdings einen kleinen Nachteil in der Produktivität von Plantagen gegenüber dem Grünland. Dafür hat man in Grünhügeln weit bessere Aussichten auf Bodenschätze. Man ein wenig Glück kann man hier Braunkohle, Lehm, Kalkstein, manchmal Salpeter und selten Diamanten finden.',
+        'gebaeude': {'Orangenplantage': 75, 'Tabakplantage': 100, 'Kräutergarten': 75, 'Edelholzfäller': 75, 'Auffangbecken': 35, 'Flachsplantage': 100, 'Sägegrube': 50, 'Seidenfarm': 75, 'Seidenspinnerzucht': 100, 'Weingarten': 100},
+    },
+    'Savannenhügel': {
+        'id': 24, 'startgebiet': True, 'regen_pct': 28,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Der Savannenhügel ist im Endeffekt lediglich ein etwas besserer Brachhügel. Beide Terrains unterscheiden sich dem Aussehen nach im Groben lediglich um ein wenig Gras. Wirtschaftlich hat dies jedoch weitreichendere Folgen, als es vielleicht auf den ersten Blick ersichtlich ist. Aufgrund der - wenn auch trockenen und mageren - Grasdecke besteht in Savannenhügeln die Möglichkeit auf eine ausgedehnte Zucht von Ziegen. Auch die Wasserversorgung erweist sich hier als besser, als die magere Grasdecke erscheinen lässt. Eines hat der Savannenhügel jedoch mit dem Brachhügel gemeinsam: In diesem Terrain besteht ebenfalls die Chance auf eine Vielzahl verschiedenster Ressourcen, die nur darauf warten, gefunden zu werden.',
+        'gebaeude': {'Erdnussfarm': 75, 'Dattelnplantage': 75, 'Ziegenfarm': 100, 'Edelholzfäller': 50, 'Auffangbecken': 28, 'Tongrube': 50, 'Lehmgrube': 75, 'Flachsplantage': 100, 'Feldbrandziegelei': 100},
+    },
+    'Grüngebirge': {
+        'id': 25, 'startgebiet': False, 'regen_pct': 40,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Zu dieser Terrainart gehören Landschaftsstriche, die von Gebirgen geprägt sind, jedoch auch Grünflächen aufweisen. Im Gegensatz zu anderen grün bewachsenen Landschaften eignet sich das Grüngebirge jedoch nicht zur Viehzucht. Dafür kann man hier nahezu alle Bodenschätze mit einer akzeptablen Wahrscheinlichkeit finden und die Wasserversorgung ist durch die häufigen Regengüsse im Gebirge ausgezeichnet.',
+        'gebaeude': {'Orangenplantage': 25, 'Steinmetz': 100, 'Auffangbecken': 40, 'Sägegrube': 50, 'Weingarten': 50},
+    },
+    'Savannengebirge': {
+        'id': 26, 'startgebiet': False, 'regen_pct': 33,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Das Savannengebirge ist ein weiteres der zahlreichen kargeren Terrains. In der Landwirtschaft kann man eine Hand voll Erdnüsse als das höchste der Gefühle bezeichnen, doch für die Versorgung eines größeren Volkes reicht der Ertrag eines Savannengebirges einfach nicht aus. Wasser dagegen wird man hier ausreichend finden können. Betrachtet man jedoch den Bergbau, so wird man feststellen, dass das Savannengebirge ein sehr ertragreiches Terrain ist. Man kann hier jeglich Art von Metallerz finden, aber auch Ton, Bauxit, Kalkstein, Schwefel, Salpeter und Diamanten.',
+        'gebaeude': {'Erdnussfarm': 25, 'Steinmetz': 100, 'Auffangbecken': 33, 'Feldbrandziegelei': 100},
+    },
+    'Grünfelsland': {
+        'id': 27, 'startgebiet': True, 'regen_pct': 30,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Weite Grüne bewachsene Flächen, die hin und wieder von felsigen Landstrichen unterbrochen werden, machen das Wesen dieser Landschaft aus. Im Grünfelsland sind Nahrung und Wasser, wenn auch nicht üppig, zur Genüge vorhanden. Vor allem bietet sich aber die Möglichkeit Steine zu gewinnen die zum Bau größerer Gebäude als einfachen Holzhütten benötigt werden. Dieses Terrain bietet recht gute Chancen Kies zu finden, gelegentlich findet man Braunkohle und sehr selten kann auch Erdöl gefunden werden.',
+        'gebaeude': {'Orangenplantage': 75, 'Steinmetz': 100, 'Tabakplantage': 100, 'Kräutergarten': 75, 'Kiesgrube': 100, 'Edelholzfäller': 75, 'Auffangbecken': 30, 'Sägegrube': 50},
+    },
+    'Savannenfelsland': {
+        'id': 28, 'startgebiet': True, 'regen_pct': 25,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Weite Grassteppen erstrecken sich hier über einen recht steinigen Untergrund. Das Gelände an sich gehört nicht zu den fruchtbarsten, doch es eignet sich recht gut zur Zucht von Ziegen. Ansonsten kann das Steppfelsland Ressourcen wie Kies, Lehm, Ton oder Braunkohle anbieten, die man gelegentlich findet. Manchmal auch gewährt das Steppfelsland seinen Bewohnern das, was landläufig als "Schwarzes Gold" bezeichnet wird.',
+        'gebaeude': {'Erdnussfarm': 75, 'Dattelnplantage': 75, 'Steinmetz': 100, 'Ziegenfarm': 100, 'Kiesgrube': 100, 'Edelholzfäller': 50, 'Auffangbecken': 25, 'Tongrube': 50, 'Lehmgrube': 50, 'Feldbrandziegelei': 100},
+    },
+    'Brachland': {
+        'id': 29, 'startgebiet': False, 'regen_pct': 6,
+        'aufwertungen': ['Savanne', 'Pampa'], 'abwertungen': ['Wüste'],
+        'beschreibung': 'So gut wie nie lässt eine Regenwolke hier ihr kostbares Gut fallen. Zwischen den wenigen Pflanzen, die der Umwelt trotzen, leben Bukhts von den Sprossen der hier wachsenden Kakteen. Diese über die Jahrzehnte entstandene Kreuzung aus Trampeltier und Dromedar ist genau so widerstandsfähig und als Last- und Reittier geeignet wie die beiden Rassen aus denen sie entstanden ist. Trotz der Möglichkeit der Versorgung dieser Tiere und dem Anbau einer Hand voll Kakteensprossen, ist das Brachland ist kein angenehmer Ort zum Leben. Große Mengen Lehm können jedoch aus dem Boden gewonnen werden und immer wieder findet sich auch Kies und Sand. Seltener stößt man auf Ton, Braunkohle oder Salpeter. Wenn man tief genug gräbt, hat man sogar die Chance, Erdöl zu finden.',
+        'gebaeude': {'Dattelnplantage': 50, 'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Brachfelsland': {
+        'id': 30, 'startgebiet': False, 'regen_pct': 6,
+        'aufwertungen': ['Savannenfelsland', 'Pampafelsland'], 'abwertungen': ['Wüste'],
+        'beschreibung': 'Wie bei allen Brach-Gebieten kann man auch beim Brachfelsland nicht von einer wirklich erwähnenswerten oder lohnenswerten Landwirtschaft reden. Auch die Wasserversorgung lässt sehr zu wünschen übrig. Der einzige Grund, weshalb es immer wieder Menschen in solche Einöden zieht, ist die Verlockung des Reichtums, den man durch den Abbau der zahlreichen Ressourcen erlangen kann.',
+        'gebaeude': {'Dattelnplantage': 40, 'Steinmetz': 100, 'Kiesgrube': 100, 'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Brachhügel': {
+        'id': 31, 'startgebiet': False, 'regen_pct': 9,
+        'aufwertungen': ['Savannenhügel'], 'abwertungen': ['Sanddünen'],
+        'beschreibung': 'Brachhügel sind sehr einsame und einseitige Landschaften, in denen man kaum flache, waagrechte Gebiete findet. Sie bieten zwar Möglichkeit zur Landwirtschaft, doch ist deren Effektivität zu vernachlässigen. Auch die Wasserversorgung kann sich ohne Hilfe von außen manchmal als schwierig erweisen. Solche kargen Landschaften wie Brachhügel eignen sich eher zum Abbau verschiedenster Rohstoffe. Für Ressourcen wie Lehm, Braunkohle und Sand bestehen gute bis sehr gute Chancen auf einen Fund, Kalkstein, Salz, Salpeter und selten auch Diamanten sind jedoch auch zu finden.',
+        'gebaeude': {'Dattelnplantage': 40, 'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Brachgebirge': {
+        'id': 32, 'startgebiet': False, 'regen_pct': 20,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Die Attribute brach und gebirgig bezeichnen dieses Terrain am besten. Beinahe keine Nahrungsmittel lassen sich auf dem kargen und steinigen Boden kultivieren, aber es mag einem sehr wohl gelingen, ein paar der berüchtigten Bluescorpions zu fangen, die hier ihr Jagdrevier haben. Durch die Zucht derselben kann man die Nahrungskette im Brachgebirge teilweise herumdrehen. Die eigentliche Stärke dieser Gebiete liegt aber in ihren Vorkommen an Bodenschätzen und Steinen, die sich in Steinbrüchen brechen und abtransportieren lassen.',
+        'gebaeude': {'Steinmetz': 100, 'Auffangbecken': 10, 'Feldbrandziegelei': 100},
+    },
+    'Ozean': {
+        'id': 33, 'startgebiet': False, 'regen_pct': 0,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Dunkelheit und Tiefseemonster lauern in diesen Gewässern. Dessen ist man sich sicher, immerhin erzählen alte Geschichten von den schaurigen Kreaturen, welche die wagemutigen Halb-Götter alter Tage mithilfe ihrer Stählernen Diener zur Oberfläche brachten. Gut das unsere Fischer selbst keinen Fuss, oder zumindest kaum weiter als ein paar Meter in dieses unerforschte Gebiet vorwagen muss, sondern ihre Netze und Angelleinen diese Arbeit übernehmen lassen. Zudem lassen sich durch Destillation Trinkbares Wasser und Salz herstellen. Nicht umsonst finden sich an der Küste meist einige große Städte, die sowohl durch die Früchte des Meeres, als auch des Handels reich geworden sind.',
+        'gebaeude': {},
+    },
+    'Pampa': {
+        'id': 34, 'startgebiet': True, 'regen_pct': 25,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Selten benetzt üppiger Regen den trockenen Savannenboden, doch sind Tiere genügsam. So ziehen große Lama- oder Alpakaherden über die Pampa und ernähren sich von den teils öligen Gräsern. Wenige Planzen gedeihen nutzbringend auf dem Boden, doch der, der sich auskennt, kann sich wohl ernähren und kleiden. Oft beherbergt die karge Erde jedoch wertvolle Schätze wie Kies, Lehm oder Ton. Auch kann ab und an Braunkohle und Salpeter gefunden werden. Zudem lässt sich mit genügend Wissen kleine Mengen Industriell nutzbares Öl aus den Gräsern dieses Terrains gewinnen.',
+        'gebaeude': {'Dattelnplantage': 100, 'Edelholzfäller': 50, 'Auffangbecken': 25, 'Feldbrandziegelei': 100},
+    },
+    'Weideland': {
+        'id': 35, 'startgebiet': True, 'regen_pct': 30,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Das Weideland ist ein Terrain, das wunderbaren Picknicken auf saftigen, grünen Wiesen einlädt. Wie man an diesen saftigen Wiesen unschwer erkennen kann, bietet der Boden hier gute Startbedingungen für eine reichhaltige Landwirtschaft. Nicht oft, aber immer wieder kommt es vor, dass Kies oder Braunkohle gefunden wird.',
+        'gebaeude': {'Orangenplantage': 100, 'Tabakplantage': 100, 'Kräutergarten': 100, 'Edelholzfäller': 75, 'Auffangbecken': 30, 'Sägegrube': 50, 'Seidenfarm': 100, 'Seidenspinnerzucht': 100},
+    },
+    'Regenwald': {
+        'id': 36, 'startgebiet': True, 'regen_pct': 50,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Wer kennt sie nicht, die Geschichten von Wäldern, die Regelmäßig von kurzen wie heftigen Regengüssen heimgesucht werden, dass man meint gleich Fische in Schulterhöhe vorbeischwimmen zu sehen? Manche dieser Geschichten sind war, andere nicht. Tatsache ist jedoch, dass der Regenwald wie jedes andere Gelände auch Herausforderungen birgt. Wer hier Fuss gefasst hat, wird weder Hunger leiden, noch im freien schlafen müssen. Der Regenwald bietet genügend Nahrungsmittel, Bau- und Edelholz, sowie Produkte wertvoller Plantagen um sich zu versorgen und Handelspartner in aller Welt finden zu können.',
+        'gebaeude': {'Orangenplantage': 100, 'Palmenplantage': 100, 'Auffangbecken': 50, 'Nuggretzucht': 100, 'Kautschukplantage': 100, 'Sägegrube': 100, 'Tropenholzfäller': 100, 'Bananenhain': 100},
+    },
+    'Pampagebirge': {
+        'id': 37, 'startgebiet': True, 'regen_pct': 33,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Das Pampagebirge ist ein weiteres der zahlreichen kargeren Terrains. In der Landwirtschaft kann man eine Hand voll Datteln als das höchste der Gefühle bezeichnen, doch für die Versorgung eines größeren Volkes reicht der Ertrag eines Pampagebirges einfach nicht aus. Wasser dagegen wird man hier ausreichend finden können. Auch wachsen hier spärliche Flecken der gleichen öligen Gräser wie in der Pampa. Betrachtet man jedoch den Bergbau, so wird man feststellen, dass das Pampagebirge ein sehr ertragreiches Terrain ist. Man kann hier jeglich Art von Metallerz finden, aber auch Ton, Bauxit, Kalkstein, Schwefel, Salpeter und Diamanten.',
+        'gebaeude': {'Dattelnplantage': 25, 'Auffangbecken': 33, 'Feldbrandziegelei': 100},
+    },
+    'Plateau': {
+        'id': 38, 'startgebiet': True, 'regen_pct': 40,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Ein Plateau – hochgelegenes, weitgehend ebenes Terrain mit guter Wasserversorgung und moderaten landwirtschaftlichen Möglichkeiten.',
+        'gebaeude': {'Orangenplantage': 50, 'Auffangbecken': 40, 'Sägegrube': 50},
+    },
+    'Hochnebelwald': {
+        'id': 39, 'startgebiet': True, 'regen_pct': 40,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Ein immergrüner Nebelwald in großen Höhen, geprägt durch konstante Feuchtigkeit und üppige Vegetation.',
+        'gebaeude': {'Auffangbecken': 40, 'Nuggretzucht': 100, 'Kautschukplantage': 100, 'Teehain': 100, 'Sägegrube': 100, 'Tropenholzfäller': 75, 'Reisfarm': 50, 'Bananenhain': 75},
+    },
+    'Pampafelsland': {
+        'id': 40, 'startgebiet': True, 'regen_pct': 25,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Trockene Pampagrassteppen über steinigem Untergrund. Gut für Tierzucht und Rohstoffabbau.',
+        'gebaeude': {'Dattelnplantage': 75, 'Steinmetz': 100, 'Kiesgrube': 100, 'Edelholzfäller': 50, 'Auffangbecken': 25, 'Feldbrandziegelei': 100},
+    },
+    'Weidefelsland': {
+        'id': 41, 'startgebiet': True, 'regen_pct': 30,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Grüne Weiden über felsigem Boden – gute Bedingungen für Landwirtschaft und Steingewinnung.',
+        'gebaeude': {'Orangenplantage': 75, 'Steinmetz': 100, 'Kiesgrube': 100, 'Edelholzfäller': 75, 'Auffangbecken': 30, 'Sägegrube': 50},
+    },
+    'Steinwüste': {
+        'id': 42, 'startgebiet': False, 'regen_pct': 6,
+        'aufwertungen': [], 'abwertungen': [],
+        'beschreibung': 'Eine steinige, extrem trockene Wüste. Steinabbau ist möglich, Landwirtschaft nahezu unmöglich.',
+        'gebaeude': {'Steinmetz': 100, 'Kiesgrube': 100, 'Auffangbecken': 10},
+    },
+}
+
+def build_terrain_effektivitaet(gebaeude_name: str) -> dict:
+    """Leitet terrain_effektivitaet für ein Gebäude aus TERRAIN_DATA ab.
+    Gibt ein Dict {effektivitaet_str: [terrain_name, ...]} zurück.
+    Terrains ohne Eintrag für dieses Gebäude erscheinen nicht."""
+    result = {}
+    for terrain_name, tdata in TERRAIN_DATA.items():
+        pct = tdata['gebaeude'].get(gebaeude_name)
+        if pct is not None:
+            key = str(pct)
+            result.setdefault(key, []).append(terrain_name)
+    return result
+
+
 JSON_FIELDS = {"rohstoffbedarf_bau","rohstoffgrundbedarf_ausbau","rohstoffverbrauch",
                "produktion","terrain_effektivitaet","vorkommen_effektivitaet",
                "spezial_eigenschaften","schlachtfeld"}
@@ -44,6 +331,36 @@ def init_tables(conn):
         id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
         typ TEXT NOT NULL, tech INTEGER DEFAULT 0, suchkosten INTEGER DEFAULT 0,
         beschreibung TEXT DEFAULT '', findwahrscheinlichkeit TEXT DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS terrain_typen (
+        id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
+        startgebiet INTEGER DEFAULT 0,
+        regen_pct INTEGER DEFAULT 0,
+        aufwertungen TEXT DEFAULT '[]',
+        abwertungen TEXT DEFAULT '[]',
+        beschreibung TEXT DEFAULT '',
+        bild_url TEXT DEFAULT '',
+        gebaeude_effektivitaet TEXT DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS einheiten_typen (
+        id INTEGER PRIMARY KEY, name TEXT NOT NULL,
+        spezies TEXT DEFAULT '', einheitenklasse TEXT DEFAULT '',
+        zugehoerig TEXT DEFAULT '', fortbewegung TEXT DEFAULT 'Boden',
+        erstellbedingung TEXT DEFAULT 'keine',
+        max_reichweite TEXT DEFAULT 'Nahkampf',
+        geschwindigkeit REAL DEFAULT 1,
+        nahkampf_staerke INTEGER DEFAULT 0,
+        nahkampf_panzerung INTEGER DEFAULT 0,
+        fernkampf_panzerung INTEGER DEFAULT 0,
+        einheitengroesse INTEGER DEFAULT 1,
+        transport_land INTEGER DEFAULT 0,
+        platzbedarf_see INTEGER DEFAULT 0,
+        platzbedarf_untersee INTEGER DEFAULT 0,
+        platzbedarf_luft INTEGER DEFAULT 0,
+        module TEXT DEFAULT '[]',
+        beschreibung TEXT DEFAULT '',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
     for col, defn in [
@@ -173,6 +490,7 @@ GEBAEUDE_DATA   = [{'symbol_emoji': '', 'symbol_url': '', 'bild_url': '', 'besch
     {'symbol_emoji': '', 'symbol_url': '', 'bild_url': '', 'beschreibung': '', 'ist_feld': False, 'unique_gebaeude': False, 'lagerkapazitaet': 0, 'energiebedarf': 0, 'rohstoffbedarf_bau': [{'ressource': 'Bauholz', 'menge': 12}, {'ressource': 'Rattanfasern', 'menge': 4}, {'ressource': 'Seidenraupen', 'menge': 60}], 'rohstoffgrundbedarf_ausbau': [], 'rohstoffverbrauch': [{'ressource': 'Seidenraupen', 'menge': 3}], 'produktion': [{'ressource': 'Rohseide', 'menge': 5}], 'terrain_effektivitaet': {'75': ['Grünhügel'], '100': ['Grünland', 'Weideland']}, 'vorkommen_effektivitaet': {}, 'spezial_eigenschaften': {}, 'schlachtfeld': {}, 'id': 370, 'name': 'Seidenfarm', 'kategorie': 'Farm', 'bautyp': 'Land', 'ausbaubar': False, 'baubar': True, 'nur_kueste': False, 'tech_level': 25, 'baukosten_mips': 0, 'ausbaukosten_mips': 0, 'arbeiter': 26, 'zusatzarbeiter_pro_stufe': 0, 'wohnraum': 0, 'zusatzwohnraum_pro_stufe': 0},
     {'symbol_emoji': '', 'symbol_url': '', 'bild_url': '', 'beschreibung': '', 'ist_feld': False, 'unique_gebaeude': False, 'lagerkapazitaet': 0, 'energiebedarf': 0, 'rohstoffbedarf_bau': [{'ressource': 'Bauholz', 'menge': 8}, {'ressource': 'Rattanfasern', 'menge': 6}], 'rohstoffgrundbedarf_ausbau': [], 'rohstoffverbrauch': [], 'produktion': [{'ressource': 'Seidenraupen', 'menge': 12}], 'terrain_effektivitaet': {'100': ['Grünhügel', 'Grünland', 'Weideland']}, 'vorkommen_effektivitaet': {}, 'spezial_eigenschaften': {}, 'schlachtfeld': {}, 'id': 371, 'name': 'Seidenspinnerzucht', 'kategorie': 'Tierzucht', 'bautyp': 'Land', 'ausbaubar': False, 'baubar': True, 'nur_kueste': False, 'tech_level': 25, 'baukosten_mips': 1200, 'ausbaukosten_mips': 0, 'arbeiter': 7, 'zusatzarbeiter_pro_stufe': 0, 'wohnraum': 0, 'zusatzwohnraum_pro_stufe': 0},
     {'symbol_emoji': '', 'symbol_url': '', 'bild_url': '', 'beschreibung': '', 'ist_feld': False, 'unique_gebaeude': False, 'lagerkapazitaet': 0, 'energiebedarf': 0, 'rohstoffbedarf_bau': [{'ressource': 'Bauholz', 'menge': 10}, {'ressource': 'Stein', 'menge': 5}, {'ressource': 'Häute', 'menge': 4}], 'rohstoffgrundbedarf_ausbau': [{'ressource': 'Bauholz', 'menge': 10}, {'ressource': 'Stein', 'menge': 5}, {'ressource': 'Häute', 'menge': 4}], 'rohstoffverbrauch': [{'ressource': 'Rohseide', 'menge': 2}], 'produktion': [{'ressource': 'Seide', 'menge': 1}], 'terrain_effektivitaet': {'100': ['Brachfelsland', 'Brachgebirge', 'Brachhügel', 'Brachland', 'Dschungel', 'Felsgebirge', 'Grasfelsland', 'Grasgebirge', 'Grashügel', 'Grasland', 'Grünfelsland', 'Grüngebirge', 'Grünhügel', 'Grünland', 'Hochnebelwald', 'Pampa', 'Pampafelsland', 'Pampagebirge', 'Plateau', 'Regenwald', 'Sanddünen', 'Savanne', 'Savannenfelsland', 'Savannengebirge', 'Savannenhügel', 'Steppe', 'Steppfelsland', 'Steppgebirge', 'Stepphügel', 'Sumpfland', 'Tropensumpf', 'Wald', 'Weidefelsland', 'Weideland', 'Wüste', 'Ödfelsland', 'Ödgebirge', 'Ödhügel', 'Ödland']}, 'vorkommen_effektivitaet': {}, 'spezial_eigenschaften': {}, 'schlachtfeld': {}, 'id': 372, 'name': 'Seidenspinnerei', 'kategorie': 'Industrie', 'bautyp': 'Stadt', 'ausbaubar': True, 'baubar': True, 'nur_kueste': False, 'tech_level': 25, 'baukosten_mips': 1000, 'ausbaukosten_mips': 1000, 'arbeiter': 12, 'zusatzarbeiter_pro_stufe': 12, 'wohnraum': 0, 'zusatzwohnraum_pro_stufe': 0},
+    {'symbol_emoji': '', 'symbol_url': '', 'bild_url': '', 'beschreibung': 'In den meisten trockeneren Gebieten gibt es kleine Vorkommen von Lehmhaltigen Böden. Mit ein wenig Stroh, Sonne und Zeit können daraus ein paar krude Ziegel für die ersten festeren Gebäude hergestellt werden.', 'ist_feld': False, 'unique_gebaeude': True, 'lagerkapazitaet': 0, 'energiebedarf': 0, 'rohstoffbedarf_bau': [{'ressource': 'Stein', 'menge': 8}, {'ressource': 'Werkzeug', 'menge': 1}], 'rohstoffgrundbedarf_ausbau': [], 'rohstoffverbrauch': [{'ressource': 'Stroh', 'menge': 4}, {'ressource': 'Wasser', 'menge': 5}], 'produktion': [{'ressource': 'Ziegel', 'menge': 1}], 'terrain_effektivitaet': {'100': ['Brachfelsland', 'Brachgebirge', 'Brachhügel', 'Brachland', 'Felsgebirge', 'Pampa', 'Pampafelsland', 'Pampagebirge', 'Sanddünen', 'Savanne', 'Savannenfelsland', 'Savannengebirge', 'Savannenhügel', 'Steppe', 'Steppfelsland', 'Steppgebirge', 'Stepphügel', 'Wüste', 'Ödfelsland', 'Ödgebirge', 'Ödhügel', 'Ödland']}, 'vorkommen_effektivitaet': {}, 'spezial_eigenschaften': {}, 'schlachtfeld': {}, 'id': 386, 'name': 'Feldbrandziegelei', 'kategorie': 'Industrie', 'bautyp': 'Land', 'ausbaubar': False, 'baubar': True, 'nur_kueste': False, 'tech_level': 95, 'baukosten_mips': 2500, 'ausbaukosten_mips': 0, 'arbeiter': 2, 'zusatzarbeiter_pro_stufe': 0, 'wohnraum': 0, 'zusatzwohnraum_pro_stufe': 0},
     {'symbol_emoji': '', 'symbol_url': '', 'bild_url': '', 'beschreibung': 'Ein alter Tüftler bastelt hier an kuriosen Gegenständen. Wenn wir Ihn hier in ruhe weiter schrauben und sägen lassen erweist sich vielleicht eine seiner Erfindungen als nützlich.', 'ist_feld': False, 'unique_gebaeude': True, 'lagerkapazitaet': 0, 'energiebedarf': 0, 'rohstoffbedarf_bau': [{'ressource': 'Bauholz', 'menge': 10}, {'ressource': 'Bretter', 'menge': 5}, {'ressource': 'Stein', 'menge': 2}, {'ressource': 'Werkzeug', 'menge': 2}], 'rohstoffgrundbedarf_ausbau': [], 'rohstoffverbrauch': [{'ressource': 'Bretter', 'menge': 2}, {'ressource': 'Werkzeug', 'menge': 0.5}, {'ressource': 'Seile', 'menge': 1}], 'produktion': [], 'terrain_effektivitaet': {'100': ['Brachfelsland', 'Brachgebirge', 'Brachhügel', 'Brachland', 'Dschungel', 'Felsgebirge', 'Grasfelsland', 'Grasgebirge', 'Grashügel', 'Grasland', 'Grünfelsland', 'Grüngebirge', 'Grünhügel', 'Grünland', 'Hochnebelwald', 'Pampa', 'Pampafelsland', 'Pampagebirge', 'Plateau', 'Regenwald', 'Sanddünen', 'Savanne', 'Savannenfelsland', 'Savannengebirge', 'Savannenhügel', 'Steppe', 'Steppfelsland', 'Steppgebirge', 'Stepphügel', 'Sumpfland', 'Tropensumpf', 'Wald', 'Weidefelsland', 'Weideland', 'Wüste', 'Ödfelsland', 'Ödgebirge', 'Ödhügel', 'Ödland']}, 'vorkommen_effektivitaet': {}, 'spezial_eigenschaften': {'techproduktion': 3}, 'schlachtfeld': {}, 'id': 387, 'name': 'Erfinderwerkstatt', 'kategorie': 'Forschung', 'bautyp': 'Stadt', 'ausbaubar': False, 'baubar': True, 'nur_kueste': False, 'tech_level': 75, 'baukosten_mips': 7000, 'ausbaukosten_mips': 0, 'arbeiter': 1, 'zusatzarbeiter_pro_stufe': 0, 'wohnraum': 0, 'zusatzwohnraum_pro_stufe': 0},
     {'symbol_emoji': '', 'symbol_url': '', 'bild_url': '', 'beschreibung': '', 'ist_feld': False, 'unique_gebaeude': True, 'lagerkapazitaet': 0, 'energiebedarf': 0, 'rohstoffbedarf_bau': [{'ressource': 'Stein', 'menge': 15}, {'ressource': 'Bauholz', 'menge': 4}, {'ressource': 'Eisen', 'menge': 1}], 'rohstoffgrundbedarf_ausbau': [], 'rohstoffverbrauch': [], 'produktion': [], 'terrain_effektivitaet': {'100': ['Brachfelsland', 'Brachgebirge', 'Brachhügel', 'Brachland', 'Dschungel', 'Felsgebirge', 'Grasfelsland', 'Grasgebirge', 'Grashügel', 'Grasland', 'Grünfelsland', 'Grüngebirge', 'Grünhügel', 'Grünland', 'Hochnebelwald', 'Pampa', 'Pampafelsland', 'Pampagebirge', 'Plateau', 'Regenwald', 'Sanddünen', 'Savanne', 'Savannenfelsland', 'Savannengebirge', 'Savannenhügel', 'Steppe', 'Steppfelsland', 'Steppgebirge', 'Stepphügel', 'Sumpfland', 'Tropensumpf', 'Wald', 'Weidefelsland', 'Weideland', 'Wüste', 'Ödfelsland', 'Ödgebirge', 'Ödhügel', 'Ödland', 'Eiswüste']}, 'vorkommen_effektivitaet': {}, 'spezial_eigenschaften': {'kulturpunkte': 2}, 'schlachtfeld': {}, 'id': 389, 'name': 'Leuchtturm', 'kategorie': 'Küste', 'bautyp': 'Land', 'ausbaubar': False, 'baubar': True, 'nur_kueste': True, 'tech_level': 28, 'baukosten_mips': 3000, 'ausbaukosten_mips': 0, 'arbeiter': 1, 'zusatzarbeiter_pro_stufe': 0, 'wohnraum': 0, 'zusatzwohnraum_pro_stufe': 0},
     {'symbol_emoji': '', 'symbol_url': '', 'bild_url': '', 'beschreibung': 'Wir haben in diesem Gebiet mit Grabungen begonnen. Wir benötigen für die Arbeiten Werkzeuge, lernen jedoch auch wertvolle Dinge über die Vergangenheit.', 'ist_feld': False, 'unique_gebaeude': True, 'lagerkapazitaet': 0, 'energiebedarf': 0, 'rohstoffbedarf_bau': [{'ressource': 'Bauholz', 'menge': 15}, {'ressource': 'Werkzeug', 'menge': 2}], 'rohstoffgrundbedarf_ausbau': [], 'rohstoffverbrauch': [{'ressource': 'Werkzeug', 'menge': 0.5}], 'produktion': [], 'terrain_effektivitaet': {'100': ['Brachfelsland', 'Brachgebirge', 'Brachhügel', 'Brachland', 'Dschungel', 'Felsgebirge', 'Grasfelsland', 'Grasgebirge', 'Grashügel', 'Grasland', 'Grünfelsland', 'Grüngebirge', 'Grünhügel', 'Grünland', 'Hochnebelwald', 'Pampa', 'Pampafelsland', 'Pampagebirge', 'Plateau', 'Regenwald', 'Sanddünen', 'Savanne', 'Savannenfelsland', 'Savannengebirge', 'Savannenhügel', 'Steppe', 'Steppfelsland', 'Steppgebirge', 'Stepphügel', 'Sumpfland', 'Tropensumpf', 'Wald', 'Weidefelsland', 'Weideland', 'Wüste', 'Ödfelsland', 'Ödgebirge', 'Ödhügel', 'Ödland', 'Eiswüste']}, 'vorkommen_effektivitaet': {}, 'spezial_eigenschaften': {'techproduktion': 1}, 'schlachtfeld': {}, 'id': 390, 'name': 'Grabungsstätte', 'kategorie': 'Forschung', 'bautyp': 'Land', 'ausbaubar': False, 'baubar': True, 'nur_kueste': False, 'tech_level': 10, 'baukosten_mips': 0, 'ausbaukosten_mips': 0, 'arbeiter': 6, 'zusatzarbeiter_pro_stufe': 0, 'wohnraum': 0, 'zusatzwohnraum_pro_stufe': 0},
@@ -305,35 +623,120 @@ def seed_vorkommen(c):
             print(f"  ✅  ID {v['id']:>2} | {v['name']:<15} ({v['typ']}) – neu"); ins+=1
     return ins, upd
 
-def seed_ressourcen(c):
+
+def seed_terrains(c):
+    """Schreibt alle Terrain-Typen aus TERRAIN_DATA in die terrain_typen-Tabelle."""
     ins = upd = 0
-    for (rid,name,typ,wert,verbrauch,platz) in RESSOURCEN_DATA:
-        c.execute("SELECT id FROM ressourcen WHERE id=?", (rid,))
+    for name, td in TERRAIN_DATA.items():
+        ge_json  = json.dumps(td["gebaeude"], ensure_ascii=False)
+        auf_json = json.dumps(td["aufwertungen"], ensure_ascii=False)
+        ab_json  = json.dumps(td["abwertungen"], ensure_ascii=False)
+        c.execute("SELECT id FROM terrain_typen WHERE id=?", (td["id"],))
         if c.fetchone():
-            c.execute("UPDATE ressourcen SET name=?,typ=?,wert=?,verbrauch=?,platzbedarf=?,"
-                      "updated_at=CURRENT_TIMESTAMP WHERE id=?", (name,typ,wert,verbrauch,platz,rid))
+            c.execute("""UPDATE terrain_typen SET name=?,startgebiet=?,regen_pct=?,aufwertungen=?,abwertungen=?,beschreibung=?,gebaeude_effektivitaet=?,updated_at=CURRENT_TIMESTAMP WHERE id=?""",
+                      (name, int(td["startgebiet"]), td["regen_pct"], auf_json, ab_json, td["beschreibung"], ge_json, td["id"]))
             upd += 1
         else:
-            c.execute("INSERT INTO ressourcen (id,name,typ,wert,verbrauch,platzbedarf) VALUES (?,?,?,?,?,?)",
-                      (rid,name,typ,wert,verbrauch,platz))
+            c.execute("""INSERT INTO terrain_typen (id,name,startgebiet,regen_pct,aufwertungen,abwertungen,beschreibung,gebaeude_effektivitaet) VALUES (?,?,?,?,?,?,?,?)""",
+                      (td["id"], name, int(td["startgebiet"]), td["regen_pct"], auf_json, ab_json, td["beschreibung"], ge_json))
+            print(f"  u2705  ID {td["id"]:>2} | {name} u2013 neu"); ins += 1
+    return ins, upd
+
+EINHEITEN_DATA = [
+    {'id': 1,   'name': 'Rekrut(en)',    'spezies': 'Menschen', 'einheitenklasse': 'Infanterie',       'zugehoerig': 'Militär', 'fortbewegung': 'Boden', 'erstellbedingung': 'keine', 'max_reichweite': 'Nahkampf', 'geschwindigkeit': 1,   'nahkampf_staerke': 2, 'nahkampf_panzerung': 2, 'fernkampf_panzerung': 2, 'einheitengroesse': 1, 'transport_land': 1,   'platzbedarf_see': 10,  'platzbedarf_untersee': 10,  'platzbedarf_luft': 10,  'module': [{'typ': 'Rekruten', 'menge': 1}],                                                          'beschreibung': ''},
+    {'id': 2,   'name': 'Handelskarren', 'spezies': 'Menschen', 'einheitenklasse': 'Handelsfahrzeug',  'zugehoerig': 'Zivil',   'fortbewegung': 'Boden', 'erstellbedingung': 'keine', 'max_reichweite': 'Nahkampf', 'geschwindigkeit': 0.5, 'nahkampf_staerke': 2, 'nahkampf_panzerung': 2, 'fernkampf_panzerung': 4, 'einheitengroesse': 3, 'transport_land': 100, 'platzbedarf_see': 50,  'platzbedarf_untersee': 50,  'platzbedarf_luft': 50,  'module': [{'typ': 'Siedler', 'menge': 1}, {'typ': 'Handelskarren', 'menge': 1}],                    'beschreibung': ''},
+    {'id': 10,  'name': 'Speerkämpfer', 'spezies': 'Menschen', 'einheitenklasse': 'Infanterie',        'zugehoerig': 'Militär', 'fortbewegung': 'Boden', 'erstellbedingung': 'keine', 'max_reichweite': 'Nahkampf', 'geschwindigkeit': 1,   'nahkampf_staerke': 5, 'nahkampf_panzerung': 2, 'fernkampf_panzerung': 2, 'einheitengroesse': 1, 'transport_land': 1,   'platzbedarf_see': 10,  'platzbedarf_untersee': 10,  'platzbedarf_luft': 10,  'module': [{'typ': 'Rekruten', 'menge': 1}, {'typ': 'Holzspeer', 'menge': 1}],                        'beschreibung': ''},
+    {'id': 21,  'name': 'Siedler',       'spezies': 'Menschen', 'einheitenklasse': 'Zivilist',          'zugehoerig': 'Zivil',   'fortbewegung': 'Boden', 'erstellbedingung': 'keine', 'max_reichweite': 'Nahkampf', 'geschwindigkeit': 1,   'nahkampf_staerke': 2, 'nahkampf_panzerung': 2, 'fernkampf_panzerung': 2, 'einheitengroesse': 1, 'transport_land': 1,   'platzbedarf_see': 10,  'platzbedarf_untersee': 10,  'platzbedarf_luft': 10,  'module': [{'typ': 'Siedler', 'menge': 1}],                                                           'beschreibung': ''},
+    {'id': 34,  'name': 'Handelskarren', 'spezies': 'Menschen', 'einheitenklasse': '',                  'zugehoerig': 'Zivil',   'fortbewegung': 'Boden', 'erstellbedingung': 'keine', 'max_reichweite': '0',        'geschwindigkeit': 0.5, 'nahkampf_staerke': 2, 'nahkampf_panzerung': 2, 'fernkampf_panzerung': 4, 'einheitengroesse': 1, 'transport_land': 100, 'platzbedarf_see': 109, 'platzbedarf_untersee': 109, 'platzbedarf_luft': 109, 'module': [{'typ': 'Siedler', 'menge': 1}, {'typ': 'Handelskarren', 'menge': 1}],                    'beschreibung': ''},
+    {'id': 120, 'name': 'Handelskarren', 'spezies': 'Menschen', 'einheitenklasse': 'Handelsfahrzeug',  'zugehoerig': 'Militär', 'fortbewegung': 'Boden', 'erstellbedingung': 'keine', 'max_reichweite': 'Nahkampf', 'geschwindigkeit': 0.5, 'nahkampf_staerke': 2, 'nahkampf_panzerung': 2, 'fernkampf_panzerung': 4, 'einheitengroesse': 3, 'transport_land': 100, 'platzbedarf_see': 50,  'platzbedarf_untersee': 50,  'platzbedarf_luft': 50,  'module': [{'typ': 'Rekruten', 'menge': 1}, {'typ': 'Handelskarren', 'menge': 1}],                    'beschreibung': ''},
+    {'id': 133, 'name': 'Pionier',       'spezies': 'Menschen', 'einheitenklasse': 'Infanterie',        'zugehoerig': 'Militär', 'fortbewegung': 'Boden', 'erstellbedingung': 'keine', 'max_reichweite': 'Nahkampf', 'geschwindigkeit': 1,   'nahkampf_staerke': 4, 'nahkampf_panzerung': 2, 'fernkampf_panzerung': 2, 'einheitengroesse': 1, 'transport_land': 1,   'platzbedarf_see': 10,  'platzbedarf_untersee': 10,  'platzbedarf_luft': 10,  'module': [{'typ': 'Rekruten', 'menge': 1}, {'typ': 'Werkzeug', 'menge': 1}],                          'beschreibung': ''},
+]
+
+def seed_einheiten(c):
+    ins = upd = 0
+    for e in EINHEITEN_DATA:
+        module_json = json.dumps(e['module'], ensure_ascii=False)
+        c.execute("SELECT id FROM einheiten_typen WHERE id=?", (e['id'],))
+        if c.fetchone():
+            c.execute("""UPDATE einheiten_typen SET
+                name=?, spezies=?, einheitenklasse=?, zugehoerig=?, fortbewegung=?,
+                erstellbedingung=?, max_reichweite=?, geschwindigkeit=?,
+                nahkampf_staerke=?, nahkampf_panzerung=?, fernkampf_panzerung=?,
+                einheitengroesse=?, transport_land=?,
+                platzbedarf_see=?, platzbedarf_untersee=?, platzbedarf_luft=?,
+                module=?, beschreibung=?, updated_at=CURRENT_TIMESTAMP
+                WHERE id=?""",
+                (e['name'], e['spezies'], e['einheitenklasse'], e['zugehoerig'], e['fortbewegung'],
+                 e['erstellbedingung'], e['max_reichweite'], e['geschwindigkeit'],
+                 e['nahkampf_staerke'], e['nahkampf_panzerung'], e['fernkampf_panzerung'],
+                 e['einheitengroesse'], e['transport_land'],
+                 e['platzbedarf_see'], e['platzbedarf_untersee'], e['platzbedarf_luft'],
+                 module_json, e['beschreibung'], e['id']))
+            upd += 1
+        else:
+            c.execute("""INSERT INTO einheiten_typen
+                (id, name, spezies, einheitenklasse, zugehoerig, fortbewegung,
+                 erstellbedingung, max_reichweite, geschwindigkeit,
+                 nahkampf_staerke, nahkampf_panzerung, fernkampf_panzerung,
+                 einheitengroesse, transport_land,
+                 platzbedarf_see, platzbedarf_untersee, platzbedarf_luft,
+                 module, beschreibung)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (e['id'], e['name'], e['spezies'], e['einheitenklasse'], e['zugehoerig'], e['fortbewegung'],
+                 e['erstellbedingung'], e['max_reichweite'], e['geschwindigkeit'],
+                 e['nahkampf_staerke'], e['nahkampf_panzerung'], e['fernkampf_panzerung'],
+                 e['einheitengroesse'], e['transport_land'],
+                 e['platzbedarf_see'], e['platzbedarf_untersee'], e['platzbedarf_luft'],
+                 module_json, e['beschreibung']))
+            print(f"  ✅  ID {e['id']:>3} | {e['name']} – neu")
+            ins += 1
+    return ins, upd
+
+def seed_ressourcen(c):
+    """Seedet Ressourcen aus RESSOURCEN_DATA."""
+    ins = upd = 0
+    for r in RESSOURCEN_DATA:
+        rid = r['id']
+        name = r['name']
+        typ = r['typ']
+        wert = r.get('produktionswert', 0)
+        verbrauch = r.get('verbrauch_pro_1000', 0)
+        platz = r.get('platz_land', 1)
+        
+        c.execute("SELECT id FROM ressourcen WHERE id=?", (rid,))
+        if c.fetchone():
+            c.execute("""UPDATE ressourcen SET name=?,typ=?,wert=?,verbrauch=?,platzbedarf=?,updated_at=CURRENT_TIMESTAMP WHERE id=?""",
+                      (name, typ, wert, verbrauch, platz, rid))
+            upd += 1
+        else:
+            c.execute("""INSERT INTO ressourcen (id,name,typ,wert,verbrauch,platzbedarf) VALUES (?,?,?,?,?,?)""",
+                      (rid, name, typ, wert, verbrauch, platz))
             ins += 1
     return ins, upd
 
 def seed():
     conn = sqlite3.connect(DB_PATH); conn.row_factory = sqlite3.Row
     init_tables(conn); c = conn.cursor()
+    print("\n🔹 Terrain-Typen:")
+    t_ins, t_upd = seed_terrains(c)
+    print(f"   → {t_ins} neu, {t_upd} aktualisiert")
     print("\n🔹 Gebäude-Typen:")
     g_ins, g_upd = seed_gebaeude(c)
     print(f"   → {g_ins} neu, {g_upd} aktualisiert")
+    print("\n🔹 Einheiten:")
+    e_ins, e_upd = seed_einheiten(c)
+    print(f"   → {e_ins} neu, {e_upd} aktualisiert")
     print("\n🔹 Vorkommen:")
     v_ins, v_upd = seed_vorkommen(c)
     print("\n🔹 Ressourcen:")
     r_ins, r_upd = seed_ressourcen(c)
     conn.commit(); conn.close()
-    print(f"\n🏁 Gebäude:    {g_ins} neu, {g_upd} aktualisiert")
+    print(f"\n🏁 Terrain:    {t_ins} neu, {t_upd} aktualisiert")
+    print(f"🏁 Gebäude:    {g_ins} neu, {g_upd} aktualisiert")
+    print(f"🏁 Einheiten:  {e_ins} neu, {e_upd} aktualisiert")
     print(f"🏁 Vorkommen:  {v_ins} neu, {v_upd} aktualisiert")
     print(f"🏁 Ressourcen: {r_ins} neu, {r_upd} aktualisiert")
 
 if __name__ == "__main__":
-    print("🌱 Seed v5.7: 108 Gebäude + 20 Vorkommen + 65 Ressourcen\n")
+    print("🌱 Seed v5.9: 99 Gebäude + 7 Einheiten + 42 Terrains + 20 Vorkommen + 65 Ressourcen\n")
     seed()

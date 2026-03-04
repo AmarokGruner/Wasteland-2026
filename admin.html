@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verbrannte Zone - Admin Dashboard</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
             --bg-dark: #0d0d0d;
             --bg-card: #1a1a1a;
@@ -18,14 +23,14 @@
             --danger: #d32f2f;
             --success: #388e3c;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background: var(--bg-dark);
             color: var(--text);
             min-height: 100vh;
         }
-        
+
         header {
             background: var(--bg-card);
             border-bottom: 1px solid var(--border);
@@ -34,19 +39,19 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .logo {
             color: var(--accent);
             font-size: 20px;
             font-weight: bold;
         }
-        
+
         .user-info {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        
+
         .logout-btn {
             background: var(--danger);
             color: white;
@@ -55,47 +60,47 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        
+
         nav {
             background: var(--bg-card);
             padding: 0 30px;
             border-bottom: 1px solid var(--border);
         }
-        
+
         nav ul {
             display: flex;
             list-style: none;
             gap: 0;
         }
-        
+
         nav li {
             padding: 15px 25px;
             cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
         }
-        
+
         nav li:hover {
             background: rgba(205, 133, 63, 0.1);
         }
-        
+
         nav li.active {
             border-bottom-color: var(--accent);
             color: var(--accent);
         }
-        
+
         main {
             padding: 30px;
         }
-        
+
         .section {
             display: none;
         }
-        
+
         .section.active {
             display: block;
         }
-        
+
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -103,34 +108,35 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         .card h2 {
             color: var(--accent);
             margin-bottom: 20px;
             font-size: 18px;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        
-        th, td {
+
+        th,
+        td {
             text-align: left;
             padding: 12px;
             border-bottom: 1px solid var(--border);
         }
-        
+
         th {
             background: rgba(205, 133, 63, 0.1);
             color: var(--accent);
             font-weight: 600;
         }
-        
+
         tr:hover {
-            background: rgba(255,255,255,0.02);
+            background: rgba(255, 255, 255, 0.02);
         }
-        
+
         .btn {
             padding: 8px 16px;
             border: none;
@@ -138,40 +144,40 @@
             cursor: pointer;
             font-size: 13px;
         }
-        
+
         .btn-primary {
             background: var(--accent);
             color: #000;
         }
-        
+
         .btn-danger {
             background: var(--danger);
             color: white;
         }
-        
+
         .btn:hover {
             opacity: 0.9;
         }
-        
+
         .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
-        
+
         .form-group {
             display: flex;
             flex-direction: column;
         }
-        
+
         .form-group label {
             font-size: 12px;
             color: var(--text-muted);
             margin-bottom: 5px;
         }
-        
-        .form-group input, 
+
+        .form-group input,
         .form-group select,
         .form-group textarea {
             background: var(--bg-dark);
@@ -180,13 +186,13 @@
             padding: 8px;
             border-radius: 4px;
         }
-        
+
         .form-group textarea {
             min-height: 80px;
             font-family: monospace;
             font-size: 12px;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -194,16 +200,16 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
-        
+
         .modal.active {
             display: flex;
         }
-        
+
         .modal-content {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -214,18 +220,18 @@
             max-height: 80vh;
             overflow-y: auto;
         }
-        
+
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        
+
         .modal-header h3 {
             color: var(--accent);
         }
-        
+
         .close {
             background: none;
             border: none;
@@ -233,13 +239,13 @@
             font-size: 24px;
             cursor: pointer;
         }
-        
+
         .json-editor {
             font-family: monospace;
             font-size: 12px;
             min-height: 150px;
         }
-        
+
         .badge {
             display: inline-block;
             padding: 3px 8px;
@@ -247,28 +253,28 @@
             font-size: 11px;
             text-transform: uppercase;
         }
-        
+
         .badge-admin {
             background: var(--danger);
             color: white;
         }
-        
+
         .badge-player {
             background: var(--success);
             color: white;
         }
-        
+
         .actions {
             display: flex;
             gap: 8px;
         }
-        
+
         .loading {
             text-align: center;
             padding: 40px;
             color: var(--text-muted);
         }
-        
+
         /* Dynamic row styles */
         .dynamic-row {
             display: flex;
@@ -279,7 +285,7 @@
             background: var(--bg-dark);
             border-radius: 4px;
         }
-        
+
         .dynamic-row select,
         .dynamic-row input {
             flex: 1;
@@ -289,17 +295,17 @@
             color: var(--text);
             border-radius: 4px;
         }
-        
+
         .dynamic-row input[type="number"] {
             max-width: 80px;
             flex: none;
         }
-        
+
         .dynamic-row select {
             max-width: 150px;
             flex: none;
         }
-        
+
         .dynamic-row .btn-remove {
             background: var(--danger);
             color: white;
@@ -311,12 +317,12 @@
             font-size: 16px;
             flex: none;
         }
-        
+
         .btn-small {
             padding: 6px 12px;
             font-size: 12px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -325,6 +331,7 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="logo">🔥 Verbrannte Zone - Admin</div>
@@ -333,7 +340,7 @@
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
     </header>
-    
+
     <nav>
         <ul>
             <li class="active" onclick="showSection('users')">Benutzer</li>
@@ -349,7 +356,7 @@
             <li onclick="showSection('players')">Spieler</li>
         </ul>
     </nav>
-    
+
     <main>
         <!-- Users Section -->
         <section id="usersSection" class="section active">
@@ -369,13 +376,15 @@
                             </tr>
                         </thead>
                         <tbody id="usersTable">
-                            <tr><td colspan="6" class="loading">Laden...</td></tr>
+                            <tr>
+                                <td colspan="6" class="loading">Laden...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Buildings Section -->
         <section id="buildingsSection" class="section">
             <div class="card">
@@ -396,13 +405,15 @@
                             </tr>
                         </thead>
                         <tbody id="buildingsTable">
-                            <tr><td colspan="8" class="loading">Laden...</td></tr>
+                            <tr>
+                                <td colspan="8" class="loading">Laden...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Ressourcen Section -->
         <section id="ressourcenSection" class="section">
             <div class="card">
@@ -411,14 +422,26 @@
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Typ</th><th>Prod.-Wert</th><th>Platz (L/W/L)</th><th>Beschreibung</th><th>Aktionen</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Typ</th>
+                                <th>Prod.-Wert</th>
+                                <th>Platz (L/W/L)</th>
+                                <th>Beschreibung</th>
+                                <th>Aktionen</th>
+                            </tr>
                         </thead>
-                        <tbody id="ressourcenTable"><tr><td colspan="7" class="loading">Laden...</td></tr></tbody>
+                        <tbody id="ressourcenTable">
+                            <tr>
+                                <td colspan="7" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Vorkommen Section -->
         <section id="vorkommenSection" class="section">
             <div class="card">
@@ -427,14 +450,25 @@
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Typ</th><th>Tech</th><th>Suchkosten</th><th>Aktionen</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Typ</th>
+                                <th>Tech</th>
+                                <th>Suchkosten</th>
+                                <th>Aktionen</th>
+                            </tr>
                         </thead>
-                        <tbody id="vorkommenTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                        <tbody id="vorkommenTable">
+                            <tr>
+                                <td colspan="6" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Gebäude-Felder Section -->
         <section id="gebaeude_felderSection" class="section">
             <div class="card">
@@ -443,14 +477,25 @@
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Beschreibung</th><th>Groesse</th><th>Baubar</th><th>Aktionen</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Beschreibung</th>
+                                <th>Groesse</th>
+                                <th>Baubar</th>
+                                <th>Aktionen</th>
+                            </tr>
                         </thead>
-                        <tbody id="gebaeude_felderTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                        <tbody id="gebaeude_felderTable">
+                            <tr>
+                                <td colspan="6" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Terrain Section (Welt-Terrain) -->
         <section id="terrainSection" class="section">
             <div class="card">
@@ -459,14 +504,24 @@
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Farbe</th><th>Icon</th><th>Spielbar</th><th>Aktionen</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Startgebiet</th>
+                                <th>Regen %</th>
+                                <th>Aktionen</th>
+                            </tr>
                         </thead>
-                        <tbody id="terrainTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                        <tbody id="terrainTable">
+                            <tr>
+                                <td colspan="6" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Artikel Section -->
         <section id="artikelSection" class="section">
             <div class="card">
@@ -475,14 +530,25 @@
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Kategorie</th><th>Preis MIPS</th><th>Preis Münzen</th><th>Aktionen</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Kategorie</th>
+                                <th>Preis MIPS</th>
+                                <th>Preis Münzen</th>
+                                <th>Aktionen</th>
+                            </tr>
                         </thead>
-                        <tbody id="artikelTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                        <tbody id="artikelTable">
+                            <tr>
+                                <td colspan="6" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Einheiten Section -->
         <section id="einheitenSection" class="section">
             <div class="card">
@@ -491,14 +557,25 @@
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Kategorie</th><th>Kosten MIPS</th><th>Kosten Münzen</th><th>Aktionen</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Kategorie</th>
+                                <th>Kosten MIPS</th>
+                                <th>Kosten Münzen</th>
+                                <th>Aktionen</th>
+                            </tr>
                         </thead>
-                        <tbody id="einheitenTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                        <tbody id="einheitenTable">
+                            <tr>
+                                <td colspan="6" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Lebewesen Section -->
         <section id="lebewesenSection" class="section">
             <div class="card">
@@ -507,30 +584,51 @@
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Typ</th><th>Stärke</th><th>Gesundheit</th><th>Aktionen</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Typ</th>
+                                <th>Stärke</th>
+                                <th>Gesundheit</th>
+                                <th>Aktionen</th>
+                            </tr>
                         </thead>
-                        <tbody id="lebewesenTable"><tr><td colspan="6" class="loading">Laden...</td></tr></tbody>
+                        <tbody id="lebewesenTable">
+                            <tr>
+                                <td colspan="6" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Regierungsformen Section -->
         <section id="regierungsformenSection" class="section">
             <div class="card">
                 <h2>Regierungsformen</h2>
-                <button class="btn btn-primary" onclick="showCreateModal('regierungsformen')">+ Neue Regierungsform</button>
+                <button class="btn btn-primary" onclick="showCreateModal('regierungsformen')">+ Neue
+                    Regierungsform</button>
                 <div style="margin-top: 20px;">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Beschreibung</th><th>Aktionen</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Beschreibung</th>
+                                <th>Aktionen</th>
+                            </tr>
                         </thead>
-                        <tbody id="regierungsformenTable"><tr><td colspan="4" class="loading">Laden...</td></tr></tbody>
+                        <tbody id="regierungsformenTable">
+                            <tr>
+                                <td colspan="4" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
+
         <!-- Players Section -->
         <section id="playersSection" class="section">
             <div class="card">
@@ -539,7 +637,7 @@
             </div>
         </section>
     </main>
-    
+
     <!-- Create User Modal -->
     <div id="createUserModal" class="modal">
         <div class="modal-content">
@@ -575,7 +673,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Generic Modal for all entities -->
     <div id="genericModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
@@ -586,7 +684,7 @@
             <form id="genericForm"></form>
         </div>
     </div>
-    
+
     <!-- Edit Building Modal -->
     <div id="editBuildingModal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
@@ -626,33 +724,36 @@
                         <input type="number" name="lagerkapazitaet">
                     </div>
                 </div>
-                
+
                 <!-- Produktion Section -->
                 <div class="form-group">
                     <label>Produktion</label>
                     <div id="productionContainer"></div>
-                    <button type="button" class="btn btn-small" onclick="addProductionRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                    <button type="button" class="btn btn-small" onclick="addProductionRow()" style="margin-top: 5px;">+
+                        Zeile hinzufügen</button>
                 </div>
-                
+
                 <!-- Verbrauch Section -->
                 <div class="form-group">
                     <label>Verbrauch</label>
                     <div id="consumptionContainer"></div>
-                    <button type="button" class="btn btn-small" onclick="addConsumptionRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                    <button type="button" class="btn btn-small" onclick="addConsumptionRow()" style="margin-top: 5px;">+
+                        Zeile hinzufügen</button>
                 </div>
-                
+
                 <!-- Terrain Effectiveness Section -->
                 <div class="form-group">
                     <label>Terrain-Effektivität</label>
                     <div id="terrainContainer"></div>
-                    <button type="button" class="btn btn-small" onclick="addTerrainRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                    <button type="button" class="btn btn-small" onclick="addTerrainRow()" style="margin-top: 5px;">+
+                        Zeile hinzufügen</button>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary">Speichern</button>
             </form>
         </div>
     </div>
-    
+
     <!-- Create Building Modal -->
     <div id="createBuildingModal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
@@ -691,114 +792,391 @@
                         <input type="number" name="lagerkapazitaet" value="0">
                     </div>
                 </div>
-                
+
                 <!-- Produktion Section -->
                 <div class="form-group">
                     <label>Produktion</label>
                     <div id="createProductionContainer"></div>
-                    <button type="button" class="btn btn-small" onclick="addCreateProductionRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                    <button type="button" class="btn btn-small" onclick="addCreateProductionRow()"
+                        style="margin-top: 5px;">+ Zeile hinzufügen</button>
                 </div>
-                
+
                 <!-- Verbrauch Section -->
                 <div class="form-group">
                     <label>Verbrauch</label>
                     <div id="createConsumptionContainer"></div>
-                    <button type="button" class="btn btn-small" onclick="addCreateConsumptionRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                    <button type="button" class="btn btn-small" onclick="addCreateConsumptionRow()"
+                        style="margin-top: 5px;">+ Zeile hinzufügen</button>
                 </div>
-                
+
                 <!-- Terrain Effectiveness Section -->
                 <div class="form-group">
                     <label>Terrain-Effektivität</label>
                     <div id="createTerrainContainer"></div>
-                    <button type="button" class="btn btn-small" onclick="addCreateTerrainRow()" style="margin-top: 5px;">+ Zeile hinzufügen</button>
+                    <button type="button" class="btn btn-small" onclick="addCreateTerrainRow()"
+                        style="margin-top: 5px;">+ Zeile hinzufügen</button>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary">Erstellen</button>
             </form>
         </div>
     </div>
-    
+
     <script>
-        console.log('Admin HTML loading...');
-        
-        // Make functions globally accessible
-        window.testFunction = function() { return 'test'; };
-        window.editItemTest = function() { console.log('editItem accessible'); };
-        
         const APIBASE = window.location.protocol === 'https:'
-            ? `https://${window.location.host}` 
+            ? `https://${window.location.host}`
             : 'http://localhost:8000';
-        
-        const RESOURCES = ['Nahrung', 'Wasser', 'Strom', 'Benzin', 'Diesel', 'MIPS', 'Münzen', 'Munition', 'Medikamente', 'Eisen', 'Kupfer', 'Aluminium', 'Plastik', 'Elektronik', 'Holz', 'Stein', 'Beton', 'Textilien'];
-        
+
         let token = localStorage.getItem('token');
-        
-        // Check auth
-        if (!token) {
-            window.location.href = 'login.html';
+        let RESOURCES = [];
+
+        // ── Auth guard ──────────────────────────────────────────────
+        if (!token) { window.location.href = 'login.html'; }
+        if (localStorage.getItem('role') !== 'admin') { window.location.href = 'index.html'; }
+        document.getElementById('adminName').textContent = localStorage.getItem('username') || 'Admin';
+
+        // ── Load Resource list from DB for dropdowns ────────────────
+        async function loadResourceList() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/ressourcen?token=${token}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    RESOURCES = data.map(r => r.name).filter(Boolean).sort();
+                }
+            } catch { }
         }
-        
-        // Check admin
-        if (localStorage.getItem('role') !== 'admin') {
-            window.location.href = 'index.html';
-        }
-        
-        document.getElementById('adminName').textContent = localStorage.getItem('username');
-        
+        loadResourceList();
+
+        // ── entityConfig – defines fields for each entity type ──────
+        const entityConfig = {
+            ressourcen: {
+                label: 'Rohstoff',
+                endpoint: 'ressourcen',
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'typ', label: 'Typ', type: 'select', options: ['Baurohstoff', 'Industriegut', 'Nahrung', 'Getränk', 'Verbrauchsgut', 'Genussgut', 'Tier', 'Waffentyp', 'Transport'] },
+                    { name: 'produktionswert', label: 'Produktionswert', type: 'number' },
+                    { name: 'platz_land', label: 'Platz Land', type: 'number' },
+                    { name: 'platz_wasser', label: 'Platz Wasser', type: 'number' },
+                    { name: 'platz_luft', label: 'Platz Luft', type: 'number' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                ]
+            },
+            vorkommen: {
+                label: 'Vorkommen',
+                endpoint: 'vorkommen',
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'typ', label: 'Typ', type: 'select', options: ['geologisch', 'Oberfläche', 'unt. Seen'] },
+                    { name: 'tech', label: 'Tech-Level', type: 'number' },
+                    { name: 'suchkosten', label: 'Suchkosten (MIPS)', type: 'number' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                    { name: 'findwahrscheinlichkeit', label: 'Fundwahrsch. (JSON)', type: 'json' },
+                ]
+            },
+            gebaeude_felder: {
+                label: 'Gebäude-Feld',
+                endpoint: 'gebaeude_felder',
+                fields: [
+                    { name: 'id', label: 'ID', type: 'text', readonly: true },
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                    { name: 'groesse_px', label: 'Größe (px)', type: 'number' },
+                    { name: 'ist_baubar', label: 'Baubar', type: 'select', options: [{ v: '1', label: 'Ja' }, { v: '0', label: 'Nein' }] },
+                    { name: 'farbe_leer', label: 'Farbe (leer)', type: 'color' },
+                ]
+            },
+            terrain: {
+                label: 'Terrain',
+                endpoint: 'terrain',
+                fields: [
+                    { name: 'id', label: 'ID', type: 'number', readonly: true },
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'startgebiet', label: 'Startgebiet', type: 'select', options: [{ v: 1, label: 'Ja' }, { v: 0, label: 'Nein' }] },
+                    { name: 'regen_pct', label: 'Regen %', type: 'number' },
+                    { name: 'aufwertungen', label: 'Aufwertungen (JSON)', type: 'json' },
+                    { name: 'abwertungen', label: 'Abwertungen (JSON)', type: 'json' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                    { name: 'bild_url', label: 'Bild URL', type: 'text' },
+                    { name: 'gebaeude_effektivitaet', label: 'Gebäude-Eff. (JSON)', type: 'json' },
+                ]
+            },
+            artikel: {
+                label: 'Artikel',
+                endpoint: 'artikel',
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'kategorie', label: 'Kategorie', type: 'text' },
+                    { name: 'preis_mips', label: 'Preis (MIPS)', type: 'number' },
+                    { name: 'preis_muenzen', label: 'Preis (Münzen)', type: 'number' },
+                    { name: 'gewicht', label: 'Gewicht', type: 'number' },
+                    { name: 'haltbarkeit', label: 'Haltbarkeit', type: 'number' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                ]
+            },
+            einheiten: {
+                label: 'Einheiten-Typ',
+                endpoint: 'einheiten',
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'kategorie', label: 'Kategorie', type: 'text' },
+                    { name: 'kosten_mips', label: 'Kosten (MIPS)', type: 'number' },
+                    { name: 'kosten_muenzen', label: 'Kosten (Münzen)', type: 'number' },
+                    { name: 'bevoelkerung_count', label: 'Bevölkerung', type: 'number' },
+                    { name: 'bewaffnung', label: 'Bewaffnung', type: 'text' },
+                    { name: 'transport_kapazitaet', label: 'Transport-Kapazität', type: 'number' },
+                    { name: 'geschwindigkeit', label: 'Geschwindigkeit', type: 'number' },
+                ]
+            },
+            lebewesen: {
+                label: 'Lebewesen',
+                endpoint: 'lebewesen',
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'typ', label: 'Typ', type: 'text' },
+                    { name: 'staerke', label: 'Stärke', type: 'number' },
+                    { name: 'gesundheit', label: 'Gesundheit', type: 'number' },
+                    { name: 'bevoelkerung_kosten', label: 'Bevölk.-Kosten', type: 'number' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                ]
+            },
+            regierungsformen: {
+                label: 'Regierungsform',
+                endpoint: 'regierungsformen',
+                fields: [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
+                    { name: 'bonus_malus', label: 'Bonus/Malus (JSON)', type: 'json' },
+                ]
+            }
+        };
+
+        // ── Section navigation ──────────────────────────────────────
         function showSection(section) {
             document.querySelectorAll('nav li').forEach(li => li.classList.remove('active'));
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            
             event.target.classList.add('active');
             document.getElementById(section + 'Section').classList.add('active');
-            
-            if (section === 'users') loadUsers();
-            if (section === 'buildings') loadBuildings();
-            if (section === 'ressourcen') loadRessourcen();
-            if (section === 'vorkommen') loadVorkommen();
-            if (section === 'gebaeude_felder') loadGebaeudeFelder();
-            if (section === 'terrain') loadTerrain();
-            if (section === 'artikel') loadArtikel();
-            if (section === 'einheiten') loadEinheiten();
-            if (section === 'lebewesen') loadLebewesen();
-            if (section === 'regierungsformen') loadRegierungsformen();
+            const loaders = {
+                users: loadUsers, buildings: loadBuildings, ressourcen: loadRessourcen,
+                vorkommen: loadVorkommen, gebaeude_felder: loadGebaeudeFelder,
+                terrain: loadTerrain, artikel: loadArtikel, einheiten: loadEinheiten,
+                lebewesen: loadLebewesen, regierungsformen: loadRegierungsformen
+            };
+            if (loaders[section]) loaders[section]();
         }
-        
+
+        // ── Generic modal helpers ───────────────────────────────────
+        function buildFormHTML(config, data = null) {
+            return config.fields.map(f => {
+                const val = data ? (data[f.name] ?? '') : '';
+                let input = '';
+                const readonly = f.readonly ? 'readonly style="opacity:0.6"' : '';
+                if (f.type === 'select') {
+                    const opts = Array.isArray(f.options)
+                        ? f.options.map(o => {
+                            const v = typeof o === 'object' ? o.v : o;
+                            const l = typeof o === 'object' ? o.label : o;
+                            return `<option value="${v}" ${String(val) === String(v) ? 'selected' : ''}>${l}</option>`;
+                        }).join('')
+                        : '';
+                    input = `<select name="${f.name}" ${readonly}>${opts}</select>`;
+                } else if (f.type === 'textarea') {
+                    input = `<textarea name="${f.name}" ${readonly}>${val}</textarea>`;
+                } else if (f.type === 'json') {
+                    const jsonVal = typeof val === 'object' ? JSON.stringify(val, null, 2) : (val || '{}');
+                    input = `<textarea name="${f.name}" class="json-editor" ${readonly}>${jsonVal}</textarea>`;
+                } else if (f.type === 'color') {
+                    input = `<input type="color" name="${f.name}" value="${val || '#444444'}" ${readonly}>`;
+                } else {
+                    input = `<input type="${f.type}" name="${f.name}" value="${val}" ${f.required ? 'required' : ''} ${readonly}>`;
+                }
+                return `<div class="form-group"><label>${f.label}</label>${input}</div>`;
+            }).join('');
+        }
+
+        function openGenericModal(mode, entityType, data = null) {
+            const config = entityConfig[entityType];
+            if (!config) return;
+            const modal = document.getElementById('genericModal');
+            modal.querySelector('h3').textContent = mode === 'create'
+                ? `Neuer ${config.label}`
+                : `${config.label} bearbeiten`;
+            const form = document.getElementById('genericForm');
+            form.dataset.mode = mode;
+            form.dataset.entity = entityType;
+            form.dataset.endpoint = config.endpoint;
+            form.dataset.id = data ? (data.id ?? '') : '';
+            form.innerHTML = buildFormHTML(config, data) +
+                `<div style="margin-top:16px"><button type="submit" class="btn btn-primary">Speichern</button></div>`;
+            modal.classList.add('active');
+        }
+
+        function closeGenericModal() {
+            document.getElementById('genericModal').classList.remove('active');
+        }
+
+        function showCreateModal(type) {
+            if (entityConfig[type]) {
+                openGenericModal('create', type);
+            } else if (type === 'buildings') {
+                showCreateBuildingModal();
+            }
+        }
+
+        // ── Generic form submit ─────────────────────────────────────
+        document.getElementById('genericForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const mode = form.dataset.mode;
+            const entity = form.dataset.entity;
+            const endpoint = form.dataset.endpoint;
+            const id = form.dataset.id;
+            const formData = new FormData(form);
+            const body = {};
+            for (let [k, v] of formData) body[k] = v;
+            // Convert numbers
+            const config = entityConfig[entity];
+            if (config) {
+                config.fields.forEach(f => {
+                    if (f.type === 'number' && body[f.name] !== undefined) {
+                        body[f.name] = body[f.name] === '' ? null : Number(body[f.name]);
+                    }
+                });
+            }
+            try {
+                const url = mode === 'edit'
+                    ? `${APIBASE}/admin/${endpoint}/${id}?token=${token}`
+                    : `${APIBASE}/admin/${endpoint}?token=${token}`;
+                const method = mode === 'edit' ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (res.ok) {
+                    closeGenericModal();
+                    loadSectionData(entity);
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert('Fehler: ' + (err.detail || res.status));
+                }
+            } catch (err) {
+                alert('Verbindungsfehler: ' + err.message);
+            }
+        });
+
+        // ── editItem – unified function ─────────────────────────────
+        async function editItem(type, id) {
+            const config = entityConfig[type];
+            if (!config) {
+                if (type === 'buildings') { editBuilding(id); return; }
+                return;
+            }
+            try {
+                const res = await fetch(`${APIBASE}/admin/${config.endpoint}/${id}?token=${token}`);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                openGenericModal('edit', type, data);
+            } catch (err) {
+                alert('Fehler beim Laden: ' + err.message);
+            }
+        }
+
+        // ── deleteItem ──────────────────────────────────────────────
+        async function deleteItem(type, id) {
+            if (!confirm('Eintrag wirklich löschen?')) return;
+            const config = entityConfig[type];
+            const endpoint = config ? config.endpoint : type;
+            try {
+                const res = await fetch(`${APIBASE}/admin/${endpoint}/${id}?token=${token}`, { method: 'DELETE' });
+                if (res.ok) { loadSectionData(type); }
+                else { alert('Fehler beim Löschen'); }
+            } catch { alert('Verbindungsfehler'); }
+        }
+
+        function loadSectionData(type) {
+            const loaders = {
+                ressourcen: loadRessourcen, vorkommen: loadVorkommen,
+                gebaeude_felder: loadGebaeudeFelder, terrain: loadTerrain,
+                artikel: loadArtikel, einheiten: loadEinheiten,
+                lebewesen: loadLebewesen, regierungsformen: loadRegierungsformen,
+                buildings: loadBuildings, users: loadUsers
+            };
+            if (loaders[type]) loaders[type]();
+        }
+
+        // ── AUTH ────────────────────────────────────────────────────
+        function logout() {
+            fetch(`${APIBASE}/auth/logout`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+            });
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // ── USERS ───────────────────────────────────────────────────
         async function loadUsers() {
             try {
                 const res = await fetch(`${APIBASE}/admin/users?token=${token}`);
-                if (res.status === 401 || res.status === 403) {
-                    logout();
-                    return;
-                }
+                if (res.status === 401 || res.status === 403) { logout(); return; }
                 const users = await res.json();
-                
                 document.getElementById('usersTable').innerHTML = users.map(u => `
                     <tr>
                         <td>${u.id}</td>
                         <td>${u.username}</td>
                         <td><span class="badge badge-${u.role}">${u.role}</span></td>
                         <td>${u.player_name || '-'}</td>
-                        <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                        <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '-'}</td>
                         <td class="actions">
                             <button class="btn btn-danger" onclick="deleteUser(${u.id})">Löschen</button>
                         </td>
                     </tr>
                 `).join('');
-            } catch (err) {
-                document.getElementById('usersTable').innerHTML = '<tr><td colspan="6">Fehler beim Laden</td></tr>';
+            } catch {
+                document.getElementById('usersTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
             }
         }
-        
+
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').classList.add('active');
+        }
+
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            try {
+                const res = await fetch(`${APIBASE}/admin/users?token=${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: formData.get('username'),
+                        password: formData.get('password'),
+                        role: formData.get('role'),
+                        player_id: formData.get('player_id') ? parseInt(formData.get('player_id')) : null
+                    })
+                });
+                if (res.ok) { closeModal('createUserModal'); loadUsers(); e.target.reset(); }
+                else { alert('Fehler beim Erstellen'); }
+            } catch { alert('Verbindungsfehler'); }
+        });
+
+        async function deleteUser(id) {
+            alert('Löschen noch nicht implementiert');
+        }
+
+        // ── BUILDINGS ───────────────────────────────────────────────
         async function loadBuildings() {
             try {
                 const res = await fetch(`${APIBASE}/admin/buildings?token=${token}`);
-                if (res.status === 401 || res.status === 403) {
-                    logout();
-                    return;
-                }
+                if (res.status === 401 || res.status === 403) { logout(); return; }
                 const buildings = await res.json();
-                
                 document.getElementById('buildingsTable').innerHTML = buildings.map(b => `
                     <tr>
                         <td>${b.id}</td>
@@ -814,347 +1192,160 @@
                         </td>
                     </tr>
                 `).join('');
-            } catch (err) {
-                document.getElementById('buildingsTable').innerHTML = '<tr><td colspan="8">Fehler beim Laden</td></tr>';
+            } catch {
+                document.getElementById('buildingsTable').innerHTML = '<tr><td colspan="8">Fehler</td></tr>';
             }
         }
-        
-        async function loadRessourcen() {
-            try {
-                const res = await fetch(`${APIBASE}/admin/ressourcen?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
-                const data = await res.json();
-                document.getElementById('ressourcenTable').innerHTML = data.map(r => `
-                    <tr>
-                        <td>${r.id}</td>
-                        <td>${r.name || '-'}</td>
-                        <td>${r.typ || '-'}</td>
-                        <td>${r.produktionswert || 0}</td>
-                        <td>${r.platz_land || 1}/${r.platz_wasser || 1}/${r.platz_luft || 1}</td>
-                        <td>${(r.beschreibung || '').substring(0, 25)}${(r.beschreibung || '').length > 25 ? '...' : ''}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editItem('ressourcen', ${r.id})">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('ressourcen', ${r.id})">Loeschen</button>
-                        </td>
-                    </tr>`).join('');
-            } catch (err) {
-                document.getElementById('ressourcenTable').innerHTML = '<tr><td colspan="7">Fehler</td></tr>';
-            }
-        }
-        
-        async function loadVorkommen() {
-            try {
-                const res = await fetch(`${APIBASE}/admin/vorkommen?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
-                const data = await res.json();
-                document.getElementById('vorkommenTable').innerHTML = data.map(v => `
-                    <tr>
-                        <td>${v.id}</td><td>${v.name || '-'}</td><td>${v.typ || '-'}</td>
-                        <td>${v.tech || 0}</td><td>${v.suchkosten || 0}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editItem('vorkommen', ${v.id})">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('vorkommen', ${v.id})">Löschen</button>
-                        </td>
-                    </tr>`).join('');
-            } catch (err) {
-                document.getElementById('vorkommenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
-            }
-        }
-        
-        async function loadGebaeudeFelder() {
-            try {
-                const res = await fetch(`${APIBASE}/admin/gebaeude_felder?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
-                const data = await res.json();
-                document.getElementById('gebaeude_felderTable').innerHTML = data.map(t => `
-                    <tr>
-                        <td>${t.id}</td><td>${t.name || '-'}</td><td>${(t.beschreibung || '').substring(0, 30)}</td>
-                        <td>${t.groesse_px || 30}</td><td>${t.ist_baubar ? 'Ja' : 'Nein'}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editItem('gebaeude_felder', '${t.id}')">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('gebaeude_felder', '${t.id}')">Loeschen</button>
-                        </td>
-                    </tr>`).join('');
-            } catch (err) {
-                document.getElementById('gebaeude_felderTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
-            }
-        }
-        
-        async function loadTerrain() {
-            try {
-                const res = await fetch(`${APIBASE}/admin/terrain?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
-                const data = await res.json();
-                document.getElementById('terrainTable').innerHTML = data.map(t => `
-                    <tr>
-                        <td>${t.id}</td><td>${t.name || '-'}</td><td><span style="display:inline-block;width:20px;height:20px;background:${t.farbe || '#000'};border:1px solid #fff;"></span></td>
-                        <td>${t.icon || '-'}</td><td>${t.spielbar ? 'Ja' : 'Nein'}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editItem('terrain', '${t.id}')">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('terrain', '${t.id}')">Löschen</button>
-                        </td>
-                    </tr>`).join('');
-            } catch (err) {
-                document.getElementById('terrainTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
-            }
-        }
-        
-        async function loadArtikel() {
-            try {
-                const res = await fetch(`${APIBASE}/admin/artikel?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
-                const data = await res.json();
-                document.getElementById('artikelTable').innerHTML = data.map(a => `
-                    <tr>
-                        <td>${a.id}</td><td>${a.name || '-'}</td><td>${a.kategorie || '-'}</td>
-                        <td>${a.preis_mips || 0}</td><td>${a.preis_muenzen || 0}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editItem('artikel', ${a.id})">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('artikel', ${a.id})">Löschen</button>
-                        </td>
-                    </tr>`).join('');
-            } catch (err) {
-                document.getElementById('artikelTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
-            }
-        }
-        
-        async function loadEinheiten() {
-            try {
-                const res = await fetch(`${APIBASE}/admin/einheiten?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
-                const data = await res.json();
-                document.getElementById('einheitenTable').innerHTML = data.map(e => `
-                    <tr>
-                        <td>${e.id}</td><td>${e.name || '-'}</td><td>${e.kategorie || '-'}</td>
-                        <td>${e.kosten_mips || 0}</td><td>${e.kosten_muenzen || 0}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editItem('einheiten', ${e.id})">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('einheiten', ${e.id})">Löschen</button>
-                        </td>
-                    </tr>`).join('');
-            } catch (err) {
-                document.getElementById('einheitenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
-            }
-        }
-        
-        async function loadLebewesen() {
-            try {
-                const res = await fetch(`${APIBASE}/admin/lebewesen?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
-                const data = await res.json();
-                document.getElementById('lebewesenTable').innerHTML = data.map(l => `
-                    <tr>
-                        <td>${l.id}</td><td>${l.name || '-'}</td><td>${l.typ || '-'}</td>
-                        <td>${l.staerke || 0}</td><td>${l.gesundheit || 0}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editItem('lebewesen', ${l.id})">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('lebewesen', ${l.id})">Löschen</button>
-                        </td>
-                    </tr>`).join('');
-            } catch (err) {
-                document.getElementById('lebewesenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>';
-            }
-        }
-        
-        async function loadRegierungsformen() {
-            try {
-                const res = await fetch(`${APIBASE}/admin/regierungsformen?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
-                const data = await res.json();
-                document.getElementById('regierungsformenTable').innerHTML = data.map(r => `
-                    <tr>
-                        <td>${r.id}</td><td>${r.name || '-'}</td><td>${(r.beschreibung || '').substring(0, 40)}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editItem('regierungsformen', ${r.id})">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteItem('regierungsformen', ${r.id})">Löschen</button>
-                        </td>
-                    </tr>`).join('');
-            } catch (err) {
-                document.getElementById('regierungsformenTable').innerHTML = '<tr><td colspan="4">Fehler</td></tr>';
-            }
-        }
-        
-        function showCreateUserModal() {
-            document.getElementById('createUserModal').classList.add('active');
-        }
-        
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-        
-        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            
-            try {
-                const res = await fetch(`${APIBASE}/admin/users?token=${token}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: formData.get('username'),
-                        password: formData.get('password'),
-                        role: formData.get('role'),
-                        player_id: formData.get('player_id') ? parseInt(formData.get('player_id')) : null
-                    })
-                });
-                
-                if (res.ok) {
-                    closeModal('createUserModal');
-                    loadUsers();
-                    e.target.reset();
-                } else {
-                    alert('Fehler beim Erstellen');
-                }
-            } catch (err) {
-                alert('Verbindungsfehler');
-            }
-        });
-        
-        async function deleteUser(id) {
-            if (!confirm('Benutzer wirklich löschen?')) return;
-            // Implement delete if needed
-            alert('Löschen noch nicht implementiert');
-        }
-        
+
         async function editBuilding(id) {
             try {
-                const res = await fetch(`${APIBASE}/admin/buildings?token=${token}`);
-                const buildings = await res.json();
-                const building = buildings.find(b => b.id === id);
-                
+                const res = await fetch(`${APIBASE}/admin/buildings/${id}?token=${token}`);
+                const building = await res.json();
                 if (!building) return;
-                
                 const form = document.getElementById('editBuildingForm');
-                form.building_id.value = building.id;
-                form.name.value = building.name || '';
-                form.kategorie.value = building.kategorie || '';
-                form.baukosten_mips.value = building.baukosten_mips || 0;
-                form.arbeiter.value = building.arbeiter || 0;
-                form.wohnraum.value = building.wohnraum || 0;
-                form.lagerkapazitaet.value = building.lagerkapazitaet || 0;
-                
-                // Parse and display production
+                form.querySelector('[name="building_id"]').value = building.id;
+                form.querySelector('[name="name"]').value = building.name || '';
+                form.querySelector('[name="kategorie"]').value = building.kategorie || '';
+                form.querySelector('[name="baukosten_mips"]').value = building.baukosten_mips || 0;
+                form.querySelector('[name="arbeiter"]').value = building.arbeiter || 0;
+                form.querySelector('[name="wohnraum"]').value = building.wohnraum || 0;
+                form.querySelector('[name="lagerkapazitaet"]').value = building.lagerkapazitaet || 0;
+                // Production
                 const production = JSON.parse(building.produktion || '[]');
                 const prodContainer = document.getElementById('productionContainer');
                 prodContainer.innerHTML = '';
                 production.forEach(p => addProductionRow(p.ressource, p.menge));
                 if (production.length === 0) addProductionRow();
-                
-                // Parse and display consumption
+                // Consumption
                 const consumption = JSON.parse(building.rohstoffverbrauch || '[]');
                 const consContainer = document.getElementById('consumptionContainer');
                 consContainer.innerHTML = '';
                 consumption.forEach(c => addConsumptionRow(c.ressource, c.menge));
                 if (consumption.length === 0) addConsumptionRow();
-                
-                // Parse and display terrain effectiveness
+                // Terrain
                 const terrain = JSON.parse(building.terrain_effektivitaet || '{}');
                 const terrainContainer = document.getElementById('terrainContainer');
                 terrainContainer.innerHTML = '';
-                Object.entries(terrain).forEach(([bonus, terrains]) => {
-                    addTerrainRow(bonus, terrains);
-                });
+                Object.entries(terrain).forEach(([bonus, terrains]) => addTerrainRow(bonus, Array.isArray(terrains) ? terrains.join(', ') : terrains));
                 if (Object.keys(terrain).length === 0) addTerrainRow();
-                
                 document.getElementById('editBuildingModal').classList.add('active');
             } catch (err) {
-                alert('Fehler beim Laden');
+                alert('Fehler beim Laden: ' + err.message);
             }
         }
-        
-        // Dynamic row functions for production
+
+        const TERRAIN_BONUS_OPTIONS = ['2', '9', '10', '25', '28', '30', '33', '35', '40', '50', '75', '100', '125'];
+
         function addProductionRow(resource = '', menge = '') {
             const container = document.getElementById('productionContainer');
             const row = document.createElement('div');
             row.className = 'dynamic-row';
+            const opts = RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('');
             row.innerHTML = `
-                <select class="prod-resource">
-                    <option value="">-- Ressource --</option>
-                    ${RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('')}
-                </select>
-                <input type="number" class="prod-menge" placeholder="Menge" value="${menge}">
-                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+                <select class="prod-resource"><option value="">-- Ressource --</option>${opts}</select>
+                <input type="number" class="prod-menge" placeholder="Menge" value="${menge}" step="0.01">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">−</button>
             `;
             container.appendChild(row);
         }
-        
+
         function addConsumptionRow(resource = '', menge = '') {
             const container = document.getElementById('consumptionContainer');
             const row = document.createElement('div');
             row.className = 'dynamic-row';
+            const opts = RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('');
             row.innerHTML = `
-                <select class="cons-resource">
-                    <option value="">-- Ressource --</option>
-                    ${RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('')}
-                </select>
-                <input type="number" class="cons-menge" placeholder="Menge" value="${menge}">
-                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+                <select class="cons-resource"><option value="">-- Ressource --</option>${opts}</select>
+                <input type="number" class="cons-menge" placeholder="Menge" value="${menge}" step="0.01">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">−</button>
             `;
             container.appendChild(row);
         }
-        
+
         function addTerrainRow(bonus = '100', terrains = '') {
             const container = document.getElementById('terrainContainer');
             const row = document.createElement('div');
             row.className = 'dynamic-row';
+            const opts = TERRAIN_BONUS_OPTIONS.map(v => `<option value="${v}" ${bonus == v ? 'selected' : ''}>${v}%</option>`).join('');
             row.innerHTML = `
-                <select class="terrain-bonus">
-                    <option value="100" ${bonus === '100' ? 'selected' : ''}>100%</option>
-                    <option value="125" ${bonus === '125' ? 'selected' : ''}>125%</option>
-                    <option value="75" ${bonus === '75' ? 'selected' : ''}>75%</option>
-                    <option value="50" ${bonus === '50' ? 'selected' : ''}>50%</option>
-                    <option value="25" ${bonus === '25' ? 'selected' : ''}>25%</option>
-                </select>
-                <input type="text" class="terrain-list" placeholder="Terrain-Liste (kommagetrennt)" value="${terrains}">
-                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+                <select class="terrain-bonus">${opts}</select>
+                <input type="text" class="terrain-list" placeholder="Terrain-Namen (kommagetrennt)" value="${terrains}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">−</button>
             `;
             container.appendChild(row);
         }
-        
-        function getProductionData() {
-            const rows = document.querySelectorAll('#productionContainer .dynamic-row');
+
+        function addCreateProductionRow(r = '', m = '') { addProductionRowTo('createProductionContainer', r, m); }
+        function addCreateConsumptionRow(r = '', m = '') { addConsumptionRowTo('createConsumptionContainer', r, m); }
+        function addCreateTerrainRow(b = '100', t = '') { addTerrainRowTo('createTerrainContainer', b, t); }
+
+        function addProductionRowTo(containerId, resource = '', menge = '') {
+            const container = document.getElementById(containerId);
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            const opts = RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('');
+            row.innerHTML = `
+                <select class="prod-resource"><option value="">-- Ressource --</option>${opts}</select>
+                <input type="number" class="prod-menge" placeholder="Menge" value="${menge}" step="0.01">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">−</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function addConsumptionRowTo(containerId, resource = '', menge = '') {
+            const container = document.getElementById(containerId);
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            const opts = RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('');
+            row.innerHTML = `
+                <select class="cons-resource"><option value="">-- Ressource --</option>${opts}</select>
+                <input type="number" class="cons-menge" placeholder="Menge" value="${menge}" step="0.01">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">−</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function addTerrainRowTo(containerId, bonus = '100', terrains = '') {
+            const container = document.getElementById(containerId);
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            const opts = TERRAIN_BONUS_OPTIONS.map(v => `<option value="${v}" ${bonus == v ? 'selected' : ''}>${v}%</option>`).join('');
+            row.innerHTML = `
+                <select class="terrain-bonus">${opts}</select>
+                <input type="text" class="terrain-list" placeholder="Terrain-Namen (kommagetrennt)" value="${terrains}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">−</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function getRowsData(containerSelector, keyClass, valClass) {
+            const rows = document.querySelectorAll(`${containerSelector} .dynamic-row`);
             const data = [];
             rows.forEach(row => {
-                const resource = row.querySelector('.prod-resource').value;
-                const menge = parseInt(row.querySelector('.prod-menge').value) || 0;
-                if (resource && menge > 0) {
-                    data.push({ ressource: resource, menge: menge });
-                }
+                const key = row.querySelector(`.${keyClass}`)?.value;
+                const val = parseFloat(row.querySelector(`.${valClass}`)?.value) || 0;
+                if (key && val > 0) data.push({ ressource: key, menge: val });
             });
             return JSON.stringify(data);
         }
-        
-        function getConsumptionData() {
-            const rows = document.querySelectorAll('#consumptionContainer .dynamic-row');
-            const data = [];
-            rows.forEach(row => {
-                const resource = row.querySelector('.cons-resource').value;
-                const menge = parseInt(row.querySelector('.cons-menge').value) || 0;
-                if (resource && menge > 0) {
-                    data.push({ ressource: resource, menge: menge });
-                }
-            });
-            return JSON.stringify(data);
-        }
-        
-        function getTerrainData() {
-            const rows = document.querySelectorAll('#terrainContainer .dynamic-row');
+
+        function getTerrainRowsData(containerSelector) {
+            const rows = document.querySelectorAll(`${containerSelector} .dynamic-row`);
             const data = {};
             rows.forEach(row => {
-                const bonus = row.querySelector('.terrain-bonus').value;
-                const terrains = row.querySelector('.terrain-list').value;
-                if (terrains.trim()) {
-                    data[bonus] = terrains.split(',').map(t => t.trim()).filter(t => t);
+                const bonus = row.querySelector('.terrain-bonus')?.value;
+                const list = row.querySelector('.terrain-list')?.value;
+                if (bonus && list?.trim()) {
+                    data[bonus] = list.split(',').map(t => t.trim()).filter(Boolean);
                 }
             });
             return JSON.stringify(data);
         }
-        
+
         document.getElementById('editBuildingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const buildingId = formData.get('building_id');
-            
             try {
                 const res = await fetch(`${APIBASE}/admin/buildings/${buildingId}?token=${token}`, {
                     method: 'PUT',
@@ -1166,33 +1357,16 @@
                         arbeiter: parseInt(formData.get('arbeiter')) || 0,
                         wohnraum: parseInt(formData.get('wohnraum')) || 0,
                         lagerkapazitaet: parseInt(formData.get('lagerkapazitaet')) || 0,
-                        produktion: getProductionData(),
-                        rohstoffverbrauch: getConsumptionData(),
-                        terrain_effektivitaet: getTerrainData()
+                        produktion: getRowsData('#productionContainer', 'prod-resource', 'prod-menge'),
+                        rohstoffverbrauch: getRowsData('#consumptionContainer', 'cons-resource', 'cons-menge'),
+                        terrain_effektivitaet: getTerrainRowsData('#terrainContainer')
                     })
                 });
-                
-                if (res.ok) {
-                    closeModal('editBuildingModal');
-                    loadBuildings();
-                } else {
-                    alert('Fehler beim Speichern');
-                }
-            } catch (err) {
-                alert('Verbindungsfehler');
-            }
+                if (res.ok) { closeModal('editBuildingModal'); loadBuildings(); }
+                else { alert('Fehler beim Speichern'); }
+            } catch { alert('Verbindungsfehler'); }
         });
-        
-        function logout() {
-            fetch(`${APIBASE}/auth/logout`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token })
-            });
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-        
+
         function showCreateBuildingModal() {
             document.getElementById('createBuildingForm').reset();
             document.getElementById('createProductionContainer').innerHTML = '';
@@ -1203,199 +1377,10 @@
             addCreateTerrainRow();
             document.getElementById('createBuildingModal').classList.add('active');
         }
-        
-        function showCreateModal(type) {
-            const modals = {
-                'ressourcen': { form: 'createRessourcenForm', container: 'createRessourcenModal' },
-                'vorkommen': { form: 'createVorkommenForm', container: 'createVorkommenModal' },
-                'terrain': { form: 'createTerrainForm', container: 'createTerrainModal' },
-                'artikel': { form: 'createArtikelForm', container: 'createArtikelModal' },
-                'einheiten': { form: 'createEinheitenForm', container: 'createEinheitenModal' },
-                'lebewesen': { form: 'createLebewesenForm', container: 'createLebewesenModal' },
-                'regierungsformen': { form: 'createRegierungsformenForm', container: 'createRegierungsformenModal' }
-            };
-            const cfg = modals[type];
-            if (cfg) {
-                document.getElementById(cfg.form)?.reset();
-                document.getElementById(cfg.container).classList.add('active');
-            }
-        }
-        
-        async function editItem(type, id) {
-            const endpoints = {
-                'ressourcen': 'ressourcen',
-                'vorkommen': 'vorkommen',
-                'gebaeude_felder': 'gebaeude_felder',
-                'terrain': 'terrain',
-                'artikel': 'artikel',
-                'einheiten': 'einheiten',
-                'lebewesen': 'lebewesen',
-                'regierungsformen': 'regierungsformen'
-            };
-            
-            if (entityConfig[type]) {
-                try {
-                    const res = await fetch(`${APIBASE}/admin/${endpoints[type]}/${id}?token=${token}`);
-                    const data = await res.json();
-                    openGenericModal('edit', type);
-                    
-                    // Populate form fields
-                    const form = document.getElementById('genericForm');
-                    form.dataset.id = id;
-                    const config = entityConfig[type];
-                    config.fields.forEach(f => {
-                        const input = form.querySelector(`[name="${f.name}"]`);
-                        if (input && data[f.name] !== undefined) {
-                            // Convert JSON arrays to comma-separated for ressourcen
-                            if (type === 'ressourcen' && (f.name === 'verbraucht_von' || f.name === 'produziert_von')) {
-                                try {
-                                    const arr = JSON.parse(data[f.name]);
-                                    input.value = Array.isArray(arr) ? arr.join(', ') : '';
-                                } catch {
-                                    input.value = '';
-                                }
-                            } else {
-                                input.value = data[f.name];
-                            }
-                        }
-                    });
-                } catch (err) {
-                    alert('Fehler beim Laden');
-                }
-            } else if (type === 'buildings') {
-                editBuilding(id);
-            }
-        }
-        
-        async function deleteItem(type, id) {
-            if (!confirm('Eintrag wirklich loeschen?')) return;
-            const endpoints = {
-                'ressourcen': 'ressourcen',
-                'vorkommen': 'vorkommen',
-                'gebaeude_felder': 'gebaeude_felder',
-                'terrain': 'terrain',
-                'artikel': 'artikel',
-                'einheiten': 'einheiten',
-                'lebewesen': 'lebewesen',
-                'regierungsformen': 'regierungsformen'
-            };
-            try {
-                const res = await fetch(`${APIBASE}/admin/${endpoints[type]}/${id}?token=${token}`, { method: 'DELETE' });
-                if (res.ok) {
-                    loadSectionData(type);
-                } else {
-                    alert('Fehler beim Löschen');
-                }
-            } catch (err) {
-                alert('Verbindungsfehler');
-            }
-        }
-        
-        function loadSectionData(type) {
-            const loaders = {
-                'ressourcen': loadRessourcen,
-                'vorkommen': loadVorkommen,
-                'gebaeude_felder': loadGebaeudeFelder,
-                'terrain': loadTerrain,
-                'artikel': loadArtikel,
-                'einheiten': loadEinheiten,
-                'lebewesen': loadLebewesen,
-                'regierungsformen': loadRegierungsformen
-            };
-            if (loaders[type]) loaders[type]();
-        }
-        
-        function addCreateProductionRow(resource = '', menge = '') {
-            const container = document.getElementById('createProductionContainer');
-            const row = document.createElement('div');
-            row.className = 'dynamic-row';
-            row.innerHTML = `
-                <select class="prod-resource">
-                    <option value="">-- Ressource --</option>
-                    ${RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('')}
-                </select>
-                <input type="number" class="prod-menge" placeholder="Menge" value="${menge}">
-                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
-            `;
-            container.appendChild(row);
-        }
-        
-        function addCreateConsumptionRow(resource = '', menge = '') {
-            const container = document.getElementById('createConsumptionContainer');
-            const row = document.createElement('div');
-            row.className = 'dynamic-row';
-            row.innerHTML = `
-                <select class="cons-resource">
-                    <option value="">-- Ressource --</option>
-                    ${RESOURCES.map(r => `<option value="${r}" ${r === resource ? 'selected' : ''}>${r}</option>`).join('')}
-                </select>
-                <input type="number" class="cons-menge" placeholder="Menge" value="${menge}">
-                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
-            `;
-            container.appendChild(row);
-        }
-        
-        function addCreateTerrainRow(bonus = '100', terrains = '') {
-            const container = document.getElementById('createTerrainContainer');
-            const row = document.createElement('div');
-            row.className = 'dynamic-row';
-            row.innerHTML = `
-                <select class="terrain-bonus">
-                    <option value="100" ${bonus === '100' ? 'selected' : ''}>100%</option>
-                    <option value="125" ${bonus === '125' ? 'selected' : ''}>125%</option>
-                    <option value="75" ${bonus === '75' ? 'selected' : ''}>75%</option>
-                    <option value="50" ${bonus === '50' ? 'selected' : ''}>50%</option>
-                    <option value="25" ${bonus === '25' ? 'selected' : ''}>25%</option>
-                </select>
-                <input type="text" class="terrain-list" placeholder="Terrain-Liste (kommagetrennt)" value="${terrains}">
-                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
-            `;
-            container.appendChild(row);
-        }
-        
-        function getCreateProductionData() {
-            const rows = document.querySelectorAll('#createProductionContainer .dynamic-row');
-            const data = [];
-            rows.forEach(row => {
-                const resource = row.querySelector('.prod-resource').value;
-                const menge = parseInt(row.querySelector('.prod-menge').value) || 0;
-                if (resource && menge > 0) {
-                    data.push({ ressource: resource, menge: menge });
-                }
-            });
-            return JSON.stringify(data);
-        }
-        
-        function getCreateConsumptionData() {
-            const rows = document.querySelectorAll('#createConsumptionContainer .dynamic-row');
-            const data = [];
-            rows.forEach(row => {
-                const resource = row.querySelector('.cons-resource').value;
-                const menge = parseInt(row.querySelector('.cons-menge').value) || 0;
-                if (resource && menge > 0) {
-                    data.push({ ressource: resource, menge: menge });
-                }
-            });
-            return JSON.stringify(data);
-        }
-        
-        function getCreateTerrainData() {
-            const rows = document.querySelectorAll('#createTerrainContainer .dynamic-row');
-            const data = {};
-            rows.forEach(row => {
-                const bonus = row.querySelector('.terrain-bonus').value;
-                const terrains = row.querySelector('.terrain-list').value;
-                if (terrains.trim()) {
-                    data[bonus] = terrains.split(',').map(t => t.trim()).filter(t => t);
-                }
-            });
-            return JSON.stringify(data);
-        }
-        
+
         document.getElementById('createBuildingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            
             try {
                 const res = await fetch(`${APIBASE}/admin/buildings?token=${token}`, {
                     method: 'POST',
@@ -1407,267 +1392,169 @@
                         arbeiter: parseInt(formData.get('arbeiter')) || 0,
                         wohnraum: parseInt(formData.get('wohnraum')) || 0,
                         lagerkapazitaet: parseInt(formData.get('lagerkapazitaet')) || 0,
-                        produktion: getCreateProductionData(),
-                        rohstoffverbrauch: getCreateConsumptionData(),
-                        terrain_effektivitaet: getCreateTerrainData()
+                        produktion: getRowsData('#createProductionContainer', 'prod-resource', 'prod-menge'),
+                        rohstoffverbrauch: getRowsData('#createConsumptionContainer', 'cons-resource', 'cons-menge'),
+                        terrain_effektivitaet: getTerrainRowsData('#createTerrainContainer')
                     })
                 });
-                
-                if (res.ok) {
-                    closeModal('createBuildingModal');
-                    loadBuildings();
-                    e.target.reset();
-                } else {
-                    const err = await res.json();
-                    alert('Fehler beim Erstellen: ' + (err.detail || 'Unbekannt'));
-                }
-            } catch (err) {
-                alert('Verbindungsfehler');
-            }
+                if (res.ok) { closeModal('createBuildingModal'); loadBuildings(); e.target.reset(); }
+                else { const err = await res.json(); alert('Fehler: ' + (err.detail || 'Unbekannt')); }
+            } catch { alert('Verbindungsfehler'); }
         });
-        
+
         async function deleteBuilding(id) {
-            if (!confirm('Gebäude wirklich löschen? Dies kann nicht rückgängig gemacht werden.')) return;
-            
+            if (!confirm('Gebäude wirklich löschen?')) return;
             try {
-                const res = await fetch(`${APIBASE}/admin/buildings/${id}?token=${token}`, {
-                    method: 'DELETE'
-                });
-                
-                if (res.ok) {
-                    loadBuildings();
-                } else {
-                    alert('Fehler beim Löschen');
-                }
-            } catch (err) {
-                alert('Verbindungsfehler');
-            }
+                const res = await fetch(`${APIBASE}/admin/buildings/${id}?token=${token}`, { method: 'DELETE' });
+                if (res.ok) { loadBuildings(); }
+                else { alert('Fehler beim Löschen'); }
+            } catch { alert('Verbindungsfehler'); }
         }
-        
-        // Load initial data
+
+        // ── Section loaders ─────────────────────────────────────────
+        async function loadRessourcen() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/ressourcen?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('ressourcenTable').innerHTML = data.map(r => `
+                    <tr>
+                        <td>${r.id}</td><td>${r.name || '-'}</td><td>${r.typ || '-'}</td>
+                        <td>${r.produktionswert || 0}</td>
+                        <td>${r.platz_land || 1}/${r.platz_wasser || 1}/${r.platz_luft || 1}</td>
+                        <td>${(r.beschreibung || '').substring(0, 30)}${(r.beschreibung || '').length > 30 ? '…' : ''}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('ressourcen',${r.id})">Bearbeiten</button>
+                            <button class="btn btn-danger"  onclick="deleteItem('ressourcen',${r.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch { document.getElementById('ressourcenTable').innerHTML = '<tr><td colspan="7">Fehler</td></tr>'; }
+        }
+
+        async function loadVorkommen() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/vorkommen?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('vorkommenTable').innerHTML = data.map(v => `
+                    <tr>
+                        <td>${v.id}</td><td>${v.name || '-'}</td><td>${v.typ || '-'}</td>
+                        <td>${v.tech || 0}</td><td>${v.suchkosten || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('vorkommen',${v.id})">Bearbeiten</button>
+                            <button class="btn btn-danger"  onclick="deleteItem('vorkommen',${v.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch { document.getElementById('vorkommenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+        }
+
+        async function loadGebaeudeFelder() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/gebaeude_felder?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('gebaeude_felderTable').innerHTML = data.map(t => `
+                    <tr>
+                        <td>${t.id}</td><td>${t.name || '-'}</td>
+                        <td>${(t.beschreibung || '').substring(0, 30)}</td>
+                        <td>${t.groesse_px || 30}</td><td>${t.ist_baubar ? 'Ja' : 'Nein'}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('gebaeude_felder','${t.id}')">Bearbeiten</button>
+                            <button class="btn btn-danger"  onclick="deleteItem('gebaeude_felder','${t.id}')">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch { document.getElementById('gebaeude_felderTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+        }
+
+        async function loadTerrain() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/terrain?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('terrainTable').innerHTML = data.map(t => `
+                    <tr>
+                        <td>${t.id}</td><td>${t.name || '-'}</td>
+                        <td>${t.startgebiet ? 'Ja' : 'Nein'}</td><td>${t.regen_pct || 0}%</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('terrain','${t.id}')">Bearbeiten</button>
+                            <button class="btn btn-danger"  onclick="deleteItem('terrain','${t.id}')">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch { document.getElementById('terrainTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+        }
+
+        async function loadArtikel() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/artikel?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('artikelTable').innerHTML = data.map(a => `
+                    <tr>
+                        <td>${a.id}</td><td>${a.name || '-'}</td><td>${a.kategorie || '-'}</td>
+                        <td>${a.preis_mips || 0}</td><td>${a.preis_muenzen || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('artikel',${a.id})">Bearbeiten</button>
+                            <button class="btn btn-danger"  onclick="deleteItem('artikel',${a.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch { document.getElementById('artikelTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+        }
+
+        async function loadEinheiten() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/einheiten?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('einheitenTable').innerHTML = data.map(e => `
+                    <tr>
+                        <td>${e.id}</td><td>${e.name || '-'}</td><td>${e.kategorie || '-'}</td>
+                        <td>${e.kosten_mips || 0}</td><td>${e.kosten_muenzen || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('einheiten',${e.id})">Bearbeiten</button>
+                            <button class="btn btn-danger"  onclick="deleteItem('einheiten',${e.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch { document.getElementById('einheitenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+        }
+
+        async function loadLebewesen() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/lebewesen?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('lebewesenTable').innerHTML = data.map(l => `
+                    <tr>
+                        <td>${l.id}</td><td>${l.name || '-'}</td><td>${l.typ || '-'}</td>
+                        <td>${l.staerke || 0}</td><td>${l.gesundheit || 0}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('lebewesen',${l.id})">Bearbeiten</button>
+                            <button class="btn btn-danger"  onclick="deleteItem('lebewesen',${l.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch { document.getElementById('lebewesenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+        }
+
+        async function loadRegierungsformen() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/regierungsformen?token=${token}`);
+                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const data = await res.json();
+                document.getElementById('regierungsformenTable').innerHTML = data.map(r => `
+                    <tr>
+                        <td>${r.id}</td><td>${r.name || '-'}</td>
+                        <td>${(r.beschreibung || '').substring(0, 50)}</td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editItem('regierungsformen',${r.id})">Bearbeiten</button>
+                            <button class="btn btn-danger"  onclick="deleteItem('regierungsformen',${r.id})">Löschen</button>
+                        </td>
+                    </tr>`).join('');
+            } catch { document.getElementById('regierungsformenTable').innerHTML = '<tr><td colspan="4">Fehler</td></tr>'; }
+        }
+
+        // ── Load initial data ───────────────────────────────────────
         loadUsers();
-        
-        // Expose functions to global scope for onclick handlers
-        window.editItem = editItem;
-        window.deleteItem = deleteItem;
-        window.loadSectionData = loadSectionData;
-        window.showCreateModal = showCreateModal;
-        window.openGenericModal = openGenericModal;
-        window.closeGenericModal = closeGenericModal;
-        
-        // Entity config for dynamic forms
-        const entityConfig = {
-            ressourcen: {
-                fields: [
-                    { name: 'name', label: 'Name', type: 'text', required: true },
-                    { name: 'typ', label: 'Typ', type: 'text' },
-                    { name: 'produktionswert', label: 'Produktionswert', type: 'number' },
-                    { name: 'platz_land', label: 'Platz Land', type: 'number' },
-                    { name: 'platz_wasser', label: 'Platz Wasser', type: 'number' },
-                    { name: 'platz_luft', label: 'Platz Luft', type: 'number' },
-                    { name: 'verbraucht_von', label: 'Verbraucht von (Gebäude, kommagetrennt)', type: 'text' },
-                    { name: 'produziert_von', label: 'Produziert von (Gebäude, kommagetrennt)', type: 'text' },
-                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' }
-                ],
-                endpoint: 'ressourcen'
-            },
-            vorkommen: {
-                fields: [
-                    { name: 'name', label: 'Name', type: 'text', required: true },
-                    { name: 'typ', label: 'Typ', type: 'text' },
-                    { name: 'tech', label: 'Tech', type: 'number' },
-                    { name: 'suchkosten', label: 'Suchkosten', type: 'number' },
-                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' }
-                ],
-                endpoint: 'vorkommen'
-            },
-            gebaeude_felder: {
-                fields: [
-                    { name: 'id', label: 'ID', type: 'text', required: true },
-                    { name: 'name', label: 'Name', type: 'text', required: true },
-                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
-                    { name: 'groesse_px', label: 'Groesse (px)', type: 'number' },
-                    { name: 'ist_baubar', label: 'Baubar', type: 'select', options: [{v:1,label:'Ja'},{v:0,label:'Nein'}] },
-                    { name: 'farbe_leer', label: 'Farbe', type: 'color' }
-                ],
-                endpoint: 'gebaeude_felder'
-            },
-            terrain: {
-                fields: [
-                    { name: 'id', label: 'ID', type: 'text', required: true },
-                    { name: 'name', label: 'Name', type: 'text', required: true },
-                    { name: 'farbe', label: 'Farbe', type: 'color' },
-                    { name: 'icon', label: 'Icon', type: 'text' },
-                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
-                    { name: 'spielbar', label: 'Spielbar', type: 'select', options: [{v:1,label:'Ja'},{v:0,label:'Nein'}] }
-                ],
-                endpoint: 'terrain'
-            },
-            artikel: {
-                fields: [
-                    { name: 'name', label: 'Name', type: 'text', required: true },
-                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
-                    { name: 'kategorie', label: 'Kategorie', type: 'text' },
-                    { name: 'preis_mips', label: 'Preis MIPS', type: 'number' },
-                    { name: 'preis_muenzen', label: 'Preis Muenzen', type: 'number' },
-                    { name: 'gewicht', label: 'Gewicht', type: 'number' },
-                    { name: 'haltbarkeit', label: 'Haltbarkeit', type: 'number' }
-                ],
-                endpoint: 'artikel'
-            },
-            einheiten: {
-                fields: [
-                    { name: 'name', label: 'Name', type: 'text', required: true },
-                    { name: 'kategorie', label: 'Kategorie', type: 'text' },
-                    { name: 'kosten_mips', label: 'Kosten MIPS', type: 'number' },
-                    { name: 'kosten_muenzen', label: 'Kosten Münzen', type: 'number' },
-                    { name: 'bevoelkerung_count', label: 'Bevölkerung', type: 'number' },
-                    { name: 'bewaffnung', label: 'Bewaffnung', type: 'text' },
-                    { name: 'transport_kapazitaet', label: 'Transport', type: 'number' },
-                    { name: 'geschwindigkeit', label: 'Geschwindigkeit', type: 'number' }
-                ],
-                endpoint: 'einheiten'
-            },
-            lebewesen: {
-                fields: [
-                    { name: 'name', label: 'Name', type: 'text', required: true },
-                    { name: 'typ', label: 'Typ', type: 'text' },
-                    { name: 'staerke', label: 'Stärke', type: 'number' },
-                    { name: 'gesundheit', label: 'Gesundheit', type: 'number' },
-                    { name: 'bevoelkerung_kosten', label: 'Bevölkerungskosten', type: 'number' },
-                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' }
-                ],
-                endpoint: 'lebewesen'
-            },
-            regierungsformen: {
-                fields: [
-                    { name: 'name', label: 'Name', type: 'text', required: true },
-                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' }
-                ],
-                endpoint: 'regierungsformen'
-            }
-        };
-        
-        function openGenericModal(mode, entityType) {
-            const config = entityConfig[entityType];
-            if (!config) return;
-            
-            const modal = document.getElementById('genericModal');
-            const title = modal.querySelector('h3');
-            const form = document.getElementById('genericForm');
-            
-            title.textContent = mode === 'create' ? `Neuer ${entityType}` : `${entityType} bearbeiten`;
-            form.dataset.mode = mode;
-            form.dataset.entity = entityType;
-            form.dataset.endpoint = config.endpoint;
-            
-            // Build form fields
-            form.innerHTML = config.fields.map(f => {
-                let input = '';
-                if (f.type === 'select') {
-                    input = `<select name="${f.name}">${f.options.map(o => `<option value="${o.v}">${o.label}</option>`).join('')}</select>`;
-                } else if (f.type === 'textarea') {
-                    input = `<textarea name="${f.name}"></textarea>`;
-                } else if (f.type === 'color') {
-                    input = `<input type="color" name="${f.name}">`;
-                } else {
-                    input = `<input type="${f.type}" name="${f.name}" ${f.required ? 'required' : ''}>`;
-                }
-                return `<div class="form-group"><label>${f.label}</label>${input}</div>`;
-            }).join('');
-            
-            if (mode === 'edit') {
-                form.dataset.id = '';
-            }
-            
-            modal.classList.add('active');
-        }
-        
-        function closeGenericModal() {
-            document.getElementById('genericModal').classList.remove('active');
-        }
-        
-        // Override showCreateModal to use generic
-        const originalShowCreateModal = showCreateModal;
-        showCreateModal = function(type) {
-            if (entityConfig[type]) {
-                openGenericModal('create', type);
-            } else if (type === 'buildings') {
-                showCreateBuildingModal();
-            }
-        };
-        
-        // Override editItem to use generic
-        const originalEditItem = editItem;
-        editItem = async function(type, id) {
-            if (entityConfig[type]) {
-                const config = entityConfig[type];
-                try {
-                    const res = await fetch(`${APIBASE}/admin/${config.endpoint}/${id}?token=${token}`);
-                    const data = await res.json();
-                    const modal = document.getElementById('genericModal');
-                    const form = document.getElementById('genericForm');
-                    form.dataset.mode = 'edit';
-                    form.dataset.entity = type;
-                    form.dataset.endpoint = config.endpoint;
-                    form.dataset.id = id;
-                    modal.querySelector('h3').textContent = `${type} bearbeiten`;
-                    modal.classList.add('active');
-                } catch (err) {
-                    alert('Fehler beim Laden');
-                }
-            } else if (type === 'buildings') {
-                editBuilding(id);
-            }
-        };
-        
-        // Generic form submit
-        document.getElementById('genericForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const mode = form.dataset.mode;
-            const entity = form.dataset.entity;
-            const endpoint = form.dataset.endpoint;
-            const id = form.dataset.id;
-            
-            const formData = new FormData(form);
-            const body = {};
-            for (let [k, v] of formData) body[k] = v;
-            
-            // Convert comma-separated lists to JSON for ressourcen
-            if (entity === 'ressourcen') {
-                if (body.verbraucht_von) {
-                    body.verbraucht_von = JSON.stringify(body.verbraucht_von.split(',').map(s => s.trim()).filter(s => s));
-                }
-                if (body.produziert_von) {
-                    body.produziert_von = JSON.stringify(body.produziert_von.split(',').map(s => s.trim()).filter(s => s));
-                }
-            }
-            
-            try {
-                let url = `${APIBASE}/admin/${endpoint}?token=${token}`;
-                let method = 'POST';
-                if (mode === 'edit') {
-                    url += `/${id}`;
-                    method = 'PUT';
-                }
-                
-                const res = await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                
-                if (res.ok) {
-                    closeGenericModal();
-                    loadSectionData(entity);
-                } else {
-                    alert('Fehler beim Speichern');
-                }
-            } catch (err) {
-                alert('Verbindungsfehler');
-            }
-        });
+        loadTerrain();
     </script>
 </body>
+
 </html>

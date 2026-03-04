@@ -41,9 +41,10 @@ async function loadProvince(worldX, worldY) {
     }
 
     // 2. Daten vom Backend laden
+    const token = localStorage.getItem('token');
     let backendData = { buildings: [], vorkommen: [], lager: [] };
     try {
-        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${provId}`);
+        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${provId}?token=${token}`);
         if (res.ok) backendData = await res.json();
     } catch (e) { console.error("Fehler beim Laden der Provinzdaten:", e); }
 
@@ -275,7 +276,7 @@ async function selectProvinceCell(cellData, backendData) {
         wayTypes.forEach(t => {
             const isWay = !t.name.toLowerCase().includes('kreuzung');
             // Bei Kreuzungen nur Kreuzungen anzeigen, bei Wegen nur Wege
-            if ((isCrossing && t.name.toLowerCase().includes('kreuzung')) || 
+            if ((isCrossing && t.name.toLowerCase().includes('kreuzung')) ||
                 (!isCrossing && !t.name.toLowerCase().includes('kreuzung'))) {
                 infoHTML += `
                     <div class="build-option" onclick="placeRoad('${t.name}', ${cellData.gridX}, ${cellData.gridY})">
@@ -293,8 +294,9 @@ async function selectProvinceCell(cellData, backendData) {
 
 async function placeBuilding(type, x, y) {
     if (!confirm(`${type} auf (${x},${y}) errichten?`)) return;
+    const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/build`, {
+        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/build?token=${token}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ building_type: type, x: x, y: y })
@@ -311,8 +313,9 @@ async function placeBuilding(type, x, y) {
 
 async function placeRoad(type, x, y) {
     if (!confirm(`${type} auf (${x},${y}) bauen?`)) return;
+    const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/roads`, {
+        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/roads?token=${token}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ road_type: type, x: x, y: y })
@@ -328,8 +331,9 @@ async function placeRoad(type, x, y) {
 }
 
 async function upgradeBuilding(x, y) {
+    const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/upgrade`, {
+        const res = await fetch(`${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/upgrade?token=${token}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ building_x: x, building_y: y })

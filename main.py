@@ -1,238 +1,1122 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
 import sqlite3
 import os
 import uvicorn
+import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse
 
-DB_PATH = "data.db"
+DB_PATH = "verbrannte_zone.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS buildings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
-        )"""
-    )
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS resources (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            type TEXT,
-            production_value INTEGER,
-            land_transport_cost INTEGER,
-            water_transport_cost INTEGER,
-            air_transport_cost INTEGER,
-            description TEXT,
-            consumption_per_1000_per_day REAL
-        )"""
-    )
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS resource_consumes_buildings (
-            resource_id INTEGER,
-            building_id INTEGER,
-            FOREIGN KEY(resource_id) REFERENCES resources(id),
-            FOREIGN KEY(building_id) REFERENCES buildings(id)
-        )"""
-    )
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS resource_produces_buildings (
-            resource_id INTEGER,
-            building_id INTEGER,
-            FOREIGN KEY(resource_id) REFERENCES resources(id),
-            FOREIGN KEY(building_id) REFERENCES buildings(id)
-        )"""
-    )
-    conn.commit()
-    conn.close()
+def row_to_dict(row):
+    return dict(row)
 
-init_db()
+app = FastAPI(title="Verbrannte Zone API")
 
-class ResourceBase(BaseModel):
-    name: str
-    type: Optional[str] = None
-    production_value: Optional[int] = None
-    land_transport_cost: Optional[int] = None
-    water_transport_cost: Optional[int] = None
-    air_transport_cost: Optional[int] = None
-    description: Optional[str] = None
-    consumption_per_1000_per_day: Optional[float] = None
-
-class ResourceCreate(ResourceBase):
-    consumes_buildings: Optional[List[int]] = []
-    produces_buildings: Optional[List[int]] = []
-
-class ResourceUpdate(ResourceBase):
-    consumes_buildings: Optional[List[int]] = []
-    produces_buildings: Optional[List[int]] = []
-
-class ResourceOut(ResourceBase):
-    id: int
-    consumes_buildings: List[int] = []
-    produces_buildings: List[int] = []
-
-app = FastAPI(title="Resource Editor API")
-
-# Allow local frontend testing
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# Serve simple admin UI for resources (static files under /admin)
-app.mount("/admin", StaticFiles(directory="admin"), name="admin")
+# --- Static file serving ---
+@app.get("/admin.html")
+async def serve_admin():
+    return FileResponse("admin.html")
 
-# German alias route to help existing admin UI users
+@app.get("/login.html")
+async def serve_login():
+    return FileResponse("login.html")
+
+@app.get("/index.html")
+async def serve_index():
+    return FileResponse("index.html")
+
+# Mount JS, CSS and Terrain directories
+app.mount("/js", StaticFiles(directory="js"), name="js")
+app.mount("/css", StaticFiles(directory="css"), name="css")
+app.mount("/terrains", StaticFiles(directory="terrains"), name="terrains")
+
+# ──────────────────────────────────────────────
+# AUTH (simple token from localStorage)
+# ──────────────────────────────────────────────
+import hashlib
+
+SECRET_KEY = "wasteland_secret_2024"
+
+def hash_password(pw: str) -> str:
+    return hashlib.sha256(pw.encode()).hexdigest()
+
+def get_token_user(token: str):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE token=?", (token,))
+    row = cur.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def require_admin(token: str):
+    user = get_token_user(token)
+    if not user or user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Nicht autorisiert")
+    return user
+
+# ──────────────────────────────────────────────
+# AUTH ENDPOINTS
+# ──────────────────────────────────────────────
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LogoutRequest(BaseModel):
+    token: str
+
+@app.post("/auth/login")
+def login(req: LoginRequest):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username=?", (req.username,))
+    user = cur.fetchone()
+    if not user or user["password_hash"] != hash_password(req.password):
+        conn.close()
+        raise HTTPException(status_code=401, detail="Ungültige Anmeldedaten")
+    token = hashlib.sha256(f"{user['id']}{SECRET_KEY}{req.username}".encode()).hexdigest()
+    cur.execute("UPDATE users SET token=? WHERE id=?", (token, user["id"]))
+    conn.commit()
+    conn.close()
+    user_dict = dict(user)
+    return {"token": token, "role": user_dict["role"], "username": user_dict["username"], "player_id": user_dict.get("player_id")}
+
+@app.post("/auth/logout")
+def logout(req: LogoutRequest):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET token=NULL WHERE token=?", (req.token,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+@app.get("/auth/me")
+def me(token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    return {"id": user["id"], "username": user["username"], "role": user["role"], "player_id": user.get("player_id")}
+
+# ──────────────────────────────────────────────
+# ADMIN: USERS
+# ──────────────────────────────────────────────
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    role: str = "player"
+    player_id: Optional[int] = None
+
+@app.get("/admin/users")
+def admin_list_users(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT u.id, u.username, u.role, u.player_id, u.created_at,
+               p.name as player_name
+        FROM users u LEFT JOIN players p ON u.player_id = p.id ORDER BY u.id
+    """)
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.post("/admin/users")
+def admin_create_user(token: str, req: UserCreate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO users(username, password_hash, role, player_id) VALUES (?,?,?,?)",
+                (req.username, hash_password(req.password), req.role, req.player_id))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: GEBÄUDE (gebaeude_typen)
+# ──────────────────────────────────────────────
+class BuildingUpdate(BaseModel):
+    name: Optional[str] = None
+    kategorie: Optional[str] = None
+    baukosten_mips: Optional[int] = None
+    arbeiter: Optional[int] = None
+    wohnraum: Optional[int] = None
+    lagerkapazitaet: Optional[int] = None
+    produktion: Optional[str] = None
+    rohstoffverbrauch: Optional[str] = None
+    terrain_effektivitaet: Optional[str] = None
+
+class BuildingCreate(BuildingUpdate):
+    name: str
+
+# --- Spiel-Modelle ---
+class PlaceBuildingRequest(BaseModel):
+    building_type: str
+    x: int
+    y: int
+
+class UpgradeBuildingRequest(BaseModel):
+    building_x: int
+    building_y: int
+
+class ClaimProvinceRequest(BaseModel):
+    world_x: int
+    world_y: int
+    name: str
+    terrain: str
+
+class TransportRequest(BaseModel):
+    nach_provinz_id: int
+    ressource_id: int
+    menge: int
+
+@app.get("/admin/buildings")
+def admin_list_buildings(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM gebaeude_typen ORDER BY id")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.get("/admin/buildings/{bid}")
+def admin_get_building(bid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM gebaeude_typen WHERE id=?", (bid,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.post("/admin/buildings")
+def admin_create_building(token: str, req: BuildingCreate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""INSERT INTO gebaeude_typen(name,kategorie,baukosten_mips,arbeiter,wohnraum,lagerkapazitaet,produktion,rohstoffverbrauch,terrain_effektivitaet)
+                   VALUES(?,?,?,?,?,?,?,?,?)""",
+                (req.name, req.kategorie, req.baukosten_mips or 0, req.arbeiter or 0,
+                 req.wohnraum or 0, req.lagerkapazitaet or 0,
+                 req.produktion or '[]', req.rohstoffverbrauch or '[]',
+                 req.terrain_effektivitaet or '{}'))
+    conn.commit()
+    bid = cur.lastrowid
+    conn.close()
+    return admin_get_building(bid, token)
+
+@app.put("/admin/buildings/{bid}")
+def admin_update_building(bid: int, token: str, req: BuildingUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(bid)
+    cur.execute(f"UPDATE gebaeude_typen SET {','.join(fields)},updated_at=CURRENT_TIMESTAMP WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_building(bid, token)
+
+@app.delete("/admin/buildings/{bid}")
+def admin_delete_building(bid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM gebaeude_typen WHERE id=?", (bid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: RESSOURCEN
+# ──────────────────────────────────────────────
+class RessourceUpdate(BaseModel):
+    name: Optional[str] = None
+    typ: Optional[str] = None
+    produktionswert: Optional[int] = None
+    platz_land: Optional[int] = None
+    platz_wasser: Optional[int] = None
+    platz_luft: Optional[int] = None
+    verbrauch_pro_1000: Optional[float] = None
+    beschreibung: Optional[str] = None
+
+class RessourceCreate(RessourceUpdate):
+    name: str
+
 @app.get("/admin/ressourcen")
-async def redirect_ressourcen():
-    return RedirectResponse(url="/admin/resources.html")
-
-@app.get("/admin/ressourcen/{path:path}")
-async def redirect_ressourcen_path(path: str):
-    return RedirectResponse(url="/admin/resources.html")
-
-def to_resource_dict(row):
-    return {
-        "id": row["id"],
-        "name": row["name"],
-        "type": row["type"],
-        "production_value": row["production_value"],
-        "land_transport_cost": row["land_transport_cost"],
-        "water_transport_cost": row["water_transport_cost"],
-        "air_transport_cost": row["air_transport_cost"],
-        "description": row["description"],
-        "consumption_per_1000_per_day": row["consumption_per_1000_per_day"],
-    }
-
-@app.get("/api/resources/fields")
-def get_resource_fields():
-    # Static, reliable field schema for testing. Can be expanded later from DB.
-    fields = [
-        {"name": "name", "type": "string", "label": "Name", "required": True},
-        {"name": "type", "type": "enum", "label": "Typ", "options": ["Baurohstoff", "Nahrung", "Genussgut", "Andere"]},
-        {"name": "production_value", "type": "number", "label": "Produktionswert"},
-        {"name": "land_transport_cost", "type": "number", "label": "Platzverbrauch Landtransport"},
-        {"name": "water_transport_cost", "type": "number", "label": "Platzverbrauch Wassertransport"},
-        {"name": "air_transport_cost", "type": "number", "label": "Platzverbrauch Lufttransport"},
-        {"name": "consumes_buildings", "type": "relation", "label": "Folgende Gebäude verbrauchen", "relation": {"target": "buildings", "cardinality": "many"}},
-        {"name": "produces_buildings", "type": "relation", "label": "Folgende Gebäude produzieren", "relation": {"target": "buildings", "cardinality": "many"}},
-        {"name": "description", "type": "text", "label": "Beschreibung"},
-        {"name": "consumption_per_1000_per_day", "type": "number", "label": "Verbrauch pro 1000 Personen/Tag"},
-    ]
-    return fields
-
-def derive_fields_from_external_db():
-    # Obsolete in this patch; kept only for compatibility, but not used by the static endpoint.
-    return []
-
-@app.get("/api/buildings")
-def list_buildings():
+def admin_list_ressourcen(token: str):
+    require_admin(token)
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, name FROM buildings ORDER BY name")
-    buildings = [{"id": r["id"], "name": r["name"]} for r in cur.fetchall()]
+    cur.execute("SELECT * FROM ressourcen ORDER BY id")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
     conn.close()
-    return buildings
+    return rows
 
-@app.get("/api/resources")
-def list_resources():
+@app.get("/admin/ressourcen/{rid}")
+def admin_get_ressource(rid: int, token: str):
+    require_admin(token)
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM resources ORDER BY id")
-    rows = cur.fetchall()
-    res = []
-    for r in rows:
-        cur.execute("SELECT building_id FROM resource_consumes_buildings WHERE resource_id=?", (r["id"],))
-        consumes = [x[0] for x in cur.fetchall()]
-        cur.execute("SELECT building_id FROM resource_produces_buildings WHERE resource_id=?", (r["id"],))
-        produces = [x[0] for x in cur.fetchall()]
-        res.append({
-            "id": r["id"],
-            "name": r["name"],
-            "type": r["type"],
-            "production_value": r["production_value"],
-            "land_transport_cost": r["land_transport_cost"],
-            "water_transport_cost": r["water_transport_cost"],
-            "air_transport_cost": r["air_transport_cost"],
-            "description": r["description"],
-            "consumption_per_1000_per_day": r["consumption_per_1000_per_day"],
-            "consumes_buildings": consumes,
-            "produces_buildings": produces,
-        })
+    cur.execute("SELECT * FROM ressourcen WHERE id=?", (rid,))
+    row = cur.fetchone()
     conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.post("/admin/ressourcen")
+def admin_create_ressource(token: str, req: RessourceCreate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""INSERT INTO ressourcen(name,typ,produktionswert,platz_land,platz_wasser,platz_luft,beschreibung)
+                   VALUES(?,?,?,?,?,?,?)""",
+                (req.name, req.typ, req.produktionswert or 0,
+                 req.platz_land or 1, req.platz_wasser or 1, req.platz_luft or 1,
+                 req.beschreibung or ''))
+    conn.commit()
+    rid = cur.lastrowid
+    conn.close()
+    return admin_get_ressource(rid, token)
+
+@app.put("/admin/ressourcen/{rid}")
+def admin_update_ressource(rid: int, token: str, req: RessourceUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(rid)
+    cur.execute(f"UPDATE ressourcen SET {','.join(fields)},updated_at=CURRENT_TIMESTAMP WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_ressource(rid, token)
+
+@app.delete("/admin/ressourcen/{rid}")
+def admin_delete_ressource(rid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM ressourcen WHERE id=?", (rid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: VORKOMMEN
+# ──────────────────────────────────────────────
+class VorkommenUpdate(BaseModel):
+    name: Optional[str] = None
+    typ: Optional[str] = None
+    tech: Optional[int] = None
+    suchkosten: Optional[int] = None
+    beschreibung: Optional[str] = None
+    findwahrscheinlichkeit: Optional[str] = None
+
+class VorkommenCreate(VorkommenUpdate):
+    name: str
+
+@app.get("/admin/vorkommen")
+def admin_list_vorkommen(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM vorkommen ORDER BY id")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.get("/admin/vorkommen/{vid}")
+def admin_get_vorkommen(vid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM vorkommen WHERE id=?", (vid,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.post("/admin/vorkommen")
+def admin_create_vorkommen(token: str, req: VorkommenCreate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO vorkommen(name,typ,tech,suchkosten,beschreibung,findwahrscheinlichkeit) VALUES(?,?,?,?,?,?)",
+                (req.name, req.typ, req.tech or 0, req.suchkosten or 0, req.beschreibung or '', req.findwahrscheinlichkeit or '{}'))
+    conn.commit()
+    vid = cur.lastrowid
+    conn.close()
+    return admin_get_vorkommen(vid, token)
+
+@app.put("/admin/vorkommen/{vid}")
+def admin_update_vorkommen(vid: int, token: str, req: VorkommenUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(vid)
+    cur.execute(f"UPDATE vorkommen SET {','.join(fields)},updated_at=CURRENT_TIMESTAMP WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_vorkommen(vid, token)
+
+@app.delete("/admin/vorkommen/{vid}")
+def admin_delete_vorkommen(vid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM vorkommen WHERE id=?", (vid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: REGIERUNGSFORMEN
+# ──────────────────────────────────────────────
+class RegierungsformUpdate(BaseModel):
+    name: Optional[str] = None
+    beschreibung: Optional[str] = None
+    bonus_malus: Optional[str] = None
+
+class RegierungsformCreate(RegierungsformUpdate):
+    name: str
+
+@app.get("/admin/regierungsformen")
+def admin_list_regierungsformen(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM regierungsformen ORDER BY id")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.get("/admin/regierungsformen/{rid}")
+def admin_get_regierungsform(rid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM regierungsformen WHERE id=?", (rid,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.post("/admin/regierungsformen")
+def admin_create_regierungsform(token: str, req: RegierungsformCreate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO regierungsformen(name,beschreibung,bonus_malus) VALUES(?,?,?)",
+                (req.name, req.beschreibung or '', req.bonus_malus or '{}'))
+    conn.commit()
+    rid = cur.lastrowid
+    conn.close()
+    return admin_get_regierungsform(rid, token)
+
+@app.put("/admin/regierungsformen/{rid}")
+def admin_update_regierungsform(rid: int, token: str, req: RegierungsformUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(rid)
+    cur.execute(f"UPDATE regierungsformen SET {','.join(fields)},updated_at=CURRENT_TIMESTAMP WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_regierungsform(rid, token)
+
+@app.delete("/admin/regierungsformen/{rid}")
+def admin_delete_regierungsform(rid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM regierungsformen WHERE id=?", (rid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: TERRAIN (world_terrain)
+# ──────────────────────────────────────────────
+class TerrainUpdate(BaseModel):
+    name: Optional[str] = None
+    startgebiet: Optional[int] = None
+    regen_pct: Optional[int] = None
+    aufwertungen: Optional[str] = None
+    abwertungen: Optional[str] = None
+    beschreibung: Optional[str] = None
+    bild_url: Optional[str] = None
+    gebaeude_effektivitaet: Optional[str] = None
+
+class TerrainCreate(TerrainUpdate):
+    id: str
+    name: str
+
+@app.get("/admin/terrain")
+def admin_list_terrain(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM terrain_typen ORDER BY name")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.get("/admin/terrain/{tid}")
+def admin_get_terrain(tid: str, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM terrain_typen WHERE id=?", (tid,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.put("/admin/terrain/{tid}")
+def admin_update_terrain(tid: str, token: str, req: TerrainUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(tid)
+    cur.execute(f"UPDATE terrain_typen SET {','.join(fields)} WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_terrain(tid, token)
+
+@app.delete("/admin/terrain/{tid}")
+def admin_delete_terrain(tid: str, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM terrain_typen WHERE id=?", (tid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: GEBÄUDE-FELDER (provinz_feldtypen)
+# ──────────────────────────────────────────────
+class FeldtypUpdate(BaseModel):
+    name: Optional[str] = None
+    beschreibung: Optional[str] = None
+    groesse_px: Optional[int] = None
+    ist_baubar: Optional[int] = None
+    bautypen: Optional[str] = None
+    farbe_leer: Optional[str] = None
+
+class FeldtypCreate(FeldtypUpdate):
+    id: str
+    name: str
+
+@app.get("/admin/gebaeude_felder")
+def admin_list_feldtypen(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM provinz_feldtypen ORDER BY id")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.get("/admin/gebaeude_felder/{fid}")
+def admin_get_feldtyp(fid: str, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM provinz_feldtypen WHERE id=?", (fid,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.put("/admin/gebaeude_felder/{fid}")
+def admin_update_feldtyp(fid: str, token: str, req: FeldtypUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(fid)
+    cur.execute(f"UPDATE provinz_feldtypen SET {','.join(fields)} WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_feldtyp(fid, token)
+
+@app.delete("/admin/gebaeude_felder/{fid}")
+def admin_delete_feldtyp(fid: str, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM provinz_feldtypen WHERE id=?", (fid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: ARTIKEL
+# ──────────────────────────────────────────────
+class ArtikelUpdate(BaseModel):
+    name: Optional[str] = None
+    beschreibung: Optional[str] = None
+    kategorie: Optional[str] = None
+    preis_mips: Optional[int] = None
+    preis_muenzen: Optional[int] = None
+    gewicht: Optional[int] = None
+    haltbarkeit: Optional[int] = None
+
+class ArtikelCreate(ArtikelUpdate):
+    name: str
+
+@app.get("/admin/artikel")
+def admin_list_artikel(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM artikel ORDER BY id")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.get("/admin/artikel/{aid}")
+def admin_get_artikel(aid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM artikel WHERE id=?", (aid,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.post("/admin/artikel")
+def admin_create_artikel(token: str, req: ArtikelCreate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO artikel(name,beschreibung,kategorie,preis_mips,preis_muenzen,gewicht,haltbarkeit) VALUES(?,?,?,?,?,?,?)",
+                (req.name, req.beschreibung or '', req.kategorie or '',
+                 req.preis_mips or 0, req.preis_muenzen or 0,
+                 req.gewicht or 0, req.haltbarkeit or 0))
+    conn.commit()
+    aid = cur.lastrowid
+    conn.close()
+    return admin_get_artikel(aid, token)
+
+@app.put("/admin/artikel/{aid}")
+def admin_update_artikel(aid: int, token: str, req: ArtikelUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(aid)
+    cur.execute(f"UPDATE artikel SET {','.join(fields)},updated_at=CURRENT_TIMESTAMP WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_artikel(aid, token)
+
+@app.delete("/admin/artikel/{aid}")
+def admin_delete_artikel(aid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM artikel WHERE id=?", (aid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: EINHEITEN (einheiten_typen)
+# ──────────────────────────────────────────────
+class EinheitUpdate(BaseModel):
+    name: Optional[str] = None
+    kategorie: Optional[str] = None
+    kosten_mips: Optional[int] = None
+    kosten_muenzen: Optional[int] = None
+    bevoelkerung_count: Optional[int] = None
+    bewaffnung: Optional[str] = None
+    transport_kapazitaet: Optional[int] = None
+    geschwindigkeit: Optional[int] = None
+
+class EinheitCreate(EinheitUpdate):
+    name: str
+
+@app.get("/admin/einheiten")
+def admin_list_einheiten(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM einheiten_typen ORDER BY id")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.get("/admin/einheiten/{eid}")
+def admin_get_einheit(eid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM einheiten_typen WHERE id=?", (eid,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.post("/admin/einheiten")
+def admin_create_einheit(token: str, req: EinheitCreate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO einheiten_typen(name,kategorie,kosten_mips,kosten_muenzen,bevoelkerung_count,bewaffnung,transport_kapazitaet,geschwindigkeit) VALUES(?,?,?,?,?,?,?,?)",
+                (req.name, req.kategorie or '', req.kosten_mips or 0,
+                 req.kosten_muenzen or 0, req.bevoelkerung_count or 0,
+                 req.bewaffnung or '', req.transport_kapazitaet or 0, req.geschwindigkeit or 0))
+    conn.commit()
+    eid = cur.lastrowid
+    conn.close()
+    return admin_get_einheit(eid, token)
+
+@app.put("/admin/einheiten/{eid}")
+def admin_update_einheit(eid: int, token: str, req: EinheitUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(eid)
+    cur.execute(f"UPDATE einheiten_typen SET {','.join(fields)},updated_at=CURRENT_TIMESTAMP WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_einheit(eid, token)
+
+@app.delete("/admin/einheiten/{eid}")
+def admin_delete_einheit(eid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM einheiten_typen WHERE id=?", (eid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN: LEBEWESEN
+# ──────────────────────────────────────────────
+class LebewesenUpdate(BaseModel):
+    name: Optional[str] = None
+    typ: Optional[str] = None
+    staerke: Optional[int] = None
+    gesundheit: Optional[int] = None
+    bevoelkerung_kosten: Optional[int] = None
+    beschreibung: Optional[str] = None
+
+class LebewesenCreate(LebewesenUpdate):
+    name: str
+
+@app.get("/admin/lebewesen")
+def admin_list_lebewesen(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM lebewesen ORDER BY id")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+@app.get("/admin/lebewesen/{lid}")
+def admin_get_lebewesen(lid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM lebewesen WHERE id=?", (lid,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Nicht gefunden")
+    return row_to_dict(row)
+
+@app.post("/admin/lebewesen")
+def admin_create_lebewesen(token: str, req: LebewesenCreate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO lebewesen(name,typ,staerke,gesundheit,bevoelkerung_kosten,beschreibung) VALUES(?,?,?,?,?,?)",
+                (req.name, req.typ or '', req.staerke or 0,
+                 req.gesundheit or 0, req.bevoelkerung_kosten or 0, req.beschreibung or ''))
+    conn.commit()
+    lid = cur.lastrowid
+    conn.close()
+    return admin_get_lebewesen(lid, token)
+
+@app.put("/admin/lebewesen/{lid}")
+def admin_update_lebewesen(lid: int, token: str, req: LebewesenUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    fields, vals = [], []
+    for f, v in req.model_dump(exclude_none=True).items():
+        fields.append(f"{f}=?")
+        vals.append(v)
+    if not fields:
+        conn.close()
+        return {"ok": True}
+    vals.append(lid)
+    cur.execute(f"UPDATE lebewesen SET {','.join(fields)},updated_at=CURRENT_TIMESTAMP WHERE id=?", vals)
+    conn.commit()
+    conn.close()
+    return admin_get_lebewesen(lid, token)
+
+@app.delete("/admin/lebewesen/{lid}")
+def admin_delete_lebewesen(lid: int, token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM lebewesen WHERE id=?", (lid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# SPIELER + PROVINZEN (Basis-Endpunkte)
+# ──────────────────────────────────────────────
+@app.get("/player/{player_id}")
+def get_player(player_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM players WHERE id=?", (player_id,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Spieler nicht gefunden")
+    return row_to_dict(row)
+
+@app.get("/player/{player_id}/provinzen")
+def get_provinzen(player_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM provinzen WHERE player_id=?", (player_id,))
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return {"provinzen": rows, "player_id": player_id}
+
+@app.get("/player/{player_id}/provinzen/{prov_id}")
+def get_provinz_detail(player_id: int, prov_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    # Provinz-Basisdaten
+    cur.execute("SELECT * FROM provinzen WHERE id=? AND player_id=?", (prov_id, player_id))
+    prov = cur.fetchone()
+    if not prov:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Provinz nicht gefunden")
+    
+    # Gebäude
+    cur.execute("""
+        SELECT pg.*, gt.name as building_type 
+        FROM provinz_gebaeude pg
+        JOIN gebaeude_typen gt ON pg.gebaeude_typ_id = gt.id
+        WHERE pg.provinz_id=?
+    """, (prov_id,))
+    buildings = [row_to_dict(r) for r in cur.fetchall()]
+    
+    # Vorkommen
+    cur.execute("""
+        SELECT pv.*, v.name, v.typ 
+        FROM provinz_vorkommen pv
+        JOIN vorkommen v ON pv.vorkommen_id = v.id
+        WHERE pv.provinz_id=?
+    """, (prov_id,))
+    vorkommen = [row_to_dict(r) for r in cur.fetchall()]
+    
+    conn.close()
+    res = row_to_dict(prov)
+    res["buildings"] = buildings
+    res["vorkommen"] = vorkommen
     return res
 
-@app.get("/api/resources/{resource_id}")
-def get_resource(resource_id: int):
+@app.get("/player/{player_id}/provinzen/{prov_id}/lager")
+def get_provinz_lager(player_id: int, prov_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM resources WHERE id=?", (resource_id,))
-    row = cur.fetchone()
-    if not row:
-        raise HTTPException(status_code=404, detail="Resource not found")
-    cur.execute("SELECT building_id FROM resource_consumes_buildings WHERE resource_id=?", (resource_id,))
-    consumes = [x[0] for x in cur.fetchall()]
-    cur.execute("SELECT building_id FROM resource_produces_buildings WHERE resource_id=?", (resource_id,))
-    produces = [x[0] for x in cur.fetchall()]
+    
+    # Sicherstellen, dass die Provinz dem Spieler gehört
+    cur.execute("SELECT id FROM provinzen WHERE id=? AND player_id=?", (prov_id, player_id))
+    if not cur.fetchone():
+        conn.close()
+        raise HTTPException(status_code=404, detail="Provinz nicht gefunden")
+        
+    cur.execute("""
+        SELECT pl.*, r.name as ressource_name, r.typ
+        FROM provinz_lager pl
+        JOIN ressourcen r ON pl.ressource_id = r.id
+        WHERE pl.provinz_id=? AND pl.menge > 0
+    """, (prov_id,))
+    eintraege = [row_to_dict(r) for r in cur.fetchall()]
+    
+    # Kapazität berechnen (Summe aller Lagergebäude)
+    cur.execute("""
+        SELECT SUM(gt.lagerkapazitaet * pg.stufe) as kap
+        FROM provinz_gebaeude pg
+        JOIN gebaeude_typen gt ON pg.gebaeude_typ_id = gt.id
+        WHERE pg.provinz_id=?
+    """, (prov_id,))
+    kap_row = cur.fetchone()
+    kap = kap_row[0] if kap_row[0] else 1000 # Fallback 1000
+    
     conn.close()
     return {
-        "id": row["id"],
-        "name": row["name"],
-        "type": row["type"],
-        "production_value": row["production_value"],
-        "land_transport_cost": row["land_transport_cost"],
-        "water_transport_cost": row["water_transport_cost"],
-        "air_transport_cost": row["air_transport_cost"],
-        "description": row["description"],
-        "consumption_per_1000_per_day": row["consumption_per_1000_per_day"],
-        "consumes_buildings": consumes,
-        "produces_buildings": produces,
+        "provinz_id": prov_id,
+        "eintraege": eintraege,
+        "kapazitaet": kap,
+        "anzahl_positionen": len(eintraege)
     }
 
-@app.post("/api/resources")
-def create_resource(res: ResourceCreate):
+@app.post("/player/{player_id}/provinzen")
+def claim_province(player_id: int, token: str, req: ClaimProvinceRequest):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    # Prüfen ob bereits besetzt
+    cur.execute("SELECT id FROM provinzen WHERE world_x=? AND world_y=?", (req.world_x, req.world_y))
+    if cur.fetchone():
+        conn.close()
+        raise HTTPException(status_code=400, detail="Diese Provinz ist bereits besetzt!")
+        
+    cur.execute("""
+        INSERT INTO provinzen (player_id, name, world_x, world_y, terrain)
+        VALUES (?, ?, ?, ?, ?)
+    """, (player_id, req.name, req.world_x, req.world_y, req.terrain))
+    prov_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return {"ok": True, "provinz": {"id": prov_id}}
+
+@app.post("/player/{player_id}/provinzen/{prov_id}/build")
+def build_building(player_id: int, prov_id: int, token: str, req: PlaceBuildingRequest):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+        
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    # Gebäudetyp finden
+    cur.execute("SELECT * FROM gebaeude_typen WHERE name=?", (req.building_type,))
+    typ = cur.fetchone()
+    if not typ:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Gebäudetyp nicht gefunden")
+    
+    # Prüfen ob Feld frei
+    cur.execute("SELECT id FROM provinz_gebaeude WHERE provinz_id=? AND x=? AND y=?", (prov_id, req.x, req.y))
+    if cur.fetchone():
+        conn.close()
+        raise HTTPException(status_code=400, detail="Feld ist bereits belegt")
+        
+    # TODO: Kosten prüfen & abziehen
+    
+    cur.execute("""
+        INSERT INTO provinz_gebaeude (provinz_id, gebaeude_typ_id, x, y, stufe)
+        VALUES (?, ?, ?, ?, 1)
+    """, (prov_id, typ["id"], req.x, req.y))
+    
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+@app.post("/player/{player_id}/provinzen/{prov_id}/upgrade")
+def upgrade_building(player_id: int, prov_id: int, token: str, req: UpgradeBuildingRequest):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+        
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    cur.execute("""
+        UPDATE provinz_gebaeude SET stufe = stufe + 1
+        WHERE provinz_id=? AND x=? AND y=?
+    """, (prov_id, req.building_x, req.building_y))
+    
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Gebäude nicht gefunden")
+        
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+@app.get("/player/{player_id}/credit")
+def get_player_credit(player_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    # Simulation: Immer 240h Guthaben
+    return {"credit_hours": 240}
+
+@app.post("/player/{player_id}/resources/produce")
+def produce_resources(player_id: int, token: str, hours: int = 1, preview_only: bool = False):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+        
+    # Basis-Ressourcen Produktion (sehr einfach für den Moment)
+    # TODO: Echte Logik basierend auf Gebäuden implementieren
+    
+    if preview_only:
+        # Dummy Bericht
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM provinzen WHERE player_id=?", (player_id,))
+        prov_ids = [r[0] for r in cur.fetchall()]
+        conn.close()
+        
+        bericht = []
+        for pid in prov_ids:
+            bericht.append({
+                "provinz_id": pid,
+                "stats": {"wohnraum": 100, "bevoelkerung": 50, "bedarf": 30},
+                "effizienz": 1.0,
+                "deltas": {"1": hours * 10}, # 1 = Eisen ID?
+                "neues_lager": {"1": 100 + (hours * 10)}
+            })
+        return {"bericht": bericht}
+    
+    return {"ok": True, "message": f"{hours}h Produktion berechnet."}
+
+@app.post("/player/{player_id}/provinzen/{prov_id}/transport")
+def send_transport(player_id: int, prov_id: int, token: str, req: TransportRequest):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    # 1. Check Source Lager
+    cur.execute("SELECT menge FROM provinz_lager WHERE provinz_id=? AND ressource_id=?", (prov_id, req.ressource_id))
+    row = cur.fetchone()
+    if not row or row["menge"] < req.menge:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Nicht genügend Ressourcen im Lager!")
+    
+    # 2. Update Source
+    cur.execute("UPDATE provinz_lager SET menge = menge - ? WHERE provinz_id=? AND ressource_id=?", (req.menge, prov_id, req.ressource_id))
+    
+    # 3. Update Target
+    cur.execute("SELECT id FROM provinz_lager WHERE provinz_id=? AND ressource_id=?", (req.nach_provinz_id, req.ressource_id))
+    if cur.fetchone():
+        cur.execute("UPDATE provinz_lager SET menge = menge + ? WHERE provinz_id=? AND ressource_id=?", (req.menge, req.nach_provinz_id, req.ressource_id))
+    else:
+        cur.execute("INSERT INTO provinz_lager (provinz_id, ressource_id, menge) VALUES (?, ?, ?)", (req.nach_provinz_id, req.ressource_id, req.menge))
+        
+    conn.commit()
+    conn.close()
+    return {"ok": True, "message": "Transport erfolgreich gesendet."}
+
+@app.get("/player/{player_id}/resources/total")
+def get_player_resources(player_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO resources(name, type, production_value, land_transport_cost, water_transport_cost, air_transport_cost, description, consumption_per_1000_per_day)
-        VALUES (?,?,?,?,?,?,?,?)
-    """, (res.name, res.type, res.production_value, res.land_transport_cost, res.water_transport_cost, res.air_transport_cost, res.description, res.consumption_per_1000_per_day))
-    if cur.lastrowid is None:
-        raise HTTPException(status_code=500, detail="Resource creation failed: no ID returned")
-    resource_id = int(cur.lastrowid)
-    for bid in (res.consumes_buildings or []):
-        cur.execute("INSERT INTO resource_consumes_buildings(resource_id, building_id) VALUES (?, ?)", (resource_id, bid))
-    for bid in (res.produces_buildings or []):
-        cur.execute("INSERT INTO resource_produces_buildings(resource_id, building_id) VALUES (?, ?)", (resource_id, bid))
-    conn.commit()
+        SELECT r.name, SUM(pl.menge) as gesamt
+        FROM provinz_lager pl
+        JOIN ressourcen r ON pl.ressource_id = r.id
+        JOIN provinzen p ON pl.provinz_id = p.id
+        WHERE p.player_id=?
+        GROUP BY r.name ORDER BY r.name
+    """, (player_id,))
+    rows = [{"name": r["name"], "menge": r["gesamt"]} for r in cur.fetchall()]
     conn.close()
-    return get_resource(resource_id)
+    return rows
 
-@app.put("/api/resources/{resource_id}")
-def update_resource(resource_id: int, res: ResourceUpdate):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        UPDATE resources SET
-            name=?, type=?, production_value=?, land_transport_cost=?, water_transport_cost=?, air_transport_cost=?, description=?, consumption_per_1000_per_day=?
-        WHERE id=?
-    """, (res.name, res.type, res.production_value, res.land_transport_cost, res.water_transport_cost, res.air_transport_cost, res.description, res.consumption_per_1000_per_day, resource_id))
-    cur.execute("DELETE FROM resource_consumes_buildings WHERE resource_id=?", (resource_id,))
-    cur.execute("DELETE FROM resource_produces_buildings WHERE resource_id=?", (resource_id,))
-    for bid in (res.consumes_buildings or []):
-        cur.execute("INSERT INTO resource_consumes_buildings(resource_id, building_id) VALUES (?, ?)", (resource_id, bid))
-    for bid in (res.produces_buildings or []):
-        cur.execute("INSERT INTO resource_produces_buildings(resource_id, building_id) VALUES (?, ?)", (resource_id, bid))
-    conn.commit()
-    conn.close()
-    return get_resource(resource_id)
-
+# ──────────────────────────────────────────────
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

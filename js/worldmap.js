@@ -64,6 +64,7 @@ const TERRAIN_FILENAME_MAP_RAW = {
     'ödgebirge':       'Oedgebirge',
     'ödhügel':         'Oedhuegel',
     'ödland':          'Oedland',
+    'steinwüste':      'Steinwueste',
 };
 
 // Normalisierte Map (alle Keys lowercase) für robusten Lookup
