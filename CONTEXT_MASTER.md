@@ -222,3 +222,8 @@ Ziel: Seed-Datei mit allen Gebäuden, Ressourcen und Vorkommen für die Flask/SQ
 - symbol_emoji, symbol_url, bild_url für alle Gebäude (werden separat befüllt)
 - Gebäude mit „unbekanntem Rohstoff" in Produktion/Verbrauch (noch nicht identifiziert)
 - Ressourcen mit „unbekanntem Gebäude" als Produzent/Konsument
+
+## Knowledge Base Reference
+- File: docs/knowledge_base_wasteland_faq.md
+- Description: Kompakte Wissensdatenbank zu FAQ-konformen Konzepten, Stadtausbau-Logik, CityTiles-Rendering und Seed-/API-Implementierung.
+- Usage: Verweist auf die zentrale Wissensquelle für zukünftige Implementierungen und Entscheidungen.

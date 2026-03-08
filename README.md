@@ -170,9 +170,9 @@ Das Admin-Panel (`admin.html`) verwaltet aktuell:
 - Rohstoffe, Vorkommen
 - Gebäude-Felder, Terrain
 - Regierungsformen
+- Artikel, Einheiten-Typen, Lebewesen
 
 **Noch nicht implementiert:**
-- Artikel, Einheiten-Typen, Lebewesen (UI vorhanden, Backend fehlt)
 - Spieler-Übersicht im Admin
 - Passwort-Reset durch Admin
 - Rollenbasierte Seitensperre im Frontend (außer Redirect)
@@ -181,7 +181,7 @@ Das Admin-Panel (`admin.html`) verwaltet aktuell:
 
 ## Roadmap
 
-- [ ] Admin: fehlende Backend-Endpoints (Artikel, Einheiten, Lebewesen)
+- [x] Admin: fehlende Backend-Endpoints (Artikel, Einheiten, Lebewesen)
 - [ ] Auth: JWT statt SHA256-Token
 - [ ] Produktions-Logik: Arbeiter/Wohnraum vollständig binden
 - [ ] Stadtfelder rendern

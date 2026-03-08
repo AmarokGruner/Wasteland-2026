@@ -1,5 +1,5 @@
-version: "v2.2.0"
-created_at: "2026-02-28T12:00:00Z"
+version: "v2.3.0"
+updated_at: "2026-03-08T17:00:00Z"
 blocks:
 - id: "b-backend-health"
   path: "blocks/b-backend-health.yaml"
@@ -27,3 +27,5 @@ blocks:
   path: "blocks/b-frontend-performance.yaml"
 - id: "b-merged-master"
   path: "blocks/b-merged-master.yaml"
+- id: "b-data-seeds"
+  path: "blocks/b-data-seeds.yaml"
