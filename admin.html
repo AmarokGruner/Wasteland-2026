@@ -341,18 +341,18 @@
         </div>
     </header>
 
-    <nav>
+        <nav>
         <ul>
             <li class="active" onclick="showSection('users')">Benutzer</li>
             <li onclick="showSection('buildings')">Gebäude</li>
             <li onclick="showSection('ressourcen')">Rohstoffe</li>
             <li onclick="showSection('vorkommen')">Vorkommen</li>
-            <li onclick="showSection('gebaeude_felder')">Gebäude-Felder</li>
             <li onclick="showSection('terrain')">Terrain</li>
             <li onclick="showSection('artikel')">Artikel</li>
             <li onclick="showSection('einheiten')">Einheiten</li>
             <li onclick="showSection('lebewesen')">Lebewesen</li>
             <li onclick="showSection('regierungsformen')">Regierung</li>
+            <li onclick="showSection('gebaeude_felder')">Felder</li>
             <li onclick="showSection('players')">Spieler</li>
         </ul>
     </nav>
@@ -829,23 +829,35 @@
 
         let token = localStorage.getItem('token');
         let RESOURCES = [];
+        let TERRAINS = [];
+        let BUILDINGS = [];
 
         // ── Auth guard ──────────────────────────────────────────────
         if (!token) { window.location.href = 'login.html'; }
         if (localStorage.getItem('role') !== 'admin') { window.location.href = 'index.html'; }
         document.getElementById('adminName').textContent = localStorage.getItem('username') || 'Admin';
 
-        // ── Load Resource list from DB for dropdowns ────────────────
-        async function loadResourceList() {
+        // ── Load lists from DB for dropdowns ────────────────
+        async function loadDropdownData() {
             try {
-                const res = await fetch(`${APIBASE}/admin/ressourcen?token=${token}`);
-                if (res.ok) {
-                    const data = await res.json();
+                const resR = await fetch(`${APIBASE}/admin/ressourcen?token=${token}`);
+                if (resR.ok) {
+                    const data = await resR.json();
                     RESOURCES = data.map(r => r.name).filter(Boolean).sort();
+                }
+                const resT = await fetch(`${APIBASE}/admin/terrain?token=${token}`);
+                if (resT.ok) {
+                    const data = await resT.json();
+                    TERRAINS = data.map(t => t.name).filter(Boolean).sort();
+                }
+                const resB = await fetch(`${APIBASE}/admin/buildings?token=${token}`);
+                if (resB.ok) {
+                    const data = await resB.json();
+                    BUILDINGS = data.map(b => b.name).filter(Boolean).sort();
                 }
             } catch { }
         }
-        loadResourceList();
+        loadDropdownData();
 
         // ── entityConfig – defines fields for each entity type ──────
         const entityConfig = {
@@ -871,7 +883,7 @@
                     { name: 'tech', label: 'Tech-Level', type: 'number' },
                     { name: 'suchkosten', label: 'Suchkosten (MIPS)', type: 'number' },
                     { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
-                    { name: 'findwahrscheinlichkeit', label: 'Fundwahrsch. (JSON)', type: 'json' },
+                    { name: 'findwahrscheinlichkeit', label: 'Fundwahrsch.', type: 'dynamic-list', listType: 'terrain-percent' },
                 ]
             },
             gebaeude_felder: {
@@ -894,11 +906,11 @@
                     { name: 'name', label: 'Name', type: 'text', required: true },
                     { name: 'startgebiet', label: 'Startgebiet', type: 'select', options: [{ v: 1, label: 'Ja' }, { v: 0, label: 'Nein' }] },
                     { name: 'regen_pct', label: 'Regen %', type: 'number' },
-                    { name: 'aufwertungen', label: 'Aufwertungen (JSON)', type: 'json' },
-                    { name: 'abwertungen', label: 'Abwertungen (JSON)', type: 'json' },
+                    { name: 'aufwertungen', label: 'Aufwertungen', type: 'dynamic-list', listType: 'terrain-list' },
+                    { name: 'abwertungen', label: 'Abwertungen', type: 'dynamic-list', listType: 'terrain-list' },
                     { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
                     { name: 'bild_url', label: 'Bild URL', type: 'text' },
-                    { name: 'gebaeude_effektivitaet', label: 'Gebäude-Eff. (JSON)', type: 'json' },
+                    { name: 'gebaeude_effektivitaet', label: 'Gebäude-Eff.', type: 'dynamic-list', listType: 'building-percent' },
                 ]
             },
             artikel: {
@@ -906,12 +918,23 @@
                 endpoint: 'artikel',
                 fields: [
                     { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'spezies', label: 'Spezies', type: 'text' },
+                    { name: 'einheittext', label: 'Einheittext', type: 'text' },
+                    { name: 'modultyp', label: 'Modultyp', type: 'text' },
+                    { name: 'zugehoerig', label: 'Zugehörig', type: 'text' },
+                    { name: 'bautyp', label: 'Bautyp', type: 'text' },
+                    { name: 'produktionspunkte', label: 'Produktionspunkte', type: 'number' },
+                    { name: 'rohstoffbedarf', label: 'Rohstoffbedarf', type: 'json' },
+                    { name: 'modulgroesse', label: 'Modulgröße', type: 'number' },
+                    { name: 'auswirkung_einheitenwerte', label: 'Einheitenwerte-Effekt', type: 'json' },
+                    { name: 'transportkapazitaet', label: 'Transportkapazität', type: 'json' },
+                    { name: 'platzbedarf', label: 'Platzbedarf', type: 'json' },
+                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
                     { name: 'kategorie', label: 'Kategorie', type: 'text' },
                     { name: 'preis_mips', label: 'Preis (MIPS)', type: 'number' },
                     { name: 'preis_muenzen', label: 'Preis (Münzen)', type: 'number' },
                     { name: 'gewicht', label: 'Gewicht', type: 'number' },
                     { name: 'haltbarkeit', label: 'Haltbarkeit', type: 'number' },
-                    { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
                 ]
             },
             einheiten: {
@@ -926,6 +949,10 @@
                     { name: 'bewaffnung', label: 'Bewaffnung', type: 'text' },
                     { name: 'transport_kapazitaet', label: 'Transport-Kapazität', type: 'number' },
                     { name: 'geschwindigkeit', label: 'Geschwindigkeit', type: 'number' },
+                    { name: 'spezies', label: 'Spezies', type: 'text' },
+                    { name: 'einheitenklasse', label: 'Klasse', type: 'text' },
+                    { name: 'fortbewegung', label: 'Fortbewegung', type: 'select', options: ['Boden', 'Luft', 'See', 'Untersee'] },
+                    { name: 'nahkampf_staerke', label: 'Nahkampf-Stärke', type: 'number' },
                 ]
             },
             lebewesen: {
@@ -945,8 +972,31 @@
                 endpoint: 'regierungsformen',
                 fields: [
                     { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'formtyp', label: 'Formtyp', type: 'text' },
+                    { name: 'techlevel', label: 'Techlevel', type: 'number' },
+                    { name: 'ausbauwert_regierungssitz', label: 'erf. Ausbau Regierungssitz', type: 'number' },
+                    { name: 'kulturverbreitung', label: 'Kulturverbreitung (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'grundmoral', label: 'Grundmoral', type: 'number' },
+                    { name: 'forschungsfortschritt', label: 'Forschungsfortschritt (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'produktivitaet', label: 'Produktivität (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'wachstum', label: 'Wachstum (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'finanzen', label: 'Finanzen (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'sicherheit', label: 'Innere Sicherheit (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'moralmalus_armee_aussen', label: 'Moralmalus Armee außerhalb', type: 'number' },
+                    { name: 'entfernungsmalus', label: 'Entfernungsmalus (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'lebensmittelbedarf', label: 'Lebensmittelbedarf (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'verbrauchsgutbedarf', label: 'Verbrauchsgutbedarf (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'streikbereitschaft', label: 'Streikbereitschaft (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'auswanderbereitschaft', label: 'Auswanderbereitschaft (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'milizen', label: 'Milizen (Faktor)', type: 'number', step: 0.01 },
+                    { name: 'fremdkultur_verlust', label: 'An Fremdkultur verlieren', type: 'select', options: [{val:0, lab:'Nein'}, {val:1, lab:'Ja'}] },
+                    { name: 'aufstand', label: 'Aufstand möglich', type: 'select', options: [{val:0, lab:'Nein'}, {val:1, lab:'Ja'}] },
+                    { name: 'krieg_moeglich', label: 'Kann Kriege beginnen', type: 'select', options: [{val:0, lab:'Nein'}, {val:1, lab:'Ja'}] },
+                    { name: 'provinzanzahl_bis_malus', label: 'Anzahl Provinzen bis Malus', type: 'number' },
+                    { name: 'malus_beschreibung', label: 'Malus-Beschreibung', type: 'text' },
                     { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
-                    { name: 'bonus_malus', label: 'Bonus/Malus (JSON)', type: 'json' },
+                    { name: 'boni', label: 'Boni (JSON)', type: 'json' },
+                    { name: 'voraussetzungen', label: 'Voraussetzungen (JSON)', type: 'json' },
                 ]
             }
         };
@@ -986,10 +1036,43 @@
                 } else if (f.type === 'json') {
                     const jsonVal = typeof val === 'object' ? JSON.stringify(val, null, 2) : (val || '{}');
                     input = `<textarea name="${f.name}" class="json-editor" ${readonly}>${jsonVal}</textarea>`;
+                } else if (f.type === 'dynamic-list') {
+                    input = `<div class="dynamic-list-container" data-name="${f.name}" data-type="${f.listType}"></div>
+                             <button type="button" class="btn btn-secondary btn-sm" style="margin-top:4px" onclick="addDynamicListRow(this.previousElementSibling)">+ Hinzufügen</button>`;
+                    const jsonVal = typeof val === 'string' ? JSON.parse(val || '[]') : (val || []);
+                    setTimeout(() => {
+                        const container = document.querySelector(`.dynamic-list-container[data-name="${f.name}"]`);
+                        if (container) {
+                            if (f.listType === 'terrain-percent') {
+                                Object.entries(jsonVal).forEach(([t, p]) => renderDynamicRow(container, t, p));
+                            } else if (f.listType === 'terrain-list') {
+                                (Array.isArray(jsonVal) ? jsonVal : []).forEach(t => renderDynamicRow(container, t));
+                            } else if (f.listType === 'building-percent') {
+                                Object.entries(jsonVal).forEach(([b, p]) => renderDynamicRow(container, b, p));
+                            }
+                        }
+                    }, 10);
                 } else if (f.type === 'color') {
                     input = `<input type="color" name="${f.name}" value="${val || '#444444'}" ${readonly}>`;
                 } else {
                     input = `<input type="${f.type}" name="${f.name}" value="${val}" ${f.required ? 'required' : ''} ${readonly}>`;
+                }
+                if (f.name === 'bild_url' || f.name === 'bild') {
+                    const currentImg = val ? `<img src="${val}" style="display:block; max-width:100px; margin-top:8px; border:1px solid #555;" id="preview_${f.name}">` : `<img src="" style="display:none; max-width:100px; margin-top:8px; border:1px solid #555;" id="preview_${f.name}">`;
+                    input += currentImg;
+                    // Add listener to update preview if URL changes
+                    setTimeout(() => {
+                        const inp = document.querySelector(`input[name="${f.name}"]`);
+                        if (inp) {
+                            inp.addEventListener('input', (e) => {
+                                const img = document.getElementById(`preview_${f.name}`);
+                                if (img) {
+                                    img.src = e.target.value;
+                                    img.style.display = e.target.value ? 'block' : 'none';
+                                }
+                            });
+                        }
+                    }, 100);
                 }
                 return `<div class="form-group"><label>${f.label}</label>${input}</div>`;
             }).join('');
@@ -1041,6 +1124,28 @@
                 config.fields.forEach(f => {
                     if (f.type === 'number' && body[f.name] !== undefined) {
                         body[f.name] = body[f.name] === '' ? null : Number(body[f.name]);
+                    }
+                    if (f.type === 'dynamic-list') {
+                        const container = form.querySelector(`.dynamic-list-container[data-name="${f.name}"]`);
+                        if (container) {
+                            const rows = container.querySelectorAll('.dynamic-row');
+                            if (f.listType === 'terrain-percent' || f.listType === 'building-percent') {
+                                const obj = {};
+                                rows.forEach(r => {
+                                    const key = r.querySelector('select').value;
+                                    const val = parseInt(r.querySelector('input').value) || 0;
+                                    if (key) obj[key] = val;
+                                });
+                                body[f.name] = JSON.stringify(obj);
+                            } else if (f.listType === 'terrain-list') {
+                                const arr = [];
+                                rows.forEach(r => {
+                                    const key = r.querySelector('select').value;
+                                    if (key) arr.push(key);
+                                });
+                                body[f.name] = JSON.stringify(arr);
+                            }
+                        }
                     }
                 });
             }
@@ -1342,6 +1447,37 @@
             return JSON.stringify(data);
         }
 
+        function renderDynamicRow(container, val1 = '', val2 = '') {
+            const type = container.dataset.type;
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.style.marginBottom = '4px';
+            
+            let options = [];
+            if (type.startsWith('terrain')) options = TERRAINS;
+            else if (type.startsWith('building')) options = BUILDINGS;
+
+            const selectOpts = options.map(o => `<option value="${o}" ${o === val1 ? 'selected' : ''}>${o}</option>`).join('');
+            
+            if (type.endsWith('percent')) {
+                row.innerHTML = `
+                    <select style="flex:2"><option value="">-- Wählen --</option>${selectOpts}</select>
+                    <input type="number" style="flex:1" placeholder="%" value="${val2}">
+                    <button type="button" class="btn-remove" onclick="this.parentElement.remove()">−</button>
+                `;
+            } else {
+                row.innerHTML = `
+                    <select style="flex:3"><option value="">-- Wählen --</option>${selectOpts}</select>
+                    <button type="button" class="btn-remove" onclick="this.parentElement.remove()">−</button>
+                `;
+            }
+            container.appendChild(row);
+        }
+
+        function addDynamicListRow(container) {
+            renderDynamicRow(container);
+        }
+
         document.getElementById('editBuildingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -1473,7 +1609,8 @@
                 const data = await res.json();
                 document.getElementById('terrainTable').innerHTML = data.map(t => `
                     <tr>
-                        <td>${t.id}</td><td>${t.name || '-'}</td>
+                        <td>${t.id}</td>
+                        <td>${t.bild_url ? `<img src="${t.bild_url}" style="width:30px; height:30px; vertical-align:middle; margin-right:8px; border:1px solid #444;">` : ''}${t.name || '-'}</td>
                         <td>${t.startgebiet ? 'Ja' : 'Nein'}</td><td>${t.regen_pct || 0}%</td>
                         <td class="actions">
                             <button class="btn btn-primary" onclick="editItem('terrain','${t.id}')">Bearbeiten</button>

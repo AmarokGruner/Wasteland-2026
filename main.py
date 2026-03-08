@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Union, Dict
 import sqlite3
 import os
 import uvicorn
 import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import RedirectResponse, FileResponse
 
 DB_PATH = "verbrannte_zone.db"
 
@@ -24,6 +24,12 @@ app = FastAPI(title="Verbrannte Zone API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # --- Static file serving ---
+@app.get("/")
+async def read_root():
+    """Einstiegspunkt: Liefert die index.html aus, 
+    das JS im Frontend kümmert sich um den Auth-Redirect zu login.html"""
+    return FileResponse("index.html")
+
 @app.get("/admin.html")
 async def serve_admin():
     return FileResponse("admin.html")
@@ -407,8 +413,31 @@ def admin_delete_vorkommen(vid: int, token: str):
 # ──────────────────────────────────────────────
 class RegierungsformUpdate(BaseModel):
     name: Optional[str] = None
+    formtyp: Optional[str] = None
+    techlevel: Optional[int] = None
+    ausbauwert_regierungssitz: Optional[int] = None
+    kulturverbreitung: Optional[float] = None
+    grundmoral: Optional[int] = None
+    forschungsfortschritt: Optional[float] = None
+    produktivitaet: Optional[float] = None
+    wachstum: Optional[float] = None
+    finanzen: Optional[float] = None
+    sicherheit: Optional[float] = None
+    moralmalus_armee_aussen: Optional[int] = None
+    entfernungsmalus: Optional[float] = None
+    lebensmittelbedarf: Optional[float] = None
+    verbrauchsgutbedarf: Optional[float] = None
+    streikbereitschaft: Optional[float] = None
+    auswanderbereitschaft: Optional[float] = None
+    milizen: Optional[float] = None
+    fremdkultur_verlust: Optional[int] = None
+    aufstand: Optional[int] = None
+    krieg_moeglich: Optional[int] = None
+    provinzanzahl_bis_malus: Optional[int] = None
+    malus_beschreibung: Optional[str] = None
     beschreibung: Optional[str] = None
-    bonus_malus: Optional[str] = None
+    boni: Optional[str] = None
+    voraussetzungen: Optional[str] = None
 
 class RegierungsformCreate(RegierungsformUpdate):
     name: str
@@ -440,8 +469,16 @@ def admin_create_regierungsform(token: str, req: RegierungsformCreate):
     require_admin(token)
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("INSERT INTO regierungsformen(name,beschreibung,bonus_malus) VALUES(?,?,?)",
-                (req.name, req.beschreibung or '', req.bonus_malus or '{}'))
+    # Wir nutzen hier eine dynamische Erstellung wie im Update, um alle Felder zu unterstützen
+    data = req.model_dump(exclude_none=True)
+    if "name" not in data:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Name ist erforderlich")
+    
+    cols = list(data.keys())
+    placeholders = ["?"] * len(cols)
+    cur.execute(f"INSERT INTO regierungsformen({','.join(cols)}) VALUES({','.join(placeholders)})",
+                list(data.values()))
     conn.commit()
     rid = cur.lastrowid
     conn.close()
@@ -612,6 +649,17 @@ def admin_delete_feldtyp(fid: str, token: str):
 # ──────────────────────────────────────────────
 class ArtikelUpdate(BaseModel):
     name: Optional[str] = None
+    spezies: Optional[str] = None
+    einheittext: Optional[str] = None
+    modultyp: Optional[str] = None
+    zugehoerig: Optional[str] = None
+    bautyp: Optional[str] = None
+    produktionspunkte: Optional[int] = None
+    rohstoffbedarf: Optional[Union[str, List, Dict]] = None
+    modulgroesse: Optional[int] = None
+    auswirkung_einheitenwerte: Optional[Union[str, Dict]] = None
+    transportkapazitaet: Optional[Union[str, Dict]] = None
+    platzbedarf: Optional[Union[str, Dict]] = None
     beschreibung: Optional[str] = None
     kategorie: Optional[str] = None
     preis_mips: Optional[int] = None
@@ -649,10 +697,18 @@ def admin_create_artikel(token: str, req: ArtikelCreate):
     require_admin(token)
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("INSERT INTO artikel(name,beschreibung,kategorie,preis_mips,preis_muenzen,gewicht,haltbarkeit) VALUES(?,?,?,?,?,?,?)",
-                (req.name, req.beschreibung or '', req.kategorie or '',
-                 req.preis_mips or 0, req.preis_muenzen or 0,
-                 req.gewicht or 0, req.haltbarkeit or 0))
+    data = req.model_dump()
+    # JSON-Felder serialisieren
+    for f in ["rohstoffbedarf", "auswirkung_einheitenwerte", "transportkapazitaet", "platzbedarf"]:
+        if data.get(f) is not None and not isinstance(data[f], str):
+            data[f] = json.dumps(data[f], ensure_ascii=False)
+        elif data.get(f) is None:
+            if f == "rohstoffbedarf": data[f] = "[]"
+            else: data[f] = "{}"
+            
+    cols = list(data.keys())
+    placeholders = ",".join(["?"] * len(cols))
+    cur.execute(f"INSERT INTO artikel({','.join(cols)}) VALUES({placeholders})", list(data.values()))
     conn.commit()
     aid = cur.lastrowid
     conn.close()
@@ -665,6 +721,8 @@ def admin_update_artikel(aid: int, token: str, req: ArtikelUpdate):
     cur = conn.cursor()
     fields, vals = [], []
     for f, v in req.model_dump(exclude_none=True).items():
+        if f in ["rohstoffbedarf", "auswirkung_einheitenwerte", "transportkapazitaet", "platzbedarf"] and not isinstance(v, str):
+            v = json.dumps(v, ensure_ascii=False)
         fields.append(f"{f}=?")
         vals.append(v)
     if not fields:
@@ -691,13 +749,23 @@ def admin_delete_artikel(aid: int, token: str):
 # ──────────────────────────────────────────────
 class EinheitUpdate(BaseModel):
     name: Optional[str] = None
-    kategorie: Optional[str] = None
-    kosten_mips: Optional[int] = None
-    kosten_muenzen: Optional[int] = None
-    bevoelkerung_count: Optional[int] = None
-    bewaffnung: Optional[str] = None
-    transport_kapazitaet: Optional[int] = None
-    geschwindigkeit: Optional[int] = None
+    spezies: Optional[str] = None
+    einheitenklasse: Optional[str] = None
+    zugehoerig: Optional[str] = None
+    fortbewegung: Optional[str] = None
+    erstellbedingung: Optional[str] = None
+    max_reichweite: Optional[str] = None
+    geschwindigkeit: Optional[float] = None
+    nahkampf_staerke: Optional[int] = None
+    nahkampf_panzerung: Optional[int] = None
+    fernkampf_panzerung: Optional[int] = None
+    einheitengroesse: Optional[int] = None
+    transport_land: Optional[int] = None
+    platzbedarf_see: Optional[int] = None
+    platzbedarf_untersee: Optional[int] = None
+    platzbedarf_luft: Optional[int] = None
+    module: Optional[str] = None
+    beschreibung: Optional[str] = None
 
 class EinheitCreate(EinheitUpdate):
     name: str
@@ -729,10 +797,9 @@ def admin_create_einheit(token: str, req: EinheitCreate):
     require_admin(token)
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("INSERT INTO einheiten_typen(name,kategorie,kosten_mips,kosten_muenzen,bevoelkerung_count,bewaffnung,transport_kapazitaet,geschwindigkeit) VALUES(?,?,?,?,?,?,?,?)",
-                (req.name, req.kategorie or '', req.kosten_mips or 0,
-                 req.kosten_muenzen or 0, req.bevoelkerung_count or 0,
-                 req.bewaffnung or '', req.transport_kapazitaet or 0, req.geschwindigkeit or 0))
+    cur.execute("""INSERT INTO einheiten_typen(name, spezies, einheitenklasse, zugehoerig, fortbewegung, erstellbedingung, max_reichweite, geschwindigkeit, nahkampf_staerke, nahkampf_panzerung, fernkampf_panzerung, einheitengroesse, transport_land, platzbedarf_see, platzbedarf_untersee, platzbedarf_luft, module, beschreibung)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (req.name, req.spezies or '', req.einheitenklasse or '', req.zugehoerig or '', req.fortbewegung or 'Boden', req.erstellbedingung or 'keine', req.max_reichweite or 'Nahkampf', req.geschwindigkeit or 1.0, req.nahkampf_staerke or 0, req.nahkampf_panzerung or 0, req.fernkampf_panzerung or 0, req.einheitengroesse or 1, req.transport_land or 0, req.platzbedarf_see or 0, req.platzbedarf_untersee or 0, req.platzbedarf_luft or 0, req.module or '[]', req.beschreibung or ''))
     conn.commit()
     eid = cur.lastrowid
     conn.close()

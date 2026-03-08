@@ -1,0 +1,27 @@
+id: "b-data-seeds"
+type: "code"
+domain: "data"
+title: "Modulare Seed-Datenbank"
+summary: "Aufgeteilte Seed-Skripte im /seeds Ordner für Gebäude, Einheiten, Terrains, Artikel etc."
+details: |
+  Die ursprünglich monolithische `seed_buildings.py` wurde in ein modulares System im Ordner `seeds/` aufgeteilt.
+  Jede Datei ist für einen spezifischen Datentyp zuständig und kann über `seed_main.py` koordiniert werden.
+  
+  Komponenten:
+  - seeds/db_config.py: Zentrale DB-Logik und Helferfunktionen.
+  - seeds/seed_terrains.py: Definition der 42 Terrain-Typen.
+  - seeds/seed_gebaeude.py: Definition der 110 Gebäude-Typen.
+  - seeds/seed_ressourcen.py: Definition der 65 Ressourcen.
+  - seeds/seed_vorkommen.py: Definition der 20 Vorkommen.
+  - seeds/seed_einheiten.py: Definition der 7 Einheiten-Typen.
+  - seeds/seed_artikel.py: Definition der Handelsartikel.
+  - seeds/seed_lebewesen.py: Definition der Lebewesen/Monster.
+  - seeds/seed_regierungsformen.py: Definition der Regierungsformen.
+  
+  Die Migration stellt sicher, dass alle Daten aus der alten Struktur erhalten geblieben sind.
+sources: ["seeds/", "seed_main.py"]
+related_blocks: ["b-data-models", "b-data-organization"]
+tokens_estimate: 350
+created_at: "2026-03-08T16:55:00Z"
+updated_at: "2026-03-08T16:55:00Z"
+status: "active"
