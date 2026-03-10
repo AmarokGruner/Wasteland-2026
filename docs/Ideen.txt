@@ -1,0 +1,64 @@
+Basierend auf dem, was ich über das Spiel weiß, hier meine Vorschläge – sortiert nach Spieltiefe und Implementierungsaufwand:
+🔴 Spielkritisch (fehlen für vollständiges Gameplay)
+
+Diplomatie-System
+Krieg/Frieden/Verbündete zwischen Spielern. Automatischer Angriff auf Feinde wenn Armeen sich begegnen. Handelssperren für Feinde. Bereits im FAQ erwähnt aber kein Prompt vorhanden.​
+
+Belagerungs- & Kampfsystem
+Provinzen belagern (Landweg + Seeweg), Feldkämpfe, Verluste berechnen nach Fitness/Training. Palisadenwall/Festung gibt Verteidigungsbonus. Ohne das ist Militär sinnlos.​
+
+Siedler & Kolonisierung
+Neue Provinzen besiedeln über Siedler-Einheiten (Alter 20–25). Bunker als Startpunkt. Provinzübergabe zwischen Spielern.​
+🟡 Spieltiefe (deutlich interessanter mit diesen Features)
+
+Jagen & Sammeln
+Bürger ohne Arbeitsplatz können automatisch jagen/sammeln (einstellbar unter Zivil → Einstellungen). Abhängig von Terrain und vorhandenen Tieren.​
+
+Tierzucht & Wildtier-Management
+Fleischfresser greifen an wenn hungrig, Pflanzenfresser fressen Felder. Tiere können eingefangen, gezüchtet und freigelassen werden. Aus seed_gebaeude.py: Nuggrets, Hühner bereits vorhanden.​
+
+Altersstruktur der Bevölkerung
+Bürger altern (24h-Tick), Kinder → Arbeiter (20–25 Jahre) → Rentner. Geburtenrate durch Bildung beeinflusst. Kindergeld + Rentenzahlungen. Bestimmt wer als Siedler/Soldat verfügbar ist.​
+
+Geologen & Bodenschatz-Suche
+Aktive Rohstoffsuche durch Geologen-Einheiten. Einmalig pro Ressource pro Provinz. Kostet Geld, gibt vorkommeneffektivitaet frei.​
+
+Regierungsformen
+Verschiedene Staatsformen (Demokratie, Diktatur, Monarchie...) mit unterschiedlichen Boni auf Kultur, Moral, Provinzanzahl ohne Malus.​
+🟢 Komfort & Lebensqualität
+
+Gamelog & Benachrichtigungen
+Persistentes Log aller wichtigen Events (Ausbau, Revolten, Angriffe, Entdeckungen). Filterbar nach Typ. Bereits im FAQ als Feature beschrieben.​
+
+Schnellbaumodus (Admin + Spieler)
+Gleichen Gebäudetyp mehrfach ohne Reload bauen. Besonders für Wege wichtig. Analog: Schnellabrissmodus.​
+
+Provinz-Reset / Weltgenerierung
+Account-Reset einmal pro 24h möglich. Admin kann Weltkarte mit Provinzen + Terrain generieren. Startprovinzen mit Ruinen vorbesiedeln.​
+
+Löschregel / Inaktivitäts-Cleanup
+Inaktive Provinzen werden nach X Tagen automatisch zur Ruine (R-Provinz). Bereits im FAQ als Systemnachricht erwähnt.​
+💡 Eigene Ideen (nicht im FAQ, aber passend)
+
+Wetter-Saisons
+Statt zufälligem Regen: Jahreszeiten (Frühling/Sommer/Herbst/Winter) mit definierten Regenwahrscheinlichkeiten und Produktionsboni. Gibt dem Spiel Planbarkeit.
+
+Handelsnetz-Visualisierung
+Canvas-Overlay das aktive Handelsrouten zwischen Provinzen zeigt. Reine Frontend-Erweiterung, kein neues Backend nötig.
+
+Provinz-Spezialisierung
+Admin kann Provinzen als "Industrieprovinz", "Agrarprovinz" etc. taggen → globaler Bonus auf bestimmte Produktion. Gibt strategischen Anreiz zur Expansion.
+
+Notfall-Reserve
+Spieler kann Lagerbestand für bestimmte Ressourcen sperren (z.B. "minimum 50 Notrationen immer reserviert"). Verhindert versehentliches Verhungern.
+Prioritäts-Empfehlung
+
+text
+Nächste Sessions (MVP-kritisch):
+  1. Belagerung/Kampf  → sonst ist Militär dekorativ
+  2. Diplomatie        → gibt Kampf Kontext  
+  3. Siedler/Kolonien  → Expansion als Spielziel
+  4. Altersstruktur    → Bevölkerungslogik komplett
+  5. Jagen/Sammeln     → Früh-Survival-Loop schließen
+
+Soll ich für eines dieser Features direkt einen Prompt ausarbeiten?
