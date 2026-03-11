@@ -12,14 +12,17 @@ const AUTH_CONFIG = {
 
 const AuthService = {
     saveTokens({ access_token, refresh_token, player_id, role, username }) {
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('refresh_token', refresh_token);
-        localStorage.setItem('player_id', player_id);
-        localStorage.setItem('role', role);
-        localStorage.setItem('username', username);
+        if (access_token) localStorage.setItem('access_token', access_token);
+        if (refresh_token) localStorage.setItem('refresh_token', refresh_token);
+        if (player_id) localStorage.setItem('player_id', player_id);
+        if (role) localStorage.setItem('role', role);
+        if (username) localStorage.setItem('username', username);
     },
 
-    getAccessToken() { return localStorage.getItem('access_token'); },
+    getAccessToken() { 
+        const t = localStorage.getItem('access_token');
+        return (t === 'null' || t === 'undefined') ? null : t;
+    },
     getRefreshToken() { return localStorage.getItem('refresh_token'); },
     getPlayerId() { return localStorage.getItem('player_id'); },
     getRole() { return localStorage.getItem('role'); },

@@ -1874,7 +1874,7 @@
                 palette.innerHTML = terrains.map(t => `
                     <div style="padding: 5px; margin-bottom: 5px; border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 8px;" 
                          onclick="selectAdminTerrain(${t.id})" id="palette_btn_${t.id}">
-                        <div style="width: 15px; height: 15px; background: ${t.color || '#333'}; border: 1px solid #000;"></div>
+                        <div style="width: 25px; height: 25px; background: ${t.color || '#333'} url(${t.bild_url}) center/cover; border: 1px solid #000;"></div>
                         <span>${t.icon || ''} ${t.name}</span>
                     </div>
                 `).join('');
@@ -1917,6 +1917,10 @@
 
                     if (cell) {
                         div.style.backgroundColor = cell.terrain_color || '#333';
+                        if (cell.bild_url) {
+                            div.style.backgroundImage = `url('${cell.bild_url}')`;
+                            div.style.backgroundSize = 'cover';
+                        }
                         div.title = `(${x},${y}) ${cell.terrain_name || cell.terrain_id}\nOwner: ${cell.owner_name || 'Niemand'}`;
                         if (cell.owner_id) div.style.border = '1px solid red';
                     } else {
@@ -1941,6 +1945,10 @@
                 if (!t) return;
 
                 div.style.backgroundColor = t.color || '#333';
+                if (t.bild_url) {
+                    div.style.backgroundImage = `url('${t.bild_url}')`;
+                    div.style.backgroundSize = 'cover';
+                }
                 div.title = `(${x},${y}) ${t.name} (geändert)`;
 
                 mapEdits[`${x},${y}`] = { x, y, terrain_id: selectedTerrainId };

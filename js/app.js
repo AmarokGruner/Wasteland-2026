@@ -12,7 +12,10 @@ if (!AuthService.getAccessToken()) {
   window.location.href = 'login.html';
 }
 
-window.currentPlayerId = AuthService.getPlayerId() ? parseInt(AuthService.getPlayerId()) : 1;
+window.currentPlayerId = AuthService.getPlayerId() ? parseInt(AuthService.getPlayerId()) : null;
+if (!window.currentPlayerId) {
+  console.error("FATAL: Keine Player-ID gefunden. Authentifizierung fehlerhaft oder Account unvollständig.");
+}
 window.currentView = 'world';
 window.selectedProvinceCoords = null;
 window.currentProvinzId = null;
@@ -105,10 +108,9 @@ function switchView(viewId, x = null, y = null) {
 // Backend: GET /player/{id}/provinzen
 // Response: { player_id, provinzen: [{id, world_x, world_y, name, ...}], anzahl }
 async function resolveProvinzId(x, y) {
-  const token = localStorage.getItem('token');
   try {
-    const url = `${APIBASE}/player/${window.currentPlayerId}/provinzen?token=${token}`;
-    const res = await fetch(url);
+    const url = `${APIBASE}/player/${window.currentPlayerId}/provinzen`;
+    const res = await gameFetch(url);
     if (!res.ok) { console.warn(`resolveProvinzId: HTTP ${res.status}`); return; }
     const data = await res.json();
     // ⚠️ Response ist { provinzen: [...] }, NICHT direkt ein Array
@@ -135,10 +137,9 @@ async function resolveProvinzId(x, y) {
 }
 
 async function claimProvince(x, y, terrain) {
-  const token = localStorage.getItem('token');
   try {
-    const url = `${APIBASE}/player/${window.currentPlayerId}/provinzen?token=${token}`;
-    const res = await fetch(url, {
+    const url = `${APIBASE}/player/${window.currentPlayerId}/provinzen`;
+    const res = await gameFetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ world_x: x, world_y: y, name: `Provinz ${x},${y}`, terrain: terrain })
@@ -225,9 +226,8 @@ async function loadProvinceLager() {
     let provinzId = window.currentProvinzId;
 
     if (!provinzId) {
-      const token = localStorage.getItem('token');
-      const listUrl = `${APIBASE}/player/${window.currentPlayerId}/provinzen?token=${token}`;
-      const listRes = await fetch(listUrl);
+      const listUrl = `${APIBASE}/player/${window.currentPlayerId}/provinzen`;
+      const listRes = await gameFetch(listUrl);
       if (!listRes.ok) throw new Error(`GET ${listUrl} → HTTP ${listRes.status}`);
       const listData = await listRes.json();
       // Response: { player_id, provinzen: [...], anzahl }  ← Array ist unter .provinzen
@@ -241,9 +241,8 @@ async function loadProvinceLager() {
     }
 
     // Lagereinträge laden
-    const token = localStorage.getItem('token');
-    const lagerUrl = `${APIBASE}/player/${window.currentPlayerId}/provinzen/${provinzId}/lager?token=${token}`;
-    const lagerRes = await fetch(lagerUrl);
+    const lagerUrl = `${APIBASE}/player/${window.currentPlayerId}/provinzen/${provinzId}/lager`;
+    const lagerRes = await gameFetch(lagerUrl);
     if (!lagerRes.ok) throw new Error(`GET ${lagerUrl} → HTTP ${lagerRes.status}`);
     const lagerData = await lagerRes.json();
     // Response: { provinz_id, eintraege: [...], anzahl_positionen, gesamtwert }
@@ -300,10 +299,9 @@ async function loadProvinceLager() {
 }
 
 async function nextTurn() {
-  const token = AuthService.getAccessToken();
   console.log('⏳ Nächste Runde wird berechnet...');
   try {
-    const response = await fetch(`${APIBASE}/player/${window.currentPlayerId}/resources/produce?token=${token}`, { method: 'POST' });
+    const response = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/resources/produce`, { method: 'POST' });
     const data = await response.json();
 
     if (response.ok) {
@@ -323,13 +321,12 @@ async function nextTurn() {
 }
 
 async function loadProductionOverview() {
-  const token = AuthService.getAccessToken();
   const content = document.getElementById('production-content');
   if (!content) return;
   content.innerHTML = '<p style="color: var(--text-muted)">Lade Produktionsdaten...</p>';
 
   try {
-    const res = await fetch(`${APIBASE}/player/${window.currentPlayerId}/production/stats?token=${token}`);
+    const res = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/production/stats`);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 
@@ -381,11 +378,10 @@ async function loadProductionOverview() {
 // ── Zeit-System & Vorschau ───────────────────────────────────
 
 async function updateCreditDisplay() {
-  const token = AuthService.getAccessToken();
   const display = document.getElementById('credit-hours');
   if (!display) return;
   try {
-    const res = await fetch(`${APIBASE}/player/${window.currentPlayerId}/credit?token=${token}`);
+    const res = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/credit`);
     if (res.ok) {
       const data = await res.json();
       display.textContent = data.credit_hours;
@@ -399,14 +395,13 @@ async function updateCreditDisplay() {
 }
 
 async function saveProvinceName() {
-  const token = AuthService.getAccessToken();
   const input = document.getElementById('province-name-input');
   if (!input || !window.currentProvinzId) return;
   const newName = input.value.trim();
   if (!newName) return;
 
   try {
-    const res = await fetch(`${APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}?token=${token}`, {
+    const res = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newName })
@@ -429,10 +424,9 @@ async function loadProvincePreview() {
 
   const hours = hoursSelect.value;
   content.innerHTML = `<p style="color: var(--text-muted)">Simuliere ${hours} Stunden...</p>`;
-  const token = AuthService.getAccessToken();
   try {
-    const url = `${APIBASE}/player/${window.currentPlayerId}/resources/produce?preview_only=true&hours=${hours}&token=${token}`;
-    const res = await fetch(url, { method: 'POST' });
+    const url = `${APIBASE}/player/${window.currentPlayerId}/resources/produce?preview_only=true&hours=${hours}`;
+    const res = await gameFetch(url, { method: 'POST' });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     renderPreviewReport(data.bericht, hours);
@@ -509,10 +503,9 @@ function renderPreviewReport(bericht, hours) {
 async function executeTurn(hours) {
   if (!confirm(`${hours} Stunden vorspulen? Dies verbraucht dein Zeitguthaben.`)) return;
 
-  const token = AuthService.getAccessToken();
   try {
-    const url = `${APIBASE}/player/${window.currentPlayerId}/resources/produce?hours=${hours}&token=${token}`;
-    const res = await fetch(url, { method: 'POST' });
+    const url = `${APIBASE}/player/${window.currentPlayerId}/resources/produce?hours=${hours}`;
+    const res = await gameFetch(url, { method: 'POST' });
     const data = await res.json();
 
     if (res.ok) {
@@ -532,16 +525,15 @@ async function executeTurn(hours) {
 }
 
 async function loadResourceMap() {
-  const token = AuthService.getAccessToken();
   try {
-    const res = await fetch(`${APIBASE}/player/${window.currentPlayerId}/provinzen?token=${token}`);
+    const res = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/provinzen`);
     if (!res.ok) return;
     const data = await res.json();
     if (data.provinzen && data.provinzen.length > 0) {
       const pid = data.provinzen[0].id;
       // Wir "missbrauchen" den Lager-Endpunkt für EINE Provinz, um alle Namen zu bekommen
       // Alternativ: Neuen Backend-Endpunkt erstellen. Hier machen wir es einfach via Lager.
-      const lagerRes = await fetch(`${APIBASE}/player/${window.currentPlayerId}/provinzen/${pid}/lager?token=${token}`);
+      const lagerRes = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/provinzen/${pid}/lager`);
       if (lagerRes.ok) {
         const lagerData = await lagerRes.json();
         lagerData.eintraege.forEach(item => {
