@@ -341,7 +341,7 @@
         </div>
     </header>
 
-        <nav>
+    <nav>
         <ul>
             <li class="active" onclick="showSection('users')">Benutzer</li>
             <li onclick="showSection('buildings')">Gebäude</li>
@@ -354,6 +354,8 @@
             <li onclick="showSection('regierungsformen')">Regierung</li>
             <li onclick="showSection('gebaeude_felder')">Felder</li>
             <li onclick="showSection('players')">Spieler</li>
+            <li onclick="showSection('worldmap')">Weltkarte</li>
+            <li onclick="showSection('auditlogs')">Logs</li>
         </ul>
     </nav>
 
@@ -629,11 +631,141 @@
             </div>
         </section>
 
+        <!-- Audit Logs Section -->
+        <section id="auditlogsSection" class="section">
+            <div class="card">
+                <h2>Audit Logs</h2>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Admin</th>
+                                <th>Aktion</th>
+                                <th>Ziel-Typ</th>
+                                <th>Ziel-ID</th>
+                                <th>Zeitstempel</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditlogsTable">
+                            <tr>
+                                <td colspan="7" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- Players Section -->
         <section id="playersSection" class="section">
             <div class="card">
-                <h2>Spieler-Übersicht</h2>
-                <p style="color: var(--text-muted);">Spieler-Daten werden hier angezeigt.</p>
+                <h2>Spieler-Verwaltung</h2>
+                <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <input type="number" id="playerAdminId" placeholder="Spieler ID"
+                        style="padding: 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-dark); color: white;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-danger" onclick="adminResetPlayer()">Account Reset (24h cooldown)</button>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
+                    <input type="number" id="playerAdminTech" placeholder="Tech-Level"
+                        style="padding: 8px; width: 100px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-dark); color: white;">
+                    <button class="btn btn-primary" onclick="adminSetTech()">Set Tech</button>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
+                    <input type="number" id="playerAdminMips" placeholder="MIPS Betrag"
+                        style="padding: 8px; width: 100px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-dark); color: white;">
+                    <button class="btn btn-primary" onclick="adminGiveMips()">MIPS Gutschreiben</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Worldmap Editor Section -->
+        <section id="worldmapSection" class="section">
+            <div class="card">
+                <h2>Weltkarten Editor</h2>
+                <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: 20px;">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div id="mapPalette"
+                            style="width: 250px; max-height: 400px; overflow-y: auto; background: var(--bg-dark); padding: 10px; border: 1px solid var(--border); border-radius: 4px;">
+                            <h3 style="margin-bottom: 10px; font-size: 14px;">Terrain Palette</h3>
+                            <div id="paletteItems">Lade...</div>
+                        </div>
+                        <div id="mapControlsExtended"
+                            style="width: 250px; background: var(--bg-dark); padding: 10px; border: 1px solid var(--border); border-radius: 4px;">
+                            <h3 style="margin-bottom: 10px; font-size: 14px;">Zellen-Werkzeuge</h3>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Klicke erst hier,
+                                dann auf die Map.</p>
+
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 12px; color: var(--text-muted);">Ruine setzen (Vorgaben
+                                    ID)</label>
+                                <input type="text" id="ruinPresets" placeholder="z.B. 1, 2"
+                                    style="width: 100%; margin-bottom: 5px; padding: 4px; background: #000; color: white; border: 1px solid var(--border);">
+                                <button class="btn btn-small" id="toolRuinBtn" onclick="activateMapTool('ruin')">Als
+                                    Ruine markieren</button>
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 12px; color: var(--text-muted);">Besitzer zuweisen (Player
+                                    ID)</label>
+                                <input type="number" id="assignOwnerId"
+                                    style="width: 100%; margin-bottom: 5px; padding: 4px; background: #000; color: white; border: 1px solid var(--border);">
+                                <button class="btn btn-small" id="toolOwnerBtn"
+                                    onclick="activateMapTool('owner')">Besitzer zuweisen</button>
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 12px; color: var(--text-muted);">Force Build (Gebäude
+                                    ID)</label>
+                                <input type="number" id="forceBuildId"
+                                    style="width: 100%; margin-bottom: 5px; padding: 4px; background: #000; color: white; border: 1px solid var(--border);">
+                                <button class="btn btn-small" id="toolBuildBtn"
+                                    onclick="activateMapTool('build')">Gebäude erzwingen</button>
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 12px; color: var(--text-muted);">Force Event (Event
+                                    Typ)</label>
+                                <input type="text" id="forceEventType" placeholder="z.B. erdbeben"
+                                    style="width: 100%; margin-bottom: 5px; padding: 4px; background: #000; color: white; border: 1px solid var(--border);">
+                                <button class="btn btn-small" id="toolEventBtn" onclick="activateMapTool('event')">Event
+                                    auslösen</button>
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <button class="btn btn-small" id="toolPaintBtn" onclick="activateMapTool('paint')"
+                                    style="border: 1px solid var(--accent)">Terrain Pinseln</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="saveWorldMap()">Speichern</button>
+                            <button class="btn btn-danger" onclick="importStaticMap()">Neu Importieren (Static)</button>
+
+                            <div
+                                style="border-left: 1px solid var(--border); padding-left: 10px; display: flex; gap: 5px; align-items: center;">
+                                <input type="number" id="genMapW" placeholder="B(50)"
+                                    style="width: 60px; padding: 4px; background:#000; color:white; border: 1px solid var(--border);">
+                                <input type="number" id="genMapH" placeholder="H(50)"
+                                    style="width: 60px; padding: 4px; background:#000; color:white; border: 1px solid var(--border);">
+                                <input type="number" id="genMapSeed" placeholder="Seed"
+                                    style="width: 80px; padding: 4px; background:#000; color:white; border: 1px solid var(--border);">
+                                <button class="btn btn-danger btn-small"
+                                    onclick="adminGenerateWorld()">Generieren</button>
+                            </div>
+
+                            <span id="mapStatus" style="color: var(--text-muted); align-self: center;"></span>
+                        </div>
+                        <div id="adminMapGrid"
+                            style="display: grid; grid-template-columns: repeat(50, 15px); grid-template-rows: repeat(50, 15px); gap: 1px; background: #000; border: 1px solid var(--border); width: fit-content; user-select: none;">
+                            <!-- Cells injected via JS -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -905,6 +1037,9 @@
                     { name: 'id', label: 'ID', type: 'number', readonly: true },
                     { name: 'name', label: 'Name', type: 'text', required: true },
                     { name: 'startgebiet', label: 'Startgebiet', type: 'select', options: [{ v: 1, label: 'Ja' }, { v: 0, label: 'Nein' }] },
+                    { name: 'playable', label: 'Spielbar', type: 'select', options: [{ v: 1, label: 'Ja' }, { v: 0, label: 'Nein' }] },
+                    { name: 'color', label: 'Farbe (Hex)', type: 'color' },
+                    { name: 'icon', label: 'Icon (Emoji)', type: 'text' },
                     { name: 'regen_pct', label: 'Regen %', type: 'number' },
                     { name: 'aufwertungen', label: 'Aufwertungen', type: 'dynamic-list', listType: 'terrain-list' },
                     { name: 'abwertungen', label: 'Abwertungen', type: 'dynamic-list', listType: 'terrain-list' },
@@ -989,9 +1124,9 @@
                     { name: 'streikbereitschaft', label: 'Streikbereitschaft (Faktor)', type: 'number', step: 0.01 },
                     { name: 'auswanderbereitschaft', label: 'Auswanderbereitschaft (Faktor)', type: 'number', step: 0.01 },
                     { name: 'milizen', label: 'Milizen (Faktor)', type: 'number', step: 0.01 },
-                    { name: 'fremdkultur_verlust', label: 'An Fremdkultur verlieren', type: 'select', options: [{val:0, lab:'Nein'}, {val:1, lab:'Ja'}] },
-                    { name: 'aufstand', label: 'Aufstand möglich', type: 'select', options: [{val:0, lab:'Nein'}, {val:1, lab:'Ja'}] },
-                    { name: 'krieg_moeglich', label: 'Kann Kriege beginnen', type: 'select', options: [{val:0, lab:'Nein'}, {val:1, lab:'Ja'}] },
+                    { name: 'fremdkultur_verlust', label: 'An Fremdkultur verlieren', type: 'select', options: [{ val: 0, lab: 'Nein' }, { val: 1, lab: 'Ja' }] },
+                    { name: 'aufstand', label: 'Aufstand möglich', type: 'select', options: [{ val: 0, lab: 'Nein' }, { val: 1, lab: 'Ja' }] },
+                    { name: 'krieg_moeglich', label: 'Kann Kriege beginnen', type: 'select', options: [{ val: 0, lab: 'Nein' }, { val: 1, lab: 'Ja' }] },
                     { name: 'provinzanzahl_bis_malus', label: 'Anzahl Provinzen bis Malus', type: 'number' },
                     { name: 'malus_beschreibung', label: 'Malus-Beschreibung', type: 'text' },
                     { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
@@ -1011,7 +1146,8 @@
                 users: loadUsers, buildings: loadBuildings, ressourcen: loadRessourcen,
                 vorkommen: loadVorkommen, gebaeude_felder: loadGebaeudeFelder,
                 terrain: loadTerrain, artikel: loadArtikel, einheiten: loadEinheiten,
-                lebewesen: loadLebewesen, regierungsformen: loadRegierungsformen
+                lebewesen: loadLebewesen, regierungsformen: loadRegierungsformen,
+                worldmap: loadWorldMapAdmin
             };
             if (loaders[section]) loaders[section]();
         }
@@ -1452,13 +1588,13 @@
             const row = document.createElement('div');
             row.className = 'dynamic-row';
             row.style.marginBottom = '4px';
-            
+
             let options = [];
             if (type.startsWith('terrain')) options = TERRAINS;
             else if (type.startsWith('building')) options = BUILDINGS;
 
             const selectOpts = options.map(o => `<option value="${o}" ${o === val1 ? 'selected' : ''}>${o}</option>`).join('');
-            
+
             if (type.endsWith('percent')) {
                 row.innerHTML = `
                     <select style="flex:2"><option value="">-- Wählen --</option>${selectOpts}</select>
@@ -1687,6 +1823,322 @@
                     </tr>`).join('');
             } catch { document.getElementById('regierungsformenTable').innerHTML = '<tr><td colspan="4">Fehler</td></tr>'; }
         }
+
+        // ── WORLD MAP EDITOR ────────────────────────────────────────
+        let adminWorldMap = [];
+        let adminTerrainTypes = {};
+        let selectedTerrainId = null;
+        let mapHasChanges = false;
+        let mapEdits = {}; // {"x,y": {x, y, terrain_id}}
+        let isPainting = false;
+        let activeMapTool = 'paint';
+
+        function activateMapTool(toolName) {
+            activeMapTool = toolName;
+            document.getElementById('toolPaintBtn').style.borderColor = 'transparent';
+            document.getElementById('toolRuinBtn').style.borderColor = 'transparent';
+            document.getElementById('toolOwnerBtn').style.borderColor = 'transparent';
+            document.getElementById('toolBuildBtn').style.borderColor = 'transparent';
+            document.getElementById('toolEventBtn').style.borderColor = 'transparent';
+            if (toolName === 'paint') document.getElementById('toolPaintBtn').style.borderColor = 'var(--accent)';
+            if (toolName === 'ruin') document.getElementById('toolRuinBtn').style.borderColor = 'var(--accent)';
+            if (toolName === 'owner') document.getElementById('toolOwnerBtn').style.borderColor = 'var(--accent)';
+            if (toolName === 'build') document.getElementById('toolBuildBtn').style.borderColor = 'var(--accent)';
+            if (toolName === 'event') document.getElementById('toolEventBtn').style.borderColor = 'var(--accent)';
+        }
+
+        async function loadWorldMapAdmin() {
+            try {
+                const resT = await fetch(`${APIBASE}/admin/terrain?token=${token}`);
+                if (!resT.ok) throw new Error("Terrains konnten nicht geladen werden");
+                const terrains = await resT.json();
+
+                adminTerrainTypes = {};
+                terrains.forEach(t => adminTerrainTypes[t.id] = t);
+
+                const palette = document.getElementById('paletteItems');
+                palette.innerHTML = terrains.map(t => `
+                    <div style="padding: 5px; margin-bottom: 5px; border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 8px;" 
+                         onclick="selectAdminTerrain(${t.id})" id="palette_btn_${t.id}">
+                        <div style="width: 15px; height: 15px; background: ${t.color || '#333'}; border: 1px solid #000;"></div>
+                        <span>${t.icon || ''} ${t.name}</span>
+                    </div>
+                `).join('');
+
+                if (terrains.length > 0) selectAdminTerrain(terrains[0].id);
+
+                const resM = await fetch(`${APIBASE}/world/map/full?token=${token}`);
+                if (!resM.ok) throw new Error("Weltkarte konnte nicht geladen werden");
+                const mapData = await resM.json();
+
+                adminWorldMap = mapData.cells;
+                mapEdits = {};
+                mapHasChanges = false;
+                updateMapStatus();
+                renderAdminMap();
+            } catch (e) {
+                document.getElementById('adminMapGrid').innerHTML = `<p style="color:var(--danger)">Fehler: ${e.message}</p>`;
+            }
+        }
+
+        function selectAdminTerrain(id) {
+            document.querySelectorAll('#paletteItems > div').forEach(el => el.style.borderColor = 'var(--border)');
+            const el = document.getElementById(`palette_btn_${id}`);
+            if (el) el.style.borderColor = 'var(--accent)';
+            selectedTerrainId = id;
+        }
+
+        function renderAdminMap() {
+            const grid = document.getElementById('adminMapGrid');
+            grid.innerHTML = '';
+
+            for (let y = 0; y < 50; y++) {
+                for (let x = 0; x < 50; x++) {
+                    const cell = adminWorldMap.find(c => c.x === x && c.y === y);
+                    const div = document.createElement('div');
+                    div.style.width = '15px';
+                    div.style.height = '15px';
+                    div.dataset.x = x;
+                    div.dataset.y = y;
+
+                    if (cell) {
+                        div.style.backgroundColor = cell.terrain_color || '#333';
+                        div.title = `(${x},${y}) ${cell.terrain_name || cell.terrain_id}\nOwner: ${cell.owner_name || 'Niemand'}`;
+                        if (cell.owner_id) div.style.border = '1px solid red';
+                    } else {
+                        div.style.backgroundColor = '#000';
+                        div.title = `(${x},${y}) Leer`;
+                    }
+
+                    div.addEventListener('mousedown', (e) => { isPainting = true; paintAdminCell(div, x, y); e.preventDefault(); });
+                    div.addEventListener('mouseenter', (e) => { if (isPainting) paintAdminCell(div, x, y); });
+                    div.addEventListener('mouseup', () => { isPainting = false; });
+                    grid.appendChild(div);
+                }
+            }
+            grid.addEventListener('mouseleave', () => { isPainting = false; });
+            document.addEventListener('mouseup', () => { isPainting = false; });
+        }
+
+        async function paintAdminCell(div, x, y) {
+            if (activeMapTool === 'paint') {
+                if (!selectedTerrainId) return;
+                const t = adminTerrainTypes[selectedTerrainId];
+                if (!t) return;
+
+                div.style.backgroundColor = t.color || '#333';
+                div.title = `(${x},${y}) ${t.name} (geändert)`;
+
+                mapEdits[`${x},${y}`] = { x, y, terrain_id: selectedTerrainId };
+                mapHasChanges = true;
+                updateMapStatus();
+            } else if (activeMapTool === 'ruin') {
+                const presetsInput = document.getElementById('ruinPresets').value.split(',').map(s => s.trim()).filter(Boolean);
+                try {
+                    const res = await fetch(`${APIBASE}/admin/world/province/${x}/${y}/ruins?token=${token}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ is_ruin: true, preset_buildings: presetsInput })
+                    });
+                    if (res.ok) { div.style.border = '2px solid yellow'; }
+                    else { alert("Fehler beim Ruine setzen"); }
+                } catch (e) { alert(e); }
+            } else if (activeMapTool === 'owner') {
+                const player_id = document.getElementById('assignOwnerId').value;
+                try {
+                    const res = await fetch(`${APIBASE}/admin/world/province/${x}/${y}/assign-owner?token=${token}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ player_id: player_id || null })
+                    });
+                    if (res.ok) { div.style.border = player_id ? '1px solid red' : ''; }
+                    else { alert("Fehler beim Zuweisen"); }
+                } catch (e) { alert(e); }
+            } else if (activeMapTool === 'build') {
+                const b_id = document.getElementById('forceBuildId').value;
+                if (!b_id) return alert("Gebäude ID erforderlich");
+                try {
+                    const res = await fetch(`${APIBASE}/admin/province/${x}/${y}/build?token=${token}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ building_id: parseInt(b_id) })
+                    });
+                    if (res.ok) { div.style.border = '1px solid magenta'; }
+                    else { alert("Fehler beim Force Build"); }
+                } catch (e) { alert(e); }
+            } else if (activeMapTool === 'event') {
+                const e_type = document.getElementById('forceEventType').value;
+                if (!e_type) return alert("Event Typ erforderlich");
+                try {
+                    const res = await fetch(`${APIBASE}/admin/province/${x}/${y}/event?token=${token}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ event_type: e_type })
+                    });
+                    if (res.ok) { div.style.border = '1px solid orange'; }
+                    else { alert("Fehler beim Event"); }
+                } catch (e) { alert(e); }
+            }
+        }
+
+
+        function updateMapStatus() {
+            const count = Object.keys(mapEdits).length;
+            document.getElementById('mapStatus').textContent = count > 0 ? `${count} ungespeicherte Änderung(en)` : '';
+        }
+
+        async function saveWorldMap() {
+            if (!mapHasChanges) return;
+            const cellsToUpdate = Object.values(mapEdits);
+            try {
+                const res = await fetch(`${APIBASE}/admin/world/map/cells/bulk?token=${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cells: cellsToUpdate })
+                });
+                if (res.ok) {
+                    mapEdits = {};
+                    mapHasChanges = false;
+                    updateMapStatus();
+                    loadWorldMapAdmin();
+                    alert('Erfolgreich gespeichert');
+                } else {
+                    const err = await res.json();
+                    alert('Fehler beim Speichern: ' + (err.detail || 'Unbekannt'));
+                }
+            } catch (e) {
+                alert('Verbindungsfehler: ' + e.message);
+            }
+        }
+
+        async function importStaticMap() {
+            if (!confirm('Vorsicht: Dies importiert die statische Weltkarte. Bestehende Änderungen können überschrieben werden! Wirklich ausführen?')) return;
+
+            if (typeof window.FIXED_WORLD_MAP === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'js/world-data.js';
+                script.onload = () => importStaticMap();
+                document.body.appendChild(script);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${APIBASE}/admin/world/import-static?token=${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ map_data: window.FIXED_WORLD_MAP })
+                });
+                if (res.ok) {
+                    const d = await res.json();
+                    alert(`Erfolgreich importiert: ${d.imported} Zellen`);
+                    loadWorldMapAdmin();
+                } else {
+                    const err = await res.json();
+                    alert('Fehler beim Importieren: ' + (err.detail || 'Unbekannt'));
+                }
+            } catch (e) {
+                alert('Fehler: ' + e.message);
+            }
+        }
+
+        // ── MAP GENERATION ──────────────────────────────────────────
+        async function adminGenerateWorld() {
+            if (!confirm("Möchten Sie wirklich die gesamte Karte neu generieren (überschreibt aktuelle)?")) return;
+            const w = document.getElementById('genMapW').value || 50;
+            const h = document.getElementById('genMapH').value || 50;
+            const seed = document.getElementById('genMapSeed').value || null;
+            document.getElementById('mapStatus').textContent = "Generiere...";
+            try {
+                const res = await fetch(`${APIBASE}/admin/world/generate?token=${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ width: parseInt(w), height: parseInt(h), seed: seed ? parseInt(seed) : null })
+                });
+                if (res.ok) {
+                    alert("Karte erfolgreich generiert!");
+                    loadWorldMapAdmin();
+                } else {
+                    const err = await res.json();
+                    alert("Fehler: " + (err.detail || "Unbekannt"));
+                }
+            } catch (e) { console.error(e); }
+            document.getElementById('mapStatus').textContent = "";
+        }
+
+        // ── PLAYER TOOLS ────────────────────────────────────────────
+        async function adminResetPlayer() {
+            const pid = document.getElementById('playerAdminId').value;
+            if (!pid) return alert("Spieler ID erforderlich");
+            if (!confirm(`Account Reset für Spieler ${pid} wirklich ausführen?`)) return;
+            try {
+                const res = await fetch(`${APIBASE}/admin/player/${pid}/reset?token=${token}`, { method: 'POST' });
+                if (res.ok) alert("Account zurückgesetzt");
+                else { const err = await res.json(); alert(err.detail || "Fehler"); }
+            } catch (e) { alert(e); }
+        }
+
+        async function adminSetTech() {
+            const pid = document.getElementById('playerAdminId').value;
+            const tech = document.getElementById('playerAdminTech').value;
+            if (!pid || !tech) return alert("Spieler ID und Tech-Level erforderlich");
+            try {
+                const res = await fetch(`${APIBASE}/admin/player/${pid}/tech?token=${token}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tech_level: parseInt(tech) })
+                });
+                if (res.ok) alert("Tech Level gesetzt");
+                else alert("Fehler");
+            } catch (e) { alert(e); }
+        }
+
+        async function adminGiveMips() {
+            const pid = document.getElementById('playerAdminId').value;
+            const amt = document.getElementById('playerAdminMips').value;
+            if (!pid || !amt) return alert("Spieler ID und amount erforderlich");
+            try {
+                const res = await fetch(`${APIBASE}/admin/player/${pid}/mips?token=${token}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: parseFloat(amt) })
+                });
+                if (res.ok) alert("MIPS zugeschrieben");
+                else alert("Fehler");
+            } catch (e) { alert(e); }
+        }
+
+        // ── AUDIT LOGS ──────────────────────────────────────────────
+        async function loadAuditLogs() {
+            try {
+                const res = await fetch(`${APIBASE}/admin/log?token=${token}`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                document.getElementById('auditlogsTable').innerHTML = data.map(l => `
+                    <tr>
+                        <td>${l.id}</td>
+                        <td>${l.admin_name || l.admin_id}</td>
+                        <td><strong>${l.action}</strong></td>
+                        <td>${l.target_type || '-'}</td>
+                        <td>${l.target_id || '-'}</td>
+                        <td>${new Date(l.timestamp).toLocaleString()}</td>
+                        <td style="font-size: 11px; max-width: 200px; word-break: break-all;">${l.payload || '{}'}</td>
+                    </tr>
+                `).join('');
+            } catch {
+                document.getElementById('auditlogsTable').innerHTML = '<tr><td colspan="7">Fehler beim Laden der Logs.</td></tr>';
+            }
+        }
+
+        // Hook into the section loading
+        const originalShowSection = window.showSection;
+        window.showSection = function (id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav li').forEach(l => l.classList.remove('active'));
+            document.getElementById(id + 'Section').classList.add('active');
+            let el = Array.from(document.querySelectorAll('nav li')).find(li => li.getAttribute('onclick').includes(id));
+            if (el) el.classList.add('active');
+
+            if (id === 'worldmap') loadWorldMapAdmin();
+            if (id === 'auditlogs') loadAuditLogs();
+        };
 
         // ── Load initial data ───────────────────────────────────────
         loadUsers();

@@ -12,66 +12,8 @@ window.WORLD_MAP  = [];
 // Interner Key / Terrain-Name → Dateiname in /terrains/ (ohne Extension)
 // WICHTIG: Map wird in Kleinbuchstaben normalisiert (toLowerCase) damit
 // sowohl 'Grasland' als auch 'grasland' aus world-data.js funktionieren.
-const TERRAIN_FILENAME_MAP_RAW = {
-    // ── Interne Weltkarten-Keys (englisch) ───────────────────────────────
-    ocean:     'Ozean',
-    grass:     'Grasland',
-    forest:    'Wald',
-    mountain:  'Grasgebirge',
-    desert:    'Wueste',
-    wasteland: 'Oedland',
-    player:    'Grasland',
-
-    // ── Deutsche Terrain-Namen ────────────────────────────────────────────
-    'brachfelsland':   'Brachfelsland',
-    'brachgebirge':    'Brachgebirge',
-    'brachhügel':      'Brachhuegel',
-    'brachland':       'Brachland',
-    'dschungel':       'Dschungel',
-    'eiswüste':        'Eiswueste',
-    'felsgebirge':     'Felsgebirge',
-    'grasfelsland':    'Grasfelsland',
-    'grasgebirge':     'Grasgebirge',
-    'grashügel':       'Grashuegel',
-    'grasland':        'Grasland',
-    'grünfelsland':    'Gruenfelsland',
-    'grüngebirge':     'Gruengebirge',
-    'grünhügel':       'Gruenhuegel',
-    'grünland':        'Gruenland',
-    'hochnebelwald':   'Hochnebelwald',
-    'ozean':           'Ozean',
-    'pampa':           'Pampa',
-    'pampafelsland':   'Pampafelsland',
-    'pampagebirge':    'Pampagebirge',
-    'plateau':         'Plateau',
-    'regenwald':       'Regenwald',
-    'sanddünen':       'Sandduenen',
-    'savanne':         'Savanne',
-    'savannenfelsland':'Savannenfelsland',
-    'savannengebirge': 'Savannengebirge',
-    'savannenhügel':   'Savannenhuegel',
-    'steppe':          'Steppe',
-    'steppfelsland':   'Steppfelsland',
-    'steppgebirge':    'Steppgebirge',
-    'stepphügel':      'Stepphuegel',
-    'sumpfland':       'Sumpfland',
-    'tropensumpf':     'Tropensumpf',
-    'wald':            'Wald',
-    'weidefelsland':   'Weidefelsland',
-    'weideland':       'Weideland',
-    'wüste':           'Wueste',
-    'ödfelsland':      'Oedfelsland',
-    'ödgebirge':       'Oedgebirge',
-    'ödhügel':         'Oedhuegel',
-    'ödland':          'Oedland',
-    'steinwüste':      'Steinwueste',
-};
-
-// Normalisierte Map (alle Keys lowercase) für robusten Lookup
-const TERRAIN_FILENAME_MAP = {};
-for (const [k, v] of Object.entries(TERRAIN_FILENAME_MAP_RAW)) {
-    TERRAIN_FILENAME_MAP[k.toLowerCase()] = v;
-}
+// Normalisierte Map wird im initWorldMap() dynamisch aufgebaut
+window.TERRAIN_FILENAME_MAP = {};
 
 const TERRAIN_IMG_BASE = '/terrains/';
 const TERRAIN_IMG_EXT  = '.gif';
@@ -104,10 +46,9 @@ function getTerrainBgImage(terrainKey) {
     const key = terrainKey.toLowerCase().trim();
     let filename;
 
-    if (Object.prototype.hasOwnProperty.call(TERRAIN_FILENAME_MAP, key)) {
-        filename = TERRAIN_FILENAME_MAP[key];
+    if (window.TERRAIN_FILENAME_MAP && Object.prototype.hasOwnProperty.call(window.TERRAIN_FILENAME_MAP, key)) {
+        filename = window.TERRAIN_FILENAME_MAP[key];
     } else {
-        // Fallback: Umlaute konvertieren
         filename = toTerrainFilename(terrainKey);
     }
 
@@ -126,7 +67,7 @@ function getTerrainBgImage(terrainKey) {
  */
 async function preloadTerrainImages() {
     const filenames = new Set(
-        Object.values(TERRAIN_FILENAME_MAP).filter(Boolean)
+        Object.values(window.TERRAIN_FILENAME_MAP || {}).filter(Boolean)
     );
 
     const promises = [...filenames].map(filename => new Promise(resolve => {
@@ -155,17 +96,40 @@ async function preloadTerrainImages() {
 // WELTKARTE
 // ─────────────────────────────────────────────────────────────────────────────
 
-function initWorldMap() {
-    console.log('🗺️ Lade statische Weltkarte...');
-    if (typeof window.FIXED_WORLD_MAP !== 'undefined') {
-        window.WORLD_MAP = window.FIXED_WORLD_MAP;
-        console.log('✅ Statische Weltkarte geladen');
-    } else {
-        console.error('⚠️ FIXED_WORLD_MAP nicht gefunden!');
+async function initWorldMap() {
+    console.log('🗺️ Lade Weltkarte und Terrains vom Server...');
+    try {
+        const terrainsResponse = await window.fetchWithAuth('/terrains') || await fetch('/terrains');
+        const terrains = await terrainsResponse.json();
+        
+        window.TERRAIN_TYPES = {};
+        window.TERRAIN_FILENAME_MAP = {};
+        
+        for (const t of terrains) {
+            window.TERRAIN_TYPES[t.name] = { ...t };
+            window.TERRAIN_TYPES[t.name.toLowerCase()] = { ...t };
+            if (t.gif_filename) {
+                window.TERRAIN_FILENAME_MAP[t.name.toLowerCase()] = t.gif_filename.replace('.gif', '');
+            }
+        }
+        
+        const mapResponse = await window.fetchWithAuth('/world/map') || await fetch('/world/map');
+        const mapData = await mapResponse.json();
+        
+        if (mapData && mapData.cells && mapData.cells.length > 0) {
+            window.WORLD_MAP = mapData.cells;
+            console.log('✅ Weltkarte geladen');
+        } else {
+            console.error('⚠️ Weltkarte leer oder fehlerhaft!');
+            window.WORLD_MAP = generateEmptyMap();
+        }
+    } catch (error) {
+        console.error('Fehler beim Laden der Weltkarte:', error);
         window.WORLD_MAP = generateEmptyMap();
     }
-
-    preloadTerrainImages().then(() => renderWorldMap());
+    
+    await preloadTerrainImages();
+    renderWorldMap();
 }
 
 function generateEmptyMap() {

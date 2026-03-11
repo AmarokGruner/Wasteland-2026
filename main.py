@@ -71,6 +71,14 @@ def require_admin(token: str):
         raise HTTPException(status_code=403, detail="Nicht autorisiert")
     return user
 
+def log_admin_action(conn, admin_id: int, action: str, target_type: str = None, target_id: str = None, payload: dict = None):
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO admin_logs (admin_id, action, target_type, target_id, payload) VALUES (?, ?, ?, ?, ?)",
+        (admin_id, action, target_type, target_id, json.dumps(payload or {}))
+    )
+    conn.commit()
+
 # ──────────────────────────────────────────────
 # AUTH ENDPOINTS
 # ──────────────────────────────────────────────
@@ -138,14 +146,31 @@ def admin_list_users(token: str):
 
 @app.post("/admin/users")
 def admin_create_user(token: str, req: UserCreate):
-    require_admin(token)
+    admin_user = require_admin(token)
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("INSERT INTO users(username, password_hash, role, player_id) VALUES (?,?,?,?)",
                 (req.username, hash_password(req.password), req.role, req.player_id))
+    new_id = cur.lastrowid
+    log_admin_action(conn, admin_user["id"], "create_user", "user", str(new_id), {"username": req.username, "role": req.role})
     conn.commit()
     conn.close()
     return {"ok": True}
+
+@app.get("/admin/log")
+def admin_get_logs(token: str, limit: int = 100):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT l.*, u.username as admin_name 
+        FROM admin_logs l 
+        LEFT JOIN users u ON l.admin_id = u.id 
+        ORDER BY l.timestamp DESC LIMIT ?
+    """, (limit,))
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
 
 # ──────────────────────────────────────────────
 # ADMIN: GEBÄUDE (gebaeude_typen)
@@ -524,6 +549,9 @@ class TerrainUpdate(BaseModel):
     beschreibung: Optional[str] = None
     bild_url: Optional[str] = None
     gebaeude_effektivitaet: Optional[str] = None
+    color: Optional[str] = None
+    icon: Optional[str] = None
+    playable: Optional[int] = None
 
 class TerrainCreate(TerrainUpdate):
     id: str
@@ -1185,5 +1213,367 @@ def get_player_resources(player_id: int, token: str):
     return rows
 
 # ──────────────────────────────────────────────
+# WORLD MAP & TERRAINS
+# ──────────────────────────────────────────────
+
+@app.get("/terrains")
+def get_public_terrains():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM terrain_typen ORDER BY name")
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    
+    for r in rows:
+        name_lower = r["name"].lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace(" ", "_")
+        r["gif_filename"] = f"terrain_{name_lower}.gif"
+        
+        for field in ["aufwertungen", "abwertungen", "gebaeude_effektivitaet"]:
+            if r.get(field):
+                try:
+                    r[field] = json.loads(r[field])
+                except Exception:
+                    r[field] = [] if field.endswith("ngen") else {}
+    return rows
+
+@app.get("/world/map")
+def get_public_world_map():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT w.x, w.y, t.name as terrain_name, w.owner_id
+        FROM world_map_cells w
+        LEFT JOIN terrain_typen t ON w.terrain_id = t.id
+        ORDER BY w.y, w.x
+    """)
+    rows = cur.fetchall()
+    conn.close()
+    
+    if not rows:
+        return {"size": 50, "cells": []}
+        
+    grid = [["Ozean" for _ in range(50)] for _ in range(50)]
+    for r in rows:
+        grid[r["y"]][r["x"]] = r["terrain_name"] or "Ozean"
+        
+    return {"size": 50, "cells": grid}
+
+@app.get("/world/map/full")
+def get_admin_world_map(token: str):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT w.x, w.y, w.terrain_id, w.owner_id, w.is_ruin_province, w.has_ocean_border,
+               t.name as terrain_name, t.color as terrain_color,
+               p.name as owner_name
+        FROM world_map_cells w
+        LEFT JOIN terrain_typen t ON w.terrain_id = t.id
+        LEFT JOIN players p ON w.owner_id = p.id
+        ORDER BY w.y, w.x
+    """)
+    rows = [row_to_dict(r) for r in cur.fetchall()]
+    conn.close()
+    return {"size": 50, "cells": rows}
+
+class WorldMapCellUpdate(BaseModel):
+    x: int
+    y: int
+    terrain_id: int
+
+class WorldMapBulkUpdate(BaseModel):
+    cells: List[WorldMapCellUpdate]
+
+class ImportStaticRequest(BaseModel):
+    map_data: List[List[str]]
+
+def recalc_ocean_borders_fast(cur):
+    cur.execute("SELECT id FROM terrain_typen WHERE name='Ozean'")
+    row = cur.fetchone()
+    if not row: return
+    ocean_id = row[0]
+    
+    cur.execute("UPDATE world_map_cells SET has_ocean_border = 0")
+    cur.execute("""
+        UPDATE world_map_cells SET has_ocean_border = 1
+        WHERE EXISTS (
+            SELECT 1 FROM world_map_cells o 
+            WHERE o.terrain_id = ? 
+            AND (
+                (o.x = world_map_cells.x - 1 AND o.y = world_map_cells.y) OR
+                (o.x = world_map_cells.x + 1 AND o.y = world_map_cells.y) OR
+                (o.x = world_map_cells.x AND o.y = world_map_cells.y - 1) OR
+                (o.x = world_map_cells.x AND o.y = world_map_cells.y + 1)
+            )
+        )
+    """, (ocean_id,))
+
+@app.patch("/admin/world/map/cell")
+def admin_update_map_cell(token: str, req: WorldMapCellUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE world_map_cells SET terrain_id=? WHERE x=? AND y=?", (req.terrain_id, req.x, req.y))
+    recalc_ocean_borders_fast(cur)
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+@app.post("/admin/world/map/cells/bulk")
+def admin_update_map_cells_bulk(token: str, req: WorldMapBulkUpdate):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    for cell in req.cells:
+        cur.execute("UPDATE world_map_cells SET terrain_id=? WHERE x=? AND y=?", (cell.terrain_id, cell.x, cell.y))
+    recalc_ocean_borders_fast(cur)
+    conn.commit()
+    conn.close()
+    return {"ok": True, "updated": len(req.cells)}
+
+@app.post("/admin/world/import-static")
+def admin_import_static_map(token: str, req: ImportStaticRequest):
+    require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    cur.execute("SELECT id, name FROM terrain_typen")
+    terrains = {row["name"]: row["id"] for row in cur.fetchall()}
+    terrains_lower = {k.lower(): v for k, v in terrains.items()}
+    fallback_ocean_id = terrains.get("Ozean", 1)
+    
+    imported = 0
+    for y, row in enumerate(req.map_data):
+        for x, cell_name in enumerate(row):
+            t_name = str(cell_name).strip()
+            if t_name.lower() == "player":
+                tid = terrains_lower.get("startposition") or terrains_lower.get("grasland", fallback_ocean_id)
+            else:
+                tid = terrains.get(t_name)
+                if not tid:
+                    tid = terrains_lower.get(t_name.lower())
+                if not tid:
+                    tid = terrains_lower.get("grasland", fallback_ocean_id)
+            
+            cur.execute("INSERT OR IGNORE INTO world_map_cells (x, y, terrain_id) VALUES (?, ?, ?)", (x, y, tid))
+            imported += 1
+            
+    recalc_ocean_borders_fast(cur)
+    conn.commit()
+    conn.close()
+    return {"ok": True, "imported": imported}
+
+# ──────────────────────────────────────────────
+# ADMIN WORLD GENERATION / CELL EDITING
+# ──────────────────────────────────────────────
+import random
+
+class WorldGenerateRequest(BaseModel):
+    width: int = 50
+    height: int = 50
+    seed: Optional[int] = None
+
+@app.post("/admin/world/generate")
+def admin_generate_world(token: str, req: WorldGenerateRequest):
+    admin_user = require_admin(token)
+    if req.width < 10 or req.width > 200 or req.height < 10 or req.height > 200:
+        raise HTTPException(status_code=400, detail="Ungültige Abmessungen (10-200)")
+        
+    if req.seed is not None:
+        random.seed(req.seed)
+        
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    cur.execute("SELECT id, name FROM terrain_typen")
+    terrains = {row["name"].lower(): row["id"] for row in cur.fetchall()}
+    
+    ozean_id = terrains.get("ozean", 1)
+    gras_id = terrains.get("grasland", 2)
+    wueste_id = terrains.get("wüste", 3)
+    oeland_id = terrains.get("ödland", 4)
+    gebirge_id = terrains.get("gebirge", 5)
+    wald_id = terrains.get("wald", 6)
+    
+    land_choices = [gras_id]*3 + [wueste_id]*2 + [oeland_id]*2 + [gebirge_id]*2 + [wald_id]*2
+    
+    cur.execute("DELETE FROM world_map_cells")
+    
+    cells = []
+    
+    for y in range(req.height):
+        for x in range(req.width):
+            if x == 0 or x == req.width - 1 or y == 0 or y == req.height - 1:
+                tid = ozean_id
+            else:
+                tid = random.choice(land_choices)
+                
+            cells.append((x, y, tid))
+            
+    cur.executemany("INSERT INTO world_map_cells (x, y, terrain_id) VALUES (?, ?, ?)", cells)
+    
+    recalc_ocean_borders_fast(cur)
+    
+    log_admin_action(conn, admin_user["id"], "generate_world", "world", None, {"width": req.width, "height": req.height, "seed": req.seed})
+    
+    conn.commit()
+    conn.close()
+    return {"ok": True, "generated_cells": len(cells)}
+
+class SetRuinRequest(BaseModel):
+    is_ruin: bool
+    preset_buildings: List[str] = []
+
+@app.post("/admin/world/province/{x}/{y}/ruins")
+def admin_set_province_ruin(x: int, y: int, token: str, req: SetRuinRequest):
+    admin_user = require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    preset_json = json.dumps(req.preset_buildings)
+    cur.execute("UPDATE world_map_cells SET is_ruin_province=?, preset_buildings=? WHERE x=? AND y=?", 
+                (int(req.is_ruin), preset_json, x, y))
+                
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Zelle nicht gefunden")
+        
+    log_admin_action(conn, admin_user["id"], "set_ruin", "world_map_cells", f"{x},{y}", {"is_ruin": req.is_ruin, "presets": req.preset_buildings})
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+    
+class AssignOwnerRequest(BaseModel):
+    player_id: Optional[int]
+
+@app.post("/admin/world/province/{x}/{y}/assign-owner")
+def admin_assign_owner(x: int, y: int, token: str, req: AssignOwnerRequest):
+    admin_user = require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    cur.execute("UPDATE world_map_cells SET owner_id=? WHERE x=? AND y=?", (req.player_id, x, y))
+    
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Zelle nicht gefunden")
+        
+    log_admin_action(conn, admin_user["id"], "assign_owner", "world_map_cells", f"{x},{y}", {"player_id": req.player_id})
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ADMIN PLAYER / PROVINCE OVERRIDES
+# ──────────────────────────────────────────────
+import datetime
+
+@app.post("/admin/player/{player_id}/reset")
+def admin_reset_player(player_id: int, token: str):
+    admin_user = require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    cur.execute("SELECT last_reset_at FROM players WHERE id=?", (player_id,))
+    row = cur.fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Spieler nicht gefunden")
+        
+    last_reset = row["last_reset_at"]
+    if last_reset:
+        try:
+            last_dt = datetime.datetime.fromisoformat(last_reset)
+            if (datetime.datetime.now() - last_dt).total_seconds() < 86400:
+                conn.close()
+                raise HTTPException(status_code=400, detail="Account kann nur einmal alle 24 Stunden zurückgesetzt werden.")
+        except:
+            pass
+            
+    try:
+        cur.execute("UPDATE players SET has_bunker=0, mips=0, tech_level=0, last_reset_at=CURRENT_TIMESTAMP WHERE id=?", (player_id,))
+    except sqlite3.OperationalError:
+        # Fallback if columns don't exist
+        cur.execute("UPDATE players SET last_reset_at=CURRENT_TIMESTAMP WHERE id=?", (player_id,))
+    
+    cur.execute("UPDATE world_map_cells SET owner_id=NULL WHERE owner_id=?", (player_id,))
+    cur.execute("DELETE FROM provinz_lager WHERE player_id=?", (player_id,))
+    
+    log_admin_action(conn, admin_user["id"], "reset_player", "player", str(player_id))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+class TechRequest(BaseModel):
+    tech_level: int
+
+@app.post("/admin/player/{player_id}/tech")
+def admin_set_player_tech(player_id: int, token: str, req: TechRequest):
+    admin_user = require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE players SET tech_level=? WHERE id=?", (req.tech_level, player_id))
+        if cur.rowcount == 0:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Spieler nicht gefunden")
+    except sqlite3.OperationalError:
+        pass
+        
+    log_admin_action(conn, admin_user["id"], "set_tech", "player", str(player_id), {"tech_level": req.tech_level})
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+class MipsRequest(BaseModel):
+    amount: float
+    province_id: Optional[int] = None
+
+@app.post("/admin/player/{player_id}/mips")
+def admin_give_player_mips(player_id: int, token: str, req: MipsRequest):
+    admin_user = require_admin(token)
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE players SET mips = mips + ? WHERE id=?", (req.amount, player_id))
+        if cur.rowcount == 0:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Spieler nicht gefunden")
+    except sqlite3.OperationalError:
+        pass
+        
+    log_admin_action(conn, admin_user["id"], "give_mips", "player", str(player_id), {"amount": req.amount, "province_id": req.province_id})
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+class ForceBuildRequest(BaseModel):
+    template_id: int
+    field_id: int
+
+@app.post("/admin/province/{x}/{y}/build")
+def admin_force_build(x: int, y: int, token: str, req: ForceBuildRequest):
+    admin_user = require_admin(token)
+    conn = get_connection()
+    
+    log_admin_action(conn, admin_user["id"], "force_build", "province", f"{x},{y}", {"template_id": req.template_id, "field_id": req.field_id})
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+class ForceEventRequest(BaseModel):
+    type: str
+    payload: dict
+
+@app.post("/admin/province/{x}/{y}/event")
+def admin_force_event(x: int, y: int, token: str, req: ForceEventRequest):
+    admin_user = require_admin(token)
+    conn = get_connection()
+    log_admin_action(conn, admin_user["id"], "force_event", "province", f"{x},{y}", {"type": req.type, "payload": req.payload})
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

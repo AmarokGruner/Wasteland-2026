@@ -161,6 +161,32 @@ def init_tables(conn):
         bautypen TEXT DEFAULT '[]', farbe_leer TEXT DEFAULT '#444',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
 
+    # Weltkarte Zellen
+    c.execute("""CREATE TABLE IF NOT EXISTS world_map_cells (
+        x INTEGER,
+        y INTEGER,
+        terrain_id INTEGER,
+        owner_id INTEGER,
+        is_ruin_province INTEGER DEFAULT 0,
+        preset_buildings TEXT DEFAULT '[]',
+        has_ocean_border INTEGER DEFAULT 0,
+        PRIMARY KEY (x, y),
+        FOREIGN KEY (terrain_id) REFERENCES terrain_typen(id),
+        FOREIGN KEY (owner_id) REFERENCES players(id)
+    )""")
+
+    # Admin Logs
+    c.execute("""CREATE TABLE IF NOT EXISTS admin_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        admin_id INTEGER,
+        action TEXT NOT NULL,
+        target_type TEXT,
+        target_id TEXT,
+        payload TEXT DEFAULT '{}',
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (admin_id) REFERENCES users(id)
+    )""")
+
     # Migrationen für bestehende Tabellen
     for col, defn in [
         ("vorkommen_effektivitaet", "TEXT DEFAULT '{}'"),
@@ -171,6 +197,12 @@ def init_tables(conn):
     ]:
         try: c.execute(f"ALTER TABLE gebaeude_typen ADD COLUMN {col} {defn}")
         except: pass
+
+    try: c.execute("ALTER TABLE players ADD COLUMN last_reset_at TIMESTAMP")
+    except: pass
+
+    try: c.execute("ALTER TABLE world_map_cells ADD COLUMN preset_buildings TEXT DEFAULT '[]'")
+    except: pass
 
     # Migrationen für Regierungsformen
     for col, defn in [
@@ -198,6 +230,15 @@ def init_tables(conn):
         ("malus_beschreibung", "TEXT DEFAULT ''"),
     ]:
         try: c.execute(f"ALTER TABLE regierungsformen ADD COLUMN {col} {defn}")
+        except: pass
+
+    # Migrationen für terrain_typen
+    for col, defn in [
+        ("color", "TEXT DEFAULT ''"),
+        ("icon", "TEXT DEFAULT ''"),
+        ("playable", "INTEGER DEFAULT 1"),
+    ]:
+        try: c.execute(f"ALTER TABLE terrain_typen ADD COLUMN {col} {defn}")
         except: pass
         
     for ft in [
