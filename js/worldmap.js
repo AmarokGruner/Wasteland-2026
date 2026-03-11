@@ -3,7 +3,7 @@
 // Stand: 2026-02-25
 
 const WORLD_SIZE = 50;
-window.WORLD_MAP  = [];
+window.WORLD_MAP = [];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TERRAIN-GRAFIK-KONFIGURATION
@@ -16,7 +16,7 @@ window.WORLD_MAP  = [];
 window.TERRAIN_FILENAME_MAP = {};
 
 const TERRAIN_IMG_BASE = '/terrains/';
-const TERRAIN_IMG_EXT  = '.gif';
+const TERRAIN_IMG_EXT = '.gif';
 
 // Cache: Dateiname → true (vorhanden) | false (nicht gefunden)
 const terrainImageCache = {};
@@ -71,21 +71,21 @@ async function preloadTerrainImages() {
     );
 
     const promises = [...filenames].map(filename => new Promise(resolve => {
-        const img    = new Image();
-        img.onload  = () => { terrainImageCache[filename] = true;  resolve(); };
+        const img = new Image();
+        img.onload = () => { terrainImageCache[filename] = true; resolve(); };
         img.onerror = () => { terrainImageCache[filename] = false; resolve(); };
-        img.src     = `${TERRAIN_IMG_BASE}${filename}${TERRAIN_IMG_EXT}`;
+        img.src = `${TERRAIN_IMG_BASE}${filename}${TERRAIN_IMG_EXT}`;
     }));
 
     await Promise.all(promises);
 
-    const loaded  = Object.values(terrainImageCache).filter(v => v === true).length;
+    const loaded = Object.values(terrainImageCache).filter(v => v === true).length;
     const missing = Object.values(terrainImageCache).filter(v => v === false).length;
     console.log(`🖼️ Terrain-Grafiken: ${loaded} geladen, ${missing} nicht gefunden (Farbfallback)`);
 
     if (missing > 0) {
         const missingList = Object.entries(terrainImageCache)
-            .filter(([,v]) => v === false)
+            .filter(([, v]) => v === false)
             .map(([k]) => k)
             .join(', ');
         console.log(`   ⚠️ Fehlende GIFs (Farbfallback aktiv): ${missingList}`);
@@ -99,12 +99,12 @@ async function preloadTerrainImages() {
 async function initWorldMap() {
     console.log('🗺️ Lade Weltkarte und Terrains vom Server...');
     try {
-        const terrainsResponse = await window.fetchWithAuth('/terrains') || await fetch('/terrains');
+        const terrainsResponse = await gameFetch('/terrains');
         const terrains = await terrainsResponse.json();
-        
+
         window.TERRAIN_TYPES = {};
         window.TERRAIN_FILENAME_MAP = {};
-        
+
         for (const t of terrains) {
             window.TERRAIN_TYPES[t.name] = { ...t };
             window.TERRAIN_TYPES[t.name.toLowerCase()] = { ...t };
@@ -112,10 +112,10 @@ async function initWorldMap() {
                 window.TERRAIN_FILENAME_MAP[t.name.toLowerCase()] = t.gif_filename.replace('.gif', '');
             }
         }
-        
-        const mapResponse = await window.fetchWithAuth('/world/map') || await fetch('/world/map');
+
+        const mapResponse = await gameFetch('/world/map');
         const mapData = await mapResponse.json();
-        
+
         if (mapData && mapData.cells && mapData.cells.length > 0) {
             window.WORLD_MAP = mapData.cells;
             console.log('✅ Weltkarte geladen');
@@ -127,7 +127,7 @@ async function initWorldMap() {
         console.error('Fehler beim Laden der Weltkarte:', error);
         window.WORLD_MAP = generateEmptyMap();
     }
-    
+
     await preloadTerrainImages();
     renderWorldMap();
 }
@@ -146,31 +146,31 @@ function renderWorldMap() {
     const container = document.getElementById('worldmap');
     container.innerHTML = '';
     container.style.gridTemplateColumns = `repeat(${WORLD_SIZE}, var(--cell-size))`;
-    container.style.gridTemplateRows    = `repeat(${WORLD_SIZE}, var(--cell-size))`;
+    container.style.gridTemplateRows = `repeat(${WORLD_SIZE}, var(--cell-size))`;
 
     for (let y = 0; y < WORLD_SIZE; y++) {
         for (let x = 0; x < WORLD_SIZE; x++) {
             const terrainKey = window.WORLD_MAP[y][x];
-            const cell       = document.createElement('div');
+            const cell = document.createElement('div');
 
-            cell.className         = `world-cell ${terrainKey}`;
-            cell.dataset.x         = x;
-            cell.dataset.y         = y;
-            cell.dataset.terrain   = terrainKey;
+            cell.className = `world-cell ${terrainKey}`;
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+            cell.dataset.terrain = terrainKey;
 
             // ── Terrain-Grafik (Grafik vorhanden → anzeigen, sonst CSS-Farbe)
             const bgImage = getTerrainBgImage(terrainKey);
             if (bgImage) {
-                cell.style.backgroundImage    = bgImage;
-                cell.style.backgroundSize     = 'cover';
-                cell.style.backgroundRepeat   = 'no-repeat';
+                cell.style.backgroundImage = bgImage;
+                cell.style.backgroundSize = 'cover';
+                cell.style.backgroundRepeat = 'no-repeat';
                 cell.style.backgroundPosition = 'center';
             }
 
             // ── Spieler-Marker
             if (terrainKey === 'player') {
                 cell.classList.add('player-cell');
-                const marker     = document.createElement('span');
+                const marker = document.createElement('span');
                 marker.className = 'player-marker';
                 marker.textContent = '🏠';
                 cell.appendChild(marker);
@@ -218,12 +218,12 @@ function selectWorldProvince(x, y) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 if (typeof window !== 'undefined') {
-    window.initWorldMap         = initWorldMap;
-    window.renderWorldMap       = renderWorldMap;
-    window.selectWorldProvince  = selectWorldProvince;
-    window.toTerrainFilename    = toTerrainFilename;
-    window.getTerrainBgImage    = getTerrainBgImage;
-    window.terrainImageCache    = terrainImageCache;
-    window.WORLD_SIZE           = WORLD_SIZE;
+    window.initWorldMap = initWorldMap;
+    window.renderWorldMap = renderWorldMap;
+    window.selectWorldProvince = selectWorldProvince;
+    window.toTerrainFilename = toTerrainFilename;
+    window.getTerrainBgImage = getTerrainBgImage;
+    window.terrainImageCache = terrainImageCache;
+    window.WORLD_SIZE = WORLD_SIZE;
     window.TERRAIN_FILENAME_MAP = TERRAIN_FILENAME_MAP;
 }

@@ -8,17 +8,11 @@ const APIBASE = window.location.protocol === 'https:'
 window.APIBASE = APIBASE;
 
 // Auth check on load
-const savedToken = localStorage.getItem('token');
-const savedPlayerId = localStorage.getItem('player_id');
-const savedUsername = localStorage.getItem('username');
-const savedRole = localStorage.getItem('role');
-
-if (!savedToken || !savedPlayerId) {
-  // Redirect to login if not authenticated
+if (!AuthService.getAccessToken()) {
   window.location.href = 'login.html';
 }
 
-window.currentPlayerId = savedPlayerId ? parseInt(savedPlayerId) : 1;
+window.currentPlayerId = AuthService.getPlayerId() ? parseInt(AuthService.getPlayerId()) : 1;
 window.currentView = 'world';
 window.selectedProvinceCoords = null;
 window.currentProvinzId = null;
@@ -30,34 +24,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Display user info
   const userDisplay = document.getElementById('user-display');
-  if (userDisplay && savedUsername) {
-    userDisplay.textContent = `👤 ${savedUsername}`;
+  if (userDisplay) {
+    userDisplay.textContent = `👤 ${AuthService.getUsername() || 'Spieler'}`;
   }
 
   loadResources();
   initWorldMap();
   loadResourceMap(); // Ressourcen-Namen laden
   switchView('world');
+
+  // Onboarding: Neuer Spieler → Welcome-Screen, bestehender → Tutorial prüfen
+  if (typeof window.checkOnboarding === 'function') {
+    checkOnboarding();
+  }
 });
 
 // Logout function
 function logout() {
-  const token = localStorage.getItem('token');
-  fetch(`${APIBASE}/auth/logout`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token })
-  }).finally(() => {
-    localStorage.clear();
-    window.location.href = 'login.html';
-  });
+  AuthService.logout();
 }
 
 // ── Spieler-Ressourcen laden ─────────────────────────────────
 async function loadResources() {
-  const token = localStorage.getItem('token');
+  const token = AuthService.getAccessToken();
   try {
-    const response = await fetch(`${APIBASE}/player/${window.currentPlayerId}/resources/total?token=${token}`);
+    const response = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/resources/total`);
     if (response.ok) {
       const data = await response.json();
       document.getElementById('iron-count').textContent = (data.iron || 0).toLocaleString('de-DE');
@@ -309,7 +300,7 @@ async function loadProvinceLager() {
 }
 
 async function nextTurn() {
-  const token = localStorage.getItem('token');
+  const token = AuthService.getAccessToken();
   console.log('⏳ Nächste Runde wird berechnet...');
   try {
     const response = await fetch(`${APIBASE}/player/${window.currentPlayerId}/resources/produce?token=${token}`, { method: 'POST' });
@@ -332,7 +323,7 @@ async function nextTurn() {
 }
 
 async function loadProductionOverview() {
-  const token = localStorage.getItem('token');
+  const token = AuthService.getAccessToken();
   const content = document.getElementById('production-content');
   if (!content) return;
   content.innerHTML = '<p style="color: var(--text-muted)">Lade Produktionsdaten...</p>';
@@ -390,7 +381,7 @@ async function loadProductionOverview() {
 // ── Zeit-System & Vorschau ───────────────────────────────────
 
 async function updateCreditDisplay() {
-  const token = localStorage.getItem('token');
+  const token = AuthService.getAccessToken();
   const display = document.getElementById('credit-hours');
   if (!display) return;
   try {
@@ -408,7 +399,7 @@ async function updateCreditDisplay() {
 }
 
 async function saveProvinceName() {
-  const token = localStorage.getItem('token');
+  const token = AuthService.getAccessToken();
   const input = document.getElementById('province-name-input');
   if (!input || !window.currentProvinzId) return;
   const newName = input.value.trim();
@@ -438,8 +429,7 @@ async function loadProvincePreview() {
 
   const hours = hoursSelect.value;
   content.innerHTML = `<p style="color: var(--text-muted)">Simuliere ${hours} Stunden...</p>`;
-
-  const token = localStorage.getItem('token');
+  const token = AuthService.getAccessToken();
   try {
     const url = `${APIBASE}/player/${window.currentPlayerId}/resources/produce?preview_only=true&hours=${hours}&token=${token}`;
     const res = await fetch(url, { method: 'POST' });
@@ -519,7 +509,7 @@ function renderPreviewReport(bericht, hours) {
 async function executeTurn(hours) {
   if (!confirm(`${hours} Stunden vorspulen? Dies verbraucht dein Zeitguthaben.`)) return;
 
-  const token = localStorage.getItem('token');
+  const token = AuthService.getAccessToken();
   try {
     const url = `${APIBASE}/player/${window.currentPlayerId}/resources/produce?hours=${hours}&token=${token}`;
     const res = await fetch(url, { method: 'POST' });
@@ -542,7 +532,7 @@ async function executeTurn(hours) {
 }
 
 async function loadResourceMap() {
-  const token = localStorage.getItem('token');
+  const token = AuthService.getAccessToken();
   try {
     const res = await fetch(`${APIBASE}/player/${window.currentPlayerId}/provinzen?token=${token}`);
     if (!res.ok) return;

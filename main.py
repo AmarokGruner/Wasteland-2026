@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from typing import List, Optional, Any, Union, Dict
 import sqlite3
@@ -8,6 +8,14 @@ import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, FileResponse
+import datetime
+from datetime import timedelta, timezone
+from jose import JWTError, jwt
+import bcrypt
+
+# Passlib/Bcrypt 4.0+ Compatibility Patch for Python 3.13
+if not hasattr(bcrypt, "__about__"):
+    bcrypt.__about__ = type('about', (object,), {'__version__': getattr(bcrypt, '__version__', '4.0.0')})
 
 DB_PATH = "verbrannte_zone.db"
 
@@ -48,19 +56,57 @@ app.mount("/css", StaticFiles(directory="css"), name="css")
 app.mount("/terrains", StaticFiles(directory="terrains"), name="terrains")
 
 # ──────────────────────────────────────────────
-# AUTH (simple token from localStorage)
+# AUTH (JWT & Hashing)
 # ──────────────────────────────────────────────
-import hashlib
+SECRET_KEY = "wasteland_ultra_secure_secret_2026" # In Production aus Env laden!
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 120
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
-SECRET_KEY = "wasteland_secret_2024"
+def verify_password(plain_password, hashed_password):
+    try:
+        if isinstance(plain_password, str):
+            plain_password = plain_password.encode('utf-8')
+        if isinstance(hashed_password, str):
+            hashed_password = hashed_password.encode('utf-8')
+        return bcrypt.checkpw(plain_password, hashed_password)
+    except Exception:
+        return False
 
-def hash_password(pw: str) -> str:
-    return hashlib.sha256(pw.encode()).hexdigest()
+def get_password_hash(password):
+    if isinstance(password, str):
+        password = password.encode('utf-8')
+    return bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.datetime.now(datetime.timezone.utc) + expires_delta
+    else:
+        expire = datetime.datetime.now(datetime.timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "type": "access"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def create_refresh_token(data: dict):
+    expire = datetime.datetime.now(datetime.timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode = data.copy()
+    to_encode.update({"exp": expire, "type": "refresh"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def get_token_user(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "access":
+            return None
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+    except JWTError:
+        return None
+    
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE token=?", (token,))
+    cur.execute("SELECT * FROM users WHERE username=?", (username,))
     row = cur.fetchone()
     conn.close()
     return dict(row) if row else None
@@ -86,35 +132,171 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
-class LogoutRequest(BaseModel):
-    token: str
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+    email: Optional[str] = None
 
-@app.post("/auth/login")
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    role: str
+    username: str
+    player_id: Optional[int]
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+@app.post("/auth/register", response_model=TokenResponse)
+def register(req: RegisterRequest):
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    # Check if user exists
+    cur.execute("SELECT id FROM users WHERE username=?", (req.username,))
+    if cur.fetchone():
+        conn.close()
+        raise HTTPException(status_code=400, detail="Benutzername bereits vergeben")
+    
+    # Create user
+    pw_hash = get_password_hash(req.password)
+    cur.execute(
+        "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+        (req.username, req.email, pw_hash)
+    )
+    user_id = cur.lastrowid
+    
+    # Create empty player profile
+    cur.execute("INSERT INTO players (name) VALUES (?)", (req.username,))
+    player_id = cur.lastrowid
+    cur.execute("UPDATE users SET player_id=? WHERE id=?", (player_id, user_id))
+    
+    conn.commit()
+    
+    access_token = create_access_token(data={"sub": req.username})
+    refresh_token = create_refresh_token(data={"sub": req.username})
+    
+    conn.close()
+    return {
+        "access_token": access_token, 
+        "refresh_token": refresh_token, 
+        "role": "player", 
+        "username": req.username, 
+        "player_id": player_id
+    }
+
+class ForgotPasswordRequest(BaseModel):
+    username: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+@app.post("/auth/login", response_model=TokenResponse)
 def login(req: LoginRequest):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM users WHERE username=?", (req.username,))
     user = cur.fetchone()
-    if not user or user["password_hash"] != hash_password(req.password):
+    if not user or not verify_password(req.password, user["password_hash"]):
         conn.close()
         raise HTTPException(status_code=401, detail="Ungültige Anmeldedaten")
-    token = hashlib.sha256(f"{user['id']}{SECRET_KEY}{req.username}".encode()).hexdigest()
-    cur.execute("UPDATE users SET token=? WHERE id=?", (token, user["id"]))
+    
+    # Check if banned
+    if user["role"] == "banned":
+        conn.close()
+        raise HTTPException(status_code=403, detail="Account gesperrt")
+        
+    # Update last login
+    cur.execute("UPDATE users SET last_login=CURRENT_TIMESTAMP WHERE id=?", (user["id"],))
     conn.commit()
     conn.close()
-    user_dict = dict(user)
-    return {"token": token, "role": user_dict["role"], "username": user_dict["username"], "player_id": user_dict.get("player_id")}
+    
+    access_token = create_access_token(data={"sub": user["username"]})
+    refresh_token = create_refresh_token(data={"sub": user["username"]})
+    
+    return {
+        "access_token": access_token, 
+        "refresh_token": refresh_token, 
+        "role": user["role"], 
+        "username": user["username"], 
+        "player_id": user["player_id"]
+    }
 
-@app.post("/auth/logout")
-def logout(req: LogoutRequest):
+@app.post("/auth/refresh", response_model=TokenResponse)
+def refresh(req: RefreshRequest):
+    try:
+        payload = jwt.decode(req.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "refresh":
+             raise HTTPException(status_code=401, detail="Ungültiger Refresh-Token")
+        username: str = payload.get("sub")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="JWT Error")
+    
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE users SET token=NULL WHERE token=?", (req.token,))
+    cur.execute("SELECT * FROM users WHERE username=?", (username,))
+    user = cur.fetchone()
+    conn.close()
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Benutzer nicht gefunden")
+    
+    access_token = create_access_token(data={"sub": user["username"]})
+    refresh_token = create_refresh_token(data={"sub": user["username"]})
+    
+    return {
+        "access_token": access_token, 
+        "refresh_token": refresh_token, 
+        "role": user["role"], 
+        "username": user["username"], 
+        "player_id": user["player_id"]
+    }
+
+@app.post("/auth/logout")
+def logout():
+    return {"ok": True}
+
+@app.post("/auth/forgot-password")
+def forgot_password(req: ForgotPasswordRequest):
+    import secrets
+    token = secrets.token_urlsafe(32)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE users SET reset_token=?, reset_token_expires=? WHERE username=?",
+        (token, (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat(), req.username)
+    )
+    conn.commit()
+    conn.close()
+    # In reality, send email. Here, we'll just log it.
+    print(f"DEBUG: Password reset token for {req.username}: {token}")
+    return {"ok": True, "message": "Falls der Account existiert, wurde ein Reset-Token generiert."}
+
+@app.post("/auth/reset-password")
+def reset_password(req: ResetPasswordRequest):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE reset_token=?", (req.token,))
+    user = cur.fetchone()
+    if not user:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Ungültiger Token")
+    
+    expires = datetime.fromisoformat(user["reset_token_expires"])
+    if datetime.now(timezone.utc) > expires.replace(tzinfo=timezone.utc):
+        conn.close()
+        raise HTTPException(status_code=400, detail="Token abgelaufen")
+    
+    pw_hash = get_password_hash(req.new_password)
+    cur.execute(
+        "UPDATE users SET password_hash=?, reset_token=NULL, reset_token_expires=NULL WHERE id=?",
+        (pw_hash, user["id"])
+    )
     conn.commit()
     conn.close()
     return {"ok": True}
-
-@app.get("/auth/me")
 def me(token: str):
     user = get_token_user(token)
     if not user:
@@ -136,7 +318,7 @@ def admin_list_users(token: str):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        SELECT u.id, u.username, u.role, u.player_id, u.created_at,
+        SELECT u.id, u.username, u.email, u.role, u.player_id, u.created_at, u.last_login,
                p.name as player_name
         FROM users u LEFT JOIN players p ON u.player_id = p.id ORDER BY u.id
     """)
@@ -150,7 +332,7 @@ def admin_create_user(token: str, req: UserCreate):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("INSERT INTO users(username, password_hash, role, player_id) VALUES (?,?,?,?)",
-                (req.username, hash_password(req.password), req.role, req.player_id))
+                (req.username, get_password_hash(req.password), req.role, req.player_id))
     new_id = cur.lastrowid
     log_admin_action(conn, admin_user["id"], "create_user", "user", str(new_id), {"username": req.username, "role": req.role})
     conn.commit()
@@ -1573,6 +1755,189 @@ def admin_force_event(x: int, y: int, token: str, req: ForceEventRequest):
     conn.commit()
     conn.close()
     return {"ok": True}
+
+# ──────────────────────────────────────────────
+# ONBOARDING & SPAWN
+# ──────────────────────────────────────────────
+
+# Startressourcen: (ressource_id, menge)
+STARTRESSOURCEN = [
+    (18, 500),   # Getreide
+    (2,  500),   # Wasser
+    (67, 200),   # Bauholz
+    (4,  100),   # Stein
+]
+
+def assign_start_province(player_id: int, conn):
+    """
+    Sucht eine freie Startgelände-Zelle, weist sie dem Spieler zu,
+    legt eine Provinz an, befüllt das Lager mit Startressourcen
+    und platziert den Bunker auf Feld (15,15).
+    Gibt { world_x, world_y, provinz_id } zurück.
+    """
+    cur = conn.cursor()
+
+    # 1. Alle Startgelände-Terrain-IDs ermitteln
+    cur.execute("SELECT id FROM terrain_typen WHERE startgebiet = 1")
+    start_terrain_ids = [r[0] for r in cur.fetchall()]
+    if not start_terrain_ids:
+        raise HTTPException(status_code=500, detail="Keine Startgelände in der Datenbank definiert!")
+
+    placeholders = ",".join("?" * len(start_terrain_ids))
+
+    # 2. Alle besetzten Zellen (owner_id IS NOT NULL) für Mindestabstand
+    cur.execute("SELECT x, y FROM world_map_cells WHERE owner_id IS NOT NULL")
+    occupied = [(r[0], r[1]) for r in cur.fetchall()]
+
+    # 3. Freie Startzellen laden
+    cur.execute(
+        f"SELECT x, y FROM world_map_cells WHERE terrain_id IN ({placeholders}) AND owner_id IS NULL",
+        start_terrain_ids
+    )
+    candidates = [(r[0], r[1]) for r in cur.fetchall()]
+    if not candidates:
+        raise HTTPException(status_code=503, detail="Keine freien Startfelder verfügbar!")
+
+    # 4. Zelle mit Mindestabstand 5 bevorzugen
+    MIN_DIST = 5
+    def min_dist(cx, cy):
+        if not occupied:
+            return 999
+        return min(abs(cx - ox) + abs(cy - oy) for ox, oy in occupied)
+
+    good = [c for c in candidates if min_dist(*c) >= MIN_DIST]
+    chosen = (good or candidates)[0]  # Fallback auf nächstbeste
+    wx, wy = chosen
+
+    # 5. Zelle dem Spieler zuweisen
+    cur.execute("UPDATE world_map_cells SET owner_id=? WHERE x=? AND y=?", (player_id, wx, wy))
+
+    # Terrain-Name für Provinz ermitteln
+    cur.execute("""
+        SELECT t.name FROM world_map_cells wmc
+        JOIN terrain_typen t ON wmc.terrain_id = t.id
+        WHERE wmc.x=? AND wmc.y=?
+    """, (wx, wy))
+    terrain_row = cur.fetchone()
+    terrain_name = terrain_row[0] if terrain_row else "Grasland"
+
+    # 6. Provinz anlegen
+    cur.execute("""
+        INSERT INTO provinzen (player_id, world_x, world_y, name, terrain)
+        VALUES (?, ?, ?, ?, ?)
+    """, (player_id, wx, wy, f"Startprovinz ({wx},{wy})", terrain_name))
+    prov_id = cur.lastrowid
+
+    # 7. Startressourcen ins Lager legen
+    for res_id, menge in STARTRESSOURCEN:
+        # Nur eintragen wenn Ressource in DB vorhanden
+        cur.execute("SELECT id FROM ressourcen WHERE id=?", (res_id,))
+        if cur.fetchone():
+            cur.execute("""
+                INSERT INTO provinz_lager (provinz_id, ressource_id, menge)
+                VALUES (?, ?, ?)
+                ON CONFLICT (provinz_id, ressource_id) DO UPDATE SET menge = menge + excluded.menge
+            """, (prov_id, res_id, menge))
+
+    # 8. Startgebäude (Bunker, id=1) auf Feld (15,15)
+    cur.execute("SELECT id FROM gebaeude_typen WHERE id=1")
+    if cur.fetchone():
+        cur.execute("""
+            INSERT OR IGNORE INTO provinz_gebaeude (provinz_id, gebaeude_typ_id, x, y, stufe)
+            VALUES (?, 1, 15, 15, 1)
+        """, (prov_id,))
+
+    # 9. spawn_count hochzählen
+    cur.execute("UPDATE players SET spawn_count = spawn_count + 1 WHERE id=?", (player_id,))
+
+    return {"world_x": wx, "world_y": wy, "provinz_id": prov_id}
+
+
+@app.post("/player/{player_id}/spawn")
+def spawn_start_province(player_id: int, token: str):
+    """Weist dem Spieler automatisch seine erste Startprovinz zu."""
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Missbrauchsschutz: Nur 1 Spawn erlaubt
+    try:
+        cur.execute("SELECT spawn_count FROM players WHERE id=?", (player_id,))
+        row = cur.fetchone()
+        if not row:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Spieler nicht gefunden")
+        if row["spawn_count"] and row["spawn_count"] >= 1:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Startprovinz wurde bereits generiert. Nutze 'Neu anfangen' (Account-Reset).")
+    except sqlite3.OperationalError:
+        pass  # Spalte existiert noch nicht → Migration wurde nicht ausgeführt
+
+    try:
+        result = assign_start_province(player_id, conn)
+
+        # Tutorial-Schritt auf 0 setzen
+        try:
+            cur.execute("UPDATE users SET tutorial_step=0 WHERE player_id=?", (player_id,))
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert noch nicht
+
+        conn.commit()
+        conn.close()
+        return {"ok": True, **result}
+    except HTTPException:
+        conn.rollback()
+        conn.close()
+        raise
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=500, detail=f"Spawn fehlgeschlagen: {str(e)}")
+
+
+@app.get("/player/{player_id}/tutorial")
+def get_tutorial_step(player_id: int, token: str):
+    """Gibt den aktuellen Tutorial-Schritt des Spielers zurück."""
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT tutorial_step FROM users WHERE player_id=?", (player_id,))
+        row = cur.fetchone()
+    except sqlite3.OperationalError:
+        row = None
+    conn.close()
+    step = row["tutorial_step"] if row and row["tutorial_step"] is not None else -1
+    return {"tutorial_step": step}
+
+
+@app.post("/player/{player_id}/tutorial/advance")
+def advance_tutorial(player_id: int, token: str):
+    """Setzt den Tutorial-Schritt um 1 vor."""
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE users SET tutorial_step = tutorial_step + 1 WHERE player_id=?",
+            (player_id,)
+        )
+        cur.execute("SELECT tutorial_step FROM users WHERE player_id=?", (player_id,))
+        row = cur.fetchone()
+        conn.commit()
+        conn.close()
+        step = row["tutorial_step"] if row else 99
+        return {"ok": True, "tutorial_step": step}
+    except sqlite3.OperationalError:
+        conn.close()
+        return {"ok": True, "tutorial_step": 99}
 
 
 if __name__ == "__main__":

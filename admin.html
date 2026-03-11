@@ -356,6 +356,7 @@
             <li onclick="showSection('players')">Spieler</li>
             <li onclick="showSection('worldmap')">Weltkarte</li>
             <li onclick="showSection('auditlogs')">Logs</li>
+            <li onclick="AuthService.logout()" style="color: var(--danger); cursor: pointer;">Abmelden</li>
         </ul>
     </nav>
 
@@ -954,35 +955,48 @@
         </div>
     </div>
 
+    <script src="js/auth-service.js"></script>
     <script>
-        const APIBASE = window.location.protocol === 'https:'
-            ? `https://${window.location.host}`
-            : 'http://localhost:8000';
+        const APIBASE = ""; // Relative calls
 
-        let token = localStorage.getItem('token');
+        // Initial Auth Check
+        const token = AuthService.getAccessToken();
+        const role = AuthService.getRole();
+
+        if (!token || role !== 'admin') {
+            window.location.href = 'login.html';
+        }
+
+        // Helper for all admin calls
+        async function adminFetch(url, options = {}) {
+            const res = await AuthService.fetch(url, options);
+            if (res.status === 401 || res.status === 403) {
+                alert("Sitzung abgelaufen oder keine Rechte.");
+                AuthService.logout();
+            }
+            return res;
+        }
+
         let RESOURCES = [];
         let TERRAINS = [];
         let BUILDINGS = [];
 
-        // ── Auth guard ──────────────────────────────────────────────
-        if (!token) { window.location.href = 'login.html'; }
-        if (localStorage.getItem('role') !== 'admin') { window.location.href = 'index.html'; }
-        document.getElementById('adminName').textContent = localStorage.getItem('username') || 'Admin';
+        document.getElementById('adminName').textContent = AuthService.getUsername() || 'Admin';
 
         // ── Load lists from DB for dropdowns ────────────────
         async function loadDropdownData() {
             try {
-                const resR = await fetch(`${APIBASE}/admin/ressourcen?token=${token}`);
+                const resR = await adminFetch(`${APIBASE}/admin/ressourcen?token=${token}`);
                 if (resR.ok) {
                     const data = await resR.json();
                     RESOURCES = data.map(r => r.name).filter(Boolean).sort();
                 }
-                const resT = await fetch(`${APIBASE}/admin/terrain?token=${token}`);
+                const resT = await adminFetch(`${APIBASE}/admin/terrain?token=${token}`);
                 if (resT.ok) {
                     const data = await resT.json();
                     TERRAINS = data.map(t => t.name).filter(Boolean).sort();
                 }
-                const resB = await fetch(`${APIBASE}/admin/buildings?token=${token}`);
+                const resB = await adminFetch(`${APIBASE}/admin/buildings?token=${token}`);
                 if (resB.ok) {
                     const data = await resB.json();
                     BUILDINGS = data.map(b => b.name).filter(Boolean).sort();
@@ -1290,7 +1304,7 @@
                     ? `${APIBASE}/admin/${endpoint}/${id}?token=${token}`
                     : `${APIBASE}/admin/${endpoint}?token=${token}`;
                 const method = mode === 'edit' ? 'PUT' : 'POST';
-                const res = await fetch(url, {
+                const res = await adminFetch(url, {
                     method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
@@ -1315,7 +1329,7 @@
                 return;
             }
             try {
-                const res = await fetch(`${APIBASE}/admin/${config.endpoint}/${id}?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/${config.endpoint}/${id}?token=${token}`);
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 const data = await res.json();
                 openGenericModal('edit', type, data);
@@ -1330,7 +1344,7 @@
             const config = entityConfig[type];
             const endpoint = config ? config.endpoint : type;
             try {
-                const res = await fetch(`${APIBASE}/admin/${endpoint}/${id}?token=${token}`, { method: 'DELETE' });
+                const res = await adminFetch(`${APIBASE}/admin/${endpoint}/${id}?token=${token}`, { method: 'DELETE' });
                 if (res.ok) { loadSectionData(type); }
                 else { alert('Fehler beim Löschen'); }
             } catch { alert('Verbindungsfehler'); }
@@ -1365,7 +1379,7 @@
         // ── USERS ───────────────────────────────────────────────────
         async function loadUsers() {
             try {
-                const res = await fetch(`${APIBASE}/admin/users?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/users?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const users = await res.json();
                 document.getElementById('usersTable').innerHTML = users.map(u => `
@@ -1393,7 +1407,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             try {
-                const res = await fetch(`${APIBASE}/admin/users?token=${token}`, {
+                const res = await adminFetch(`${APIBASE}/admin/users?token=${token}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1415,7 +1429,7 @@
         // ── BUILDINGS ───────────────────────────────────────────────
         async function loadBuildings() {
             try {
-                const res = await fetch(`${APIBASE}/admin/buildings?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/buildings?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const buildings = await res.json();
                 document.getElementById('buildingsTable').innerHTML = buildings.map(b => `
@@ -1440,7 +1454,7 @@
 
         async function editBuilding(id) {
             try {
-                const res = await fetch(`${APIBASE}/admin/buildings/${id}?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/buildings/${id}?token=${token}`);
                 const building = await res.json();
                 if (!building) return;
                 const form = document.getElementById('editBuildingForm');
@@ -1619,7 +1633,7 @@
             const formData = new FormData(e.target);
             const buildingId = formData.get('building_id');
             try {
-                const res = await fetch(`${APIBASE}/admin/buildings/${buildingId}?token=${token}`, {
+                const res = await adminFetch(`${APIBASE}/admin/buildings/${buildingId}?token=${token}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1654,7 +1668,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             try {
-                const res = await fetch(`${APIBASE}/admin/buildings?token=${token}`, {
+                const res = await adminFetch(`${APIBASE}/admin/buildings?token=${token}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1677,7 +1691,7 @@
         async function deleteBuilding(id) {
             if (!confirm('Gebäude wirklich löschen?')) return;
             try {
-                const res = await fetch(`${APIBASE}/admin/buildings/${id}?token=${token}`, { method: 'DELETE' });
+                const res = await adminFetch(`${APIBASE}/admin/buildings/${id}?token=${token}`, { method: 'DELETE' });
                 if (res.ok) { loadBuildings(); }
                 else { alert('Fehler beim Löschen'); }
             } catch { alert('Verbindungsfehler'); }
@@ -1686,7 +1700,7 @@
         // ── Section loaders ─────────────────────────────────────────
         async function loadRessourcen() {
             try {
-                const res = await fetch(`${APIBASE}/admin/ressourcen?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/ressourcen?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const data = await res.json();
                 document.getElementById('ressourcenTable').innerHTML = data.map(r => `
@@ -1705,7 +1719,7 @@
 
         async function loadVorkommen() {
             try {
-                const res = await fetch(`${APIBASE}/admin/vorkommen?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/vorkommen?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const data = await res.json();
                 document.getElementById('vorkommenTable').innerHTML = data.map(v => `
@@ -1722,7 +1736,7 @@
 
         async function loadGebaeudeFelder() {
             try {
-                const res = await fetch(`${APIBASE}/admin/gebaeude_felder?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/gebaeude_felder?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const data = await res.json();
                 document.getElementById('gebaeude_felderTable').innerHTML = data.map(t => `
@@ -1740,7 +1754,7 @@
 
         async function loadTerrain() {
             try {
-                const res = await fetch(`${APIBASE}/admin/terrain?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/terrain?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const data = await res.json();
                 document.getElementById('terrainTable').innerHTML = data.map(t => `
@@ -1758,7 +1772,7 @@
 
         async function loadArtikel() {
             try {
-                const res = await fetch(`${APIBASE}/admin/artikel?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/artikel?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const data = await res.json();
                 document.getElementById('artikelTable').innerHTML = data.map(a => `
@@ -1775,7 +1789,7 @@
 
         async function loadEinheiten() {
             try {
-                const res = await fetch(`${APIBASE}/admin/einheiten?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/einheiten?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const data = await res.json();
                 document.getElementById('einheitenTable').innerHTML = data.map(e => `
@@ -1792,7 +1806,7 @@
 
         async function loadLebewesen() {
             try {
-                const res = await fetch(`${APIBASE}/admin/lebewesen?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/lebewesen?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const data = await res.json();
                 document.getElementById('lebewesenTable').innerHTML = data.map(l => `
@@ -1809,7 +1823,7 @@
 
         async function loadRegierungsformen() {
             try {
-                const res = await fetch(`${APIBASE}/admin/regierungsformen?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/regierungsformen?token=${token}`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const data = await res.json();
                 document.getElementById('regierungsformenTable').innerHTML = data.map(r => `
@@ -1849,7 +1863,7 @@
 
         async function loadWorldMapAdmin() {
             try {
-                const resT = await fetch(`${APIBASE}/admin/terrain?token=${token}`);
+                const resT = await adminFetch(`${APIBASE}/admin/terrain?token=${token}`);
                 if (!resT.ok) throw new Error("Terrains konnten nicht geladen werden");
                 const terrains = await resT.json();
 
@@ -1867,7 +1881,7 @@
 
                 if (terrains.length > 0) selectAdminTerrain(terrains[0].id);
 
-                const resM = await fetch(`${APIBASE}/world/map/full?token=${token}`);
+                const resM = await adminFetch(`${APIBASE}/world/map/full?token=${token}`);
                 if (!resM.ok) throw new Error("Weltkarte konnte nicht geladen werden");
                 const mapData = await resM.json();
 
@@ -1935,7 +1949,7 @@
             } else if (activeMapTool === 'ruin') {
                 const presetsInput = document.getElementById('ruinPresets').value.split(',').map(s => s.trim()).filter(Boolean);
                 try {
-                    const res = await fetch(`${APIBASE}/admin/world/province/${x}/${y}/ruins?token=${token}`, {
+                    const res = await adminFetch(`${APIBASE}/admin/world/province/${x}/${y}/ruins?token=${token}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ is_ruin: true, preset_buildings: presetsInput })
@@ -1946,7 +1960,7 @@
             } else if (activeMapTool === 'owner') {
                 const player_id = document.getElementById('assignOwnerId').value;
                 try {
-                    const res = await fetch(`${APIBASE}/admin/world/province/${x}/${y}/assign-owner?token=${token}`, {
+                    const res = await adminFetch(`${APIBASE}/admin/world/province/${x}/${y}/assign-owner?token=${token}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ player_id: player_id || null })
@@ -1958,7 +1972,7 @@
                 const b_id = document.getElementById('forceBuildId').value;
                 if (!b_id) return alert("Gebäude ID erforderlich");
                 try {
-                    const res = await fetch(`${APIBASE}/admin/province/${x}/${y}/build?token=${token}`, {
+                    const res = await adminFetch(`${APIBASE}/admin/province/${x}/${y}/build?token=${token}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ building_id: parseInt(b_id) })
@@ -1970,7 +1984,7 @@
                 const e_type = document.getElementById('forceEventType').value;
                 if (!e_type) return alert("Event Typ erforderlich");
                 try {
-                    const res = await fetch(`${APIBASE}/admin/province/${x}/${y}/event?token=${token}`, {
+                    const res = await adminFetch(`${APIBASE}/admin/province/${x}/${y}/event?token=${token}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ event_type: e_type })
@@ -1991,7 +2005,7 @@
             if (!mapHasChanges) return;
             const cellsToUpdate = Object.values(mapEdits);
             try {
-                const res = await fetch(`${APIBASE}/admin/world/map/cells/bulk?token=${token}`, {
+                const res = await adminFetch(`${APIBASE}/admin/world/map/cells/bulk?token=${token}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cells: cellsToUpdate })
@@ -2023,7 +2037,7 @@
             }
 
             try {
-                const res = await fetch(`${APIBASE}/admin/world/import-static?token=${token}`, {
+                const res = await adminFetch(`${APIBASE}/admin/world/import-static?token=${token}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ map_data: window.FIXED_WORLD_MAP })
@@ -2049,7 +2063,7 @@
             const seed = document.getElementById('genMapSeed').value || null;
             document.getElementById('mapStatus').textContent = "Generiere...";
             try {
-                const res = await fetch(`${APIBASE}/admin/world/generate?token=${token}`, {
+                const res = await adminFetch(`${APIBASE}/admin/world/generate?token=${token}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ width: parseInt(w), height: parseInt(h), seed: seed ? parseInt(seed) : null })
@@ -2071,7 +2085,7 @@
             if (!pid) return alert("Spieler ID erforderlich");
             if (!confirm(`Account Reset für Spieler ${pid} wirklich ausführen?`)) return;
             try {
-                const res = await fetch(`${APIBASE}/admin/player/${pid}/reset?token=${token}`, { method: 'POST' });
+                const res = await adminFetch(`${APIBASE}/admin/player/${pid}/reset?token=${token}`, { method: 'POST' });
                 if (res.ok) alert("Account zurückgesetzt");
                 else { const err = await res.json(); alert(err.detail || "Fehler"); }
             } catch (e) { alert(e); }
@@ -2082,7 +2096,7 @@
             const tech = document.getElementById('playerAdminTech').value;
             if (!pid || !tech) return alert("Spieler ID und Tech-Level erforderlich");
             try {
-                const res = await fetch(`${APIBASE}/admin/player/${pid}/tech?token=${token}`, {
+                const res = await adminFetch(`${APIBASE}/admin/player/${pid}/tech?token=${token}`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ tech_level: parseInt(tech) })
                 });
@@ -2096,7 +2110,7 @@
             const amt = document.getElementById('playerAdminMips').value;
             if (!pid || !amt) return alert("Spieler ID und amount erforderlich");
             try {
-                const res = await fetch(`${APIBASE}/admin/player/${pid}/mips?token=${token}`, {
+                const res = await adminFetch(`${APIBASE}/admin/player/${pid}/mips?token=${token}`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ amount: parseFloat(amt) })
                 });
@@ -2108,7 +2122,7 @@
         // ── AUDIT LOGS ──────────────────────────────────────────────
         async function loadAuditLogs() {
             try {
-                const res = await fetch(`${APIBASE}/admin/log?token=${token}`);
+                const res = await adminFetch(`${APIBASE}/admin/log?token=${token}`);
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 document.getElementById('auditlogsTable').innerHTML = data.map(l => `
