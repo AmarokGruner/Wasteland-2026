@@ -1407,8 +1407,7 @@ def get_public_terrains():
     conn.close()
     
     for r in rows:
-        name_lower = r["name"].lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace(" ", "_")
-        r["gif_filename"] = f"terrain_{name_lower}.gif"
+        r["gif_filename"] = (r.get("bild_url") or "").replace("/terrains/", "")
         
         for field in ["aufwertungen", "abwertungen", "gebaeude_effektivitaet"]:
             if r.get(field):
@@ -1447,7 +1446,7 @@ def get_admin_world_map(token: str):
     cur = conn.cursor()
     cur.execute("""
         SELECT w.x, w.y, w.terrain_id, w.owner_id, w.is_ruin_province, w.has_ocean_border,
-               t.name as terrain_name, t.color as terrain_color,
+               t.name as terrain_name, t.color as terrain_color, t.bild_url,
                p.name as owner_name
         FROM world_map_cells w
         LEFT JOIN terrain_typen t ON w.terrain_id = t.id

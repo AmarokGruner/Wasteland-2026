@@ -22,9 +22,9 @@
     });
   }
 
-  // fetch citytiles for province 1 (token from localStorage or query param)
-  const token = (typeof AuthService !== 'undefined') ? AuthService.getAccessToken() : (typeof localStorage !== 'undefined' ? (localStorage.getItem('access_token') || localStorage.getItem('token')) : '');
-  fetch(`/province/1/citytiles${token ? '?token=' + token : ''}`)
+  // fetch citytiles for province 1
+  const fetchFn = (typeof gameFetch !== 'undefined') ? gameFetch : fetch;
+  fetchFn(`/province/1/citytiles`)
     .then(r => r.json())
     .then(data => {
       if(!data || !data.citytiles) return;

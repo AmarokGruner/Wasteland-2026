@@ -23,12 +23,11 @@
 
   // ── Haupt-Einstiegspunkt ─────────────────────────────────────
   async function checkOnboarding() {
-    const token = AuthService.getAccessToken();
     const playerId = window.currentPlayerId;
-    if (!token || !playerId) return;
+    if (!playerId) return;
 
     try {
-      const res = await fetch(`${APIBASE}/player/${playerId}/provinzen?token=${token}`);
+      const res = await gameFetch(`${APIBASE}/player/${playerId}/provinzen`);
       if (!res.ok) return;
       const data = await res.json();
       const provinzen = data.provinzen || [];
@@ -64,7 +63,7 @@
     if (btn) { btn.disabled = true; btn.textContent = 'Starte...'; }
 
     try {
-      const res = await fetch(`${APIBASE}/player/${playerId}/spawn?token=${token}`, {
+      const res = await gameFetch(`${APIBASE}/player/${playerId}/spawn`, {
         method: 'POST'
       });
       const data = await res.json();
@@ -90,9 +89,9 @@
   }
 
   // ── Tutorial ─────────────────────────────────────────────────
-  async function checkTutorial(token, playerId) {
+  async function checkTutorial(playerId) {
     try {
-      const res = await fetch(`${APIBASE}/player/${playerId}/tutorial?token=${token}`);
+      const res = await gameFetch(`${APIBASE}/player/${playerId}/tutorial`);
       if (!res.ok) return;
       const data = await res.json();
       const step = data.tutorial_step;
@@ -138,11 +137,10 @@
   }
 
   async function advanceTutorial() {
-    const token = AuthService.getAccessToken();
     const playerId = window.currentPlayerId;
 
     try {
-      const res = await fetch(`${APIBASE}/player/${playerId}/tutorial/advance?token=${token}`, {
+      const res = await gameFetch(`${APIBASE}/player/${playerId}/tutorial/advance`, {
         method: 'POST'
       });
       const data = await res.json();
