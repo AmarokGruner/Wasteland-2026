@@ -23,7 +23,7 @@
   }
 
   // fetch citytiles for province 1 (token from localStorage or query param)
-  const token = (typeof localStorage !== 'undefined') ? localStorage.getItem('token') : '';
+  const token = (typeof AuthService !== 'undefined') ? AuthService.getAccessToken() : (typeof localStorage !== 'undefined' ? (localStorage.getItem('access_token') || localStorage.getItem('token')) : '');
   fetch(`/province/1/citytiles${token ? '?token=' + token : ''}`)
     .then(r => r.json())
     .then(data => {

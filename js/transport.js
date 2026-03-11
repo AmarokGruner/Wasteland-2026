@@ -28,9 +28,8 @@ async function loadTransportView() {
 
     try {
         // 1. Eigenes Lager laden
-        const token = localStorage.getItem('token');
-        const lagerUrl = `${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/lager?token=${token}`;
-        const lagerRes = await fetch(lagerUrl);
+        const lagerUrl = `${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/lager`;
+        const lagerRes = await gameFetch(lagerUrl);
         if (!lagerRes.ok) throw new Error(`Lager: HTTP ${lagerRes.status}`);
         const lagerData = await lagerRes.json();
 
@@ -54,8 +53,8 @@ async function loadTransportView() {
             });
 
         // 2. Alle Provinzen für Ziel-Dropdown laden
-        const provUrl = `${window.APIBASE}/player/${window.currentPlayerId}/provinzen?token=${token}`;
-        const provRes = await fetch(provUrl);
+        const provUrl = `${window.APIBASE}/player/${window.currentPlayerId}/provinzen`;
+        const provRes = await gameFetch(provUrl);
         if (!provRes.ok) throw new Error(`Provinzen: HTTP ${provRes.status}`);
         const provData = await provRes.json();
 
@@ -178,9 +177,8 @@ async function onTransportTargetChange() {
     targetList.innerHTML = '<p style="color:var(--text-muted)">Lade Ziel-Lager...</p>';
 
     try {
-        const token = localStorage.getItem('token');
-        const url = `${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${zielId}/lager?token=${token}`;
-        const res = await fetch(url);
+        const url = `${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${zielId}/lager`;
+        const res = await gameFetch(url);
         if (!res.ok) throw new Error(`Ziel-Lager: HTTP ${res.status}`);
         const data = await res.json();
 
@@ -251,9 +249,8 @@ async function sendTransport() {
     }
 
     try {
-        const token = localStorage.getItem('token');
-        const url = `${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/transport?token=${token}`;
-        const res = await fetch(url, {
+        const url = `${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/transport`;
+        const res = await gameFetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

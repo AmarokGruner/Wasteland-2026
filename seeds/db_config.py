@@ -18,6 +18,22 @@ def get_connection():
 
 def init_tables(conn):
     c = conn.cursor()
+    # Benutzer (JWT-basiert)
+    c.execute("""CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'player',
+        player_id INTEGER,
+        last_login TIMESTAMP,
+        reset_token TEXT,
+        reset_token_expires TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (player_id) REFERENCES players(id)
+    )""")
+
     # Gebäude-Typen
     c.execute("""CREATE TABLE IF NOT EXISTS gebaeude_typen (
         id INTEGER PRIMARY KEY, name TEXT NOT NULL,
@@ -240,6 +256,17 @@ def init_tables(conn):
     ]:
         try: c.execute(f"ALTER TABLE terrain_typen ADD COLUMN {col} {defn}")
         except: pass
+
+    # Migrationen für users
+    for col, defn in [
+        ("email", "TEXT UNIQUE"),
+        ("last_login", "TIMESTAMP"),
+        ("reset_token", "TEXT"),
+        ("reset_token_expires", "TIMESTAMP"),
+        ("updated_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"),
+    ]:
+        try: c.execute(f"ALTER TABLE users ADD COLUMN {col} {defn}")
+        except: pass
         
     for ft in [
         ("gebaeude",    "Gebäudefeld",    "Landfeld",      30, 1, '["Land"]',         "#5a7a3a"),
@@ -252,6 +279,12 @@ def init_tables(conn):
         c.execute("INSERT OR IGNORE INTO provinz_feldtypen "
                   "(id,name,beschreibung,groesse_px,ist_baubar,bautypen,farbe_leer) VALUES (?,?,?,?,?,?,?)", ft)
     conn.commit()
+
+if __name__ == "__main__":
+    conn = get_connection()
+    init_tables(conn)
+    conn.close()
+    print("Database initialization/migration complete.")
 
 def save_entity(c, table, data, id_field="id"):
     """Universelle Hilfsfunktion zum Speichern (INSERT/UPDATE)."""
