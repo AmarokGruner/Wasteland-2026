@@ -15,6 +15,9 @@ import bcrypt
 from sqlalchemy.orm import Session
 from app.models import SessionLocal, Player as DBPlayer
 from app.round_logic import simulate_round, apply_round
+from app.tick_logic import run_tick
+from apscheduler.schedulers.background import BackgroundScheduler
+from contextlib import asynccontextmanager
 
 # Passlib/Bcrypt 4.0+ Compatibility Patch for Python 3.13
 if not hasattr(bcrypt, "__about__"):
@@ -30,7 +33,26 @@ def get_connection():
 def row_to_dict(row):
     return dict(row)
 
-app = FastAPI(title="Verbrannte Zone API")
+# --- Scheduler Setup ---
+scheduler = BackgroundScheduler()
+
+def scheduled_tick():
+    db = SessionLocal()
+    try:
+        run_tick(db)
+    finally:
+        db.close()
+
+# Start scheduler on startup
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Pass 1-hour interval for game ticks
+    scheduler.add_job(scheduled_tick, 'interval', hours=1, id='server_tick_job')
+    scheduler.start()
+    yield
+    scheduler.shutdown()
+
+app = FastAPI(title="Verbrannte Zone API", lifespan=lifespan)
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
@@ -1995,6 +2017,54 @@ def spool_province_round(province_id: int, req: SpoolRequest, token: str = None)
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        db.close()
+
+
+# ──────────────────────────────────────────────
+# ADMIN: TICK ENGINE
+# ──────────────────────────────────────────────
+
+@app.get("/admin/ticks")
+def admin_get_ticks(token: str, limit: int = 50):
+    require_admin(token)
+    db = SessionLocal()
+    try:
+        from app.models import TickLog
+        logs = db.query(TickLog).order_by(TickLog.timestamp.desc()).limit(limit).all()
+        return logs
+    finally:
+        db.close()
+
+@app.post("/admin/ticks/force")
+def admin_force_tick(token: str):
+    require_admin(token)
+    db = SessionLocal()
+    try:
+        success = run_tick(db)
+        if success:
+            return {"ok": True, "message": "Tick erfolgreich ausgeführt"}
+        else:
+            return {"ok": False, "message": "Tick läuft bereits oder Fehler aufgetreten"}
+    finally:
+        db.close()
+
+@app.get("/admin/ticks/status")
+def admin_get_tick_status(token: str):
+    require_admin(token)
+    db = SessionLocal()
+    try:
+        from app.models import SystemLock, TickLog
+        lock = db.query(SystemLock).filter(SystemLock.task_name == "server_tick").first()
+        last_log = db.query(TickLog).order_by(TickLog.timestamp.desc()).first()
+        
+        return {
+            "is_running": bool(lock.is_running) if lock else False,
+            "last_run": lock.last_run if lock else None,
+            "error_count": lock.error_count if lock else 0,
+            "last_tick_duration": last_log.duration_ms if last_log else None,
+            "last_tick_status": last_log.status if last_log else None
+        }
     finally:
         db.close()
 

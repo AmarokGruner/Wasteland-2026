@@ -74,6 +74,22 @@ class ProvinceLager(Base):
     province = relationship("Province", back_populates="lager")
     resource = relationship("Resource")
 
+class SystemLock(Base):
+    __tablename__ = 'system_locks'
+    task_name = Column(String, primary_key=True)
+    is_running = Column(Integer, default=0)
+    last_run = Column(DateTime)
+    error_count = Column(Integer, default=0)
+
+class TickLog(Base):
+    __tablename__ = 'tick_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(DateTime, server_default=func.now())
+    duration_ms = Column(Integer)
+    status = Column(Integer) # 1=Success, 0=Failed
+    provinces_processed = Column(Integer)
+    details = Column(String)
+
 # Engine setup
 engine = create_engine('sqlite:///verbrannte_zone.db')
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
