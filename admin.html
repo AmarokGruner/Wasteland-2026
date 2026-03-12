@@ -355,6 +355,7 @@
             <li onclick="showSection('gebaeude_felder')">Felder</li>
             <li onclick="showSection('players')">Spieler</li>
             <li onclick="showSection('worldmap')">Weltkarte</li>
+            <li onclick="showSection('ticks')">Tick-Engine</li>
             <li onclick="showSection('auditlogs')">Logs</li>
             <li onclick="AuthService.logout()" style="color: var(--danger); cursor: pointer;">Abmelden</li>
         </ul>
@@ -766,6 +767,47 @@
                             <!-- Cells injected via JS -->
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Tick Engine Section -->
+        <section id="ticksSection" class="section">
+            <div class="card">
+                <h2>Tick-Engine Status</h2>
+                <div id="tickStatusDetail" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="card" style="background: var(--bg-dark); margin-bottom: 0;">
+                        <h3 style="font-size: 14px; margin-bottom: 10px;">Aktueller Status</h3>
+                        <p>Zustand: <span id="tickEngineState">Lade...</span></p>
+                        <p>Letzter Run: <span id="tickLastRun">Lade...</span></p>
+                        <p>Fehlerzähler: <span id="tickErrorCount">0</span></p>
+                    </div>
+                    <div class="card" style="background: var(--bg-dark); margin-bottom: 0;">
+                        <h3 style="font-size: 14px; margin-bottom: 10px;">Letzter Tick</h3>
+                        <p>Dauer: <span id="tickLastDuration">-</span> ms</p>
+                        <p>Status: <span id="tickLastStatus">-</span></p>
+                        <button class="btn btn-primary" style="margin-top: 10px;" onclick="forceTick()">Manuellen Tick erzwingen</button>
+                    </div>
+                </div>
+                
+                <h3>Tick Historie</h3>
+                <div style="margin-top: 10px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zeitstempel</th>
+                                <th>Dauer (ms)</th>
+                                <th>Provinzen</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticksTable">
+                            <tr>
+                                <td colspan="5" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -2160,7 +2202,55 @@
 
             if (id === 'worldmap') loadWorldMapAdmin();
             if (id === 'auditlogs') loadAuditLogs();
+            if (id === 'ticks') loadTickEngine();
         };
+
+        // ── TICK ENGINE ─────────────────────────────────────────────
+        async function loadTickEngine() {
+            try {
+                // 1. Load Status
+                const statusRes = await adminFetch(`${APIBASE}/admin/ticks/status?token=${token}`);
+                if (statusRes.ok) {
+                    const s = await statusRes.json();
+                    document.getElementById('tickEngineState').textContent = s.is_running ? 'LÄUFT' : 'BEEIT';
+                    document.getElementById('tickEngineState').style.color = s.is_running ? 'var(--accent)' : 'var(--success)';
+                    document.getElementById('tickLastRun').textContent = s.last_run ? new Date(s.last_run).toLocaleString() : 'Nie';
+                    document.getElementById('tickErrorCount').textContent = s.error_count;
+                    document.getElementById('tickLastDuration').textContent = s.last_tick_duration || '-';
+                    document.getElementById('tickLastStatus').textContent = s.last_tick_status === 1 ? 'ERFOLG' : (s.last_tick_status === 0 ? 'FEHLER' : '-');
+                    document.getElementById('tickLastStatus').style.color = s.last_tick_status === 1 ? 'var(--success)' : 'var(--danger)';
+                }
+
+                // 2. Load History
+                const historyRes = await adminFetch(`${APIBASE}/admin/ticks?token=${token}`);
+                if (historyRes.ok) {
+                    const data = await historyRes.json();
+                    document.getElementById('ticksTable').innerHTML = data.map(t => `
+                        <tr>
+                            <td>${new Date(t.timestamp).toLocaleString()}</td>
+                            <td>${t.duration_ms}</td>
+                            <td>${t.provinces_processed}</td>
+                            <td style="color: ${t.status === 1 ? 'var(--success)' : 'var(--danger)'}">${t.status === 1 ? 'OK' : 'FEHLER'}</td>
+                            <td style="font-size: 11px; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title='${t.details}'>${t.details}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('ticksTable').innerHTML = '<tr><td colspan="5">Fehler beim Laden der Historie.</td></tr>';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function forceTick() {
+            if (!confirm("Manuellen Tick wirklich erzwingen?")) return;
+            try {
+                const res = await adminFetch(`${APIBASE}/admin/ticks/force?token=${token}`, { method: 'POST' });
+                const d = await res.json();
+                alert(d.message);
+                loadTickEngine();
+            } catch (e) { alert(e); }
+        }
 
         // ── Load initial data ───────────────────────────────────────
         loadUsers();
