@@ -5,11 +5,11 @@ Three hardcoded JS files drive the world map – disconnected from DB:
 
 | File | Content | Problem |
 |---|---|---|
-| world-data-2.js | FIXED_WORLD_MAP[50][50] hardcoded JS array | Cannot be edited without code deploy |
-| terrain-types-4.js | TERRAIN_TYPES{} color/icon/playable only | Missing regen_pct, gebaeude_effektivitaet, aufwertungen |
-| worldmap-3.js | TERRAIN_FILENAME_MAP (name→gif) | Maintained separately from DB |
+| world-data.js | FIXED_WORLD_MAP[50][50] hardcoded JS array | Cannot be edited without code deploy |
+| terrain-types.js | TERRAIN_TYPES{} color/icon/playable only | Missing regen_pct, gebaeude_effektivitaet, aufwertungen |
+| worldmap.js | TERRAIN_FILENAME_MAP (name→gif) | Maintained separately from DB |
 
-seed_terrains-6.py → DB table "terrain_typen" contains the REAL data:
+seed_terrains.py → DB table "terrain_typen" contains the REAL data:
   id, name, startgebiet, regen_pct, aufwertungen, abwertungen,
   beschreibung, gebaeude_effektivitaet{building_name: pct}
 → Frontend currently IGNORES this table completely
@@ -41,14 +41,14 @@ WorldMapCell: x(int), y(int), terrain_id(FK terrain_typen.id),
 
 ```
 POST /admin/world/import-static
-  Reads FIXED_WORLD_MAP from hardcoded Python dict (copy of world-data-2.js)
+  Reads FIXED_WORLD_MAP from hardcoded Python dict (copy of world-data.js)
   Maps string names to terrain_typen.id via name lookup
   Inserts into world_map_cells (skip existing)
   Sets has_ocean_border = True for cells adjacent to Ozean
   → {"imported": 2500, "skipped": 0}
 ```
 
-## 3. Backend: Terrain API (replaces terrain-types-4.js)
+## 3. Backend: Terrain API (replaces terrain-types.js)
 
 ```
 GET /terrains
@@ -56,11 +56,11 @@ GET /terrains
     beschreibung, gebaeude_effektivitaet{name:pct},
     aufwertungen[str], abwertungen[str], gif_filename}]
 
-# gif_filename: computed from name using same umlaut-replace logic as worldmap-3.js
-# color: new field in terrain_typen, seeded from terrain-types-4.js values
+# gif_filename: computed from name using same umlaut-replace logic as worldmap.js
+# color: new field in terrain_typen, seeded from terrain-types.js values
 ```
 
-## 4. Backend: World Map API (replaces world-data-2.js)
+## 4. Backend: World Map API (replaces world-data.js)
 
 ```
 GET /world/map
@@ -81,7 +81,7 @@ POST /world/map/cells/bulk (admin only)
   → updates multiple cells in one transaction
 ```
 
-## 5. Frontend Migration (worldmap-3.js + terrain-types-4.js)
+## 5. Frontend Migration (worldmap.js + terrain-types.js)
 
 ```javascript
 // REMOVE: hardcoded FIXED_WORLD_MAP, TERRAIN_TYPES, TERRAIN_FILENAME_MAP
@@ -197,7 +197,7 @@ PATCH /admin/terrains/{id} {"regen_pct":int, "gebaeude_effektivitaet":{...}, ...
 ## 8. Backend Endpoints Summary
 
 ```
-GET  /terrains                    → all terrain types (replaces terrain-types-4.js)
+GET  /terrains                    → all terrain types (replaces terrain-types.js)
 GET  /terrains/{id}               → single terrain with full gebaeude list
 PATCH /admin/terrains/{id}        → update terrain properties (admin)
 
@@ -212,9 +212,9 @@ POST /admin/world/import-static   → one-time migration from hardcoded data
 ```
 1. Add world_map_cells table + run POST /admin/world/import-static
 2. Deploy GET /terrains + GET /world/map endpoints
-3. Update worldmap-3.js: async initWorldMap() using APIs
-4. Update terrain-types-4.js: remove hardcoded data (keep as empty fallback)
-5. Remove world-data-2.js from index.html script tags (dead file)
+3. Update worldmap.js: async initWorldMap() using APIs
+4. Update terrain-types.js: remove hardcoded data (keep as empty fallback)
+5. Remove world-data.js from index.html script tags (dead file)
 6. Deploy Admin editor canvas
 7. Verify: admin paints cell → player sees change on next page load
 ```

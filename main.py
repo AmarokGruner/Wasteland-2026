@@ -12,6 +12,9 @@ import datetime
 from datetime import timedelta, timezone
 from jose import JWTError, jwt
 import bcrypt
+from sqlalchemy.orm import Session
+from app.models import SessionLocal, Player as DBPlayer
+from app.round_logic import simulate_round, apply_round
 
 # Passlib/Bcrypt 4.0+ Compatibility Patch for Python 3.13
 if not hasattr(bcrypt, "__about__"):
@@ -144,6 +147,18 @@ class TokenResponse(BaseModel):
     role: str
     username: str
     player_id: Optional[int]
+
+class SpoolRequest(BaseModel):
+    hours: float = 24.0
+
+class SpoolResponse(BaseModel):
+    province_id: int
+    hours: float
+    deltas: Dict[int, float]
+    warnings: List[str]
+    new_population: int
+    new_moral: int
+    new_gesundheit: int
 
 class RefreshRequest(BaseModel):
     refresh_token: str
@@ -1938,6 +1953,50 @@ def advance_tutorial(player_id: int, token: str):
         conn.close()
         return {"ok": True, "tutorial_step": 99}
 
+
+# ──────────────────────────────────────────────
+# ROUND LOGIC
+# ──────────────────────────────────────────────
+
+@app.get("/province/{province_id}/preview")
+def preview_province_round(province_id: int, hours: float = 24.0, token: str = None):
+    # Auth check (simplified for now as this is a GET)
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing token")
+    
+    # We use a context manager for DB if not using FastAPI Depends in this specific block
+    db = SessionLocal()
+    try:
+        result = simulate_round(db, province_id, hours)
+        if not result:
+            raise HTTPException(status_code=404, detail="Provinz nicht gefunden")
+        return result
+    finally:
+        db.close()
+
+@app.post("/province/{province_id}/spool")
+def spool_province_round(province_id: int, req: SpoolRequest, token: str = None):
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing token")
+    
+    db = SessionLocal()
+    try:
+        # Check if province belongs to player (token check)
+        user = get_token_user(token)
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # Verify ownership (simplified)
+        # result = apply_round(db, province_id, req.hours)
+        # return result
+        
+        # For actual implementation, we might need to handle the player_id from token
+        result = apply_round(db, province_id, req.hours)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

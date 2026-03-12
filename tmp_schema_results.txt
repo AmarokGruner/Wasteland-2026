@@ -1,0 +1,233 @@
+
+=== Table: users ===
+  id (INTEGER)
+  username (TEXT)
+  password_hash (TEXT)
+  role (TEXT)
+  player_id (INTEGER)
+  created_at (TIMESTAMP)
+  token (TEXT)
+  last_login (TIMESTAMP)
+  reset_token (TEXT)
+  reset_token_expires (TIMESTAMP)
+  tutorial_step (INTEGER)
+  email (TEXT)
+
+  SQL:
+  CREATE TABLE users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'player',
+            player_id INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, token TEXT, last_login TIMESTAMP, reset_token TEXT, reset_token_expires TIMESTAMP, tutorial_step INTEGER DEFAULT -1, email TEXT,
+            FOREIGN KEY (player_id) REFERENCES players(id)
+        )
+
+=== Table: players ===
+  id (INTEGER)
+  name (TEXT)
+  iron (INTEGER)
+  steel (INTEGER)
+  fuel (INTEGER)
+  last_turn_timestamp (TIMESTAMP)
+  created_at (TIMESTAMP)
+  last_reset_at (TIMESTAMP)
+  spawn_count (INTEGER)
+
+  SQL:
+  CREATE TABLE players (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                iron INTEGER DEFAULT 0,
+                steel INTEGER DEFAULT 0,
+                fuel INTEGER DEFAULT 0
+            , last_turn_timestamp TIMESTAMP DEFAULT '2026-02-27 00:00:00', created_at TIMESTAMP DEFAULT '2026-02-27 00:00:00', last_reset_at TIMESTAMP, spawn_count INTEGER DEFAULT 0)
+
+=== Table: provinzen ===
+  id (INTEGER)
+  player_id (INTEGER)
+  world_x (INTEGER)
+  world_y (INTEGER)
+  name (TEXT)
+  created_at (TIMESTAMP)
+  terrain (TEXT)
+
+  SQL:
+  CREATE TABLE provinzen (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player_id INTEGER NOT NULL,
+        world_x INTEGER NOT NULL,
+        world_y INTEGER NOT NULL,
+        name TEXT DEFAULT '',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, terrain TEXT DEFAULT 'Grasland',
+        UNIQUE(world_x, world_y),
+        FOREIGN KEY (player_id) REFERENCES players(id))
+
+=== Table: provinz_gebaeude ===
+  id (INTEGER)
+  provinz_id (INTEGER)
+  gebaeude_typ_id (INTEGER)
+  x (INTEGER)
+  y (INTEGER)
+  stufe (INTEGER)
+  created_at (TIMESTAMP)
+
+  SQL:
+  CREATE TABLE provinz_gebaeude (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            provinz_id INTEGER NOT NULL,
+            gebaeude_typ_id INTEGER NOT NULL,
+            x INTEGER NOT NULL,
+            y INTEGER NOT NULL,
+            stufe INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(provinz_id) REFERENCES provinzen(id),
+            FOREIGN KEY(gebaeude_typ_id) REFERENCES gebaeude_typen(id)
+        )
+
+=== Table: provinz_lager ===
+  id (INTEGER)
+  provinz_id (INTEGER)
+  ressource_id (INTEGER)
+  menge (INTEGER)
+  updated_at (TIMESTAMP)
+
+  SQL:
+  CREATE TABLE provinz_lager (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        provinz_id INTEGER NOT NULL,
+        ressource_id INTEGER NOT NULL,
+        menge INTEGER NOT NULL DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(provinz_id, ressource_id),
+        FOREIGN KEY (provinz_id) REFERENCES provinzen(id),
+        FOREIGN KEY (ressource_id) REFERENCES ressourcen(id))
+
+=== Table: gebaeude_typen ===
+  id (INTEGER)
+  name (TEXT)
+  symbol_emoji (TEXT)
+  symbol_url (TEXT)
+  bild_url (TEXT)
+  kategorie (TEXT)
+  bautyp (TEXT)
+  baubar (INTEGER)
+  ausbaubar (INTEGER)
+  unique_gebaeude (INTEGER)
+  nur_kueste (INTEGER)
+  ist_feld (INTEGER)
+  tech_level (INTEGER)
+  baukosten_mips (INTEGER)
+  ausbaukosten_mips (INTEGER)
+  energiebedarf (INTEGER)
+  arbeiter (INTEGER)
+  zusatzarbeiter_pro_stufe (INTEGER)
+  wohnraum (INTEGER)
+  zusatzwohnraum_pro_stufe (INTEGER)
+  lagerkapazitaet (INTEGER)
+  beschreibung (TEXT)
+  rohstoffbedarf_bau (TEXT)
+  rohstoffgrundbedarf_ausbau (TEXT)
+  rohstoffverbrauch (TEXT)
+  produktion (TEXT)
+  terrain_effektivitaet (TEXT)
+  vorkommen_effektivitaet (TEXT)
+  spezial_eigenschaften (TEXT)
+  schlachtfeld (TEXT)
+  created_at (TIMESTAMP)
+  updated_at (TIMESTAMP)
+
+  SQL:
+  CREATE TABLE gebaeude_typen (
+        id INTEGER PRIMARY KEY, name TEXT NOT NULL,
+        symbol_emoji TEXT DEFAULT '', symbol_url TEXT DEFAULT '', bild_url TEXT DEFAULT '',
+        kategorie TEXT DEFAULT '', bautyp TEXT DEFAULT 'Land',
+        baubar INTEGER DEFAULT 1, ausbaubar INTEGER DEFAULT 0,
+        unique_gebaeude INTEGER DEFAULT 0, nur_kueste INTEGER DEFAULT 0, ist_feld INTEGER DEFAULT 0,
+        tech_level INTEGER DEFAULT 0, baukosten_mips INTEGER DEFAULT 0,
+        ausbaukosten_mips INTEGER DEFAULT 0, energiebedarf INTEGER DEFAULT 0,
+        arbeiter INTEGER DEFAULT 0, zusatzarbeiter_pro_stufe INTEGER DEFAULT 0,
+        wohnraum INTEGER DEFAULT 0, zusatzwohnraum_pro_stufe INTEGER DEFAULT 0,
+        lagerkapazitaet INTEGER DEFAULT 0, beschreibung TEXT DEFAULT '',
+        rohstoffbedarf_bau TEXT DEFAULT '[]', rohstoffgrundbedarf_ausbau TEXT DEFAULT '[]',
+        rohstoffverbrauch TEXT DEFAULT '[]', produktion TEXT DEFAULT '[]',
+        terrain_effektivitaet TEXT DEFAULT '{}', vorkommen_effektivitaet TEXT DEFAULT '{}',
+        spezial_eigenschaften TEXT DEFAULT '{}', schlachtfeld TEXT DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+
+=== Table: ressourcen ===
+  id (INTEGER)
+  name (TEXT)
+  typ (TEXT)
+  wert (INTEGER)
+  verbrauch (INTEGER)
+  platzbedarf (INTEGER)
+  created_at (TIMESTAMP)
+  updated_at (TIMESTAMP)
+  produktionswert (INTEGER)
+  platz_land (INTEGER)
+  platz_wasser (INTEGER)
+  platz_luft (INTEGER)
+  verbraucht_von (TEXT)
+  produziert_von (TEXT)
+  beschreibung (TEXT)
+
+  SQL:
+  CREATE TABLE ressourcen (
+        id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, typ TEXT NOT NULL,
+        wert INTEGER DEFAULT 0, verbrauch INTEGER DEFAULT 0, platzbedarf INTEGER DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, produktionswert INTEGER DEFAULT 0, platz_land INTEGER DEFAULT 1, platz_wasser INTEGER DEFAULT 1, platz_luft INTEGER DEFAULT 1, verbraucht_von TEXT DEFAULT "[]", produziert_von TEXT DEFAULT "[]", beschreibung TEXT DEFAULT "")
+
+=== Table: terrain_typen ===
+  id (INTEGER)
+  name (TEXT)
+  startgebiet (INTEGER)
+  regen_pct (INTEGER)
+  aufwertungen (TEXT)
+  abwertungen (TEXT)
+  beschreibung (TEXT)
+  bild_url (TEXT)
+  gebaeude_effektivitaet (TEXT)
+  created_at (TIMESTAMP)
+  updated_at (TIMESTAMP)
+  color (TEXT)
+  icon (TEXT)
+  playable (INTEGER)
+
+  SQL:
+  CREATE TABLE terrain_typen (
+        id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
+        startgebiet INTEGER DEFAULT 0,
+        regen_pct INTEGER DEFAULT 0,
+        aufwertungen TEXT DEFAULT '[]',
+        abwertungen TEXT DEFAULT '[]',
+        beschreibung TEXT DEFAULT '',
+        bild_url TEXT DEFAULT '',
+        gebaeude_effektivitaet TEXT DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, color TEXT DEFAULT '', icon TEXT DEFAULT '', playable INTEGER DEFAULT 1)
+
+=== Table: world_map_cells ===
+  x (INTEGER)
+  y (INTEGER)
+  terrain_id (INTEGER)
+  owner_id (INTEGER)
+  is_ruin_province (INTEGER)
+  has_ocean_border (INTEGER)
+  preset_buildings (TEXT)
+
+  SQL:
+  CREATE TABLE world_map_cells (
+        x INTEGER,
+        y INTEGER,
+        terrain_id INTEGER,
+        owner_id INTEGER,
+        is_ruin_province INTEGER DEFAULT 0,
+        has_ocean_border INTEGER DEFAULT 0, preset_buildings TEXT DEFAULT '[]',
+        PRIMARY KEY (x, y),
+        FOREIGN KEY (terrain_id) REFERENCES terrain_typen(id),
+        FOREIGN KEY (owner_id) REFERENCES players(id)
+    )
