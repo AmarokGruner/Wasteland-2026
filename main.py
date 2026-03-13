@@ -13,9 +13,10 @@ from datetime import timedelta, timezone
 from jose import JWTError, jwt
 import bcrypt
 from sqlalchemy.orm import Session
-from app.models import SessionLocal, Player as DBPlayer
+from app.models import SessionLocal, Player as DBPlayer, Province, BuildingType, BuildingInstance
 from app.round_logic import simulate_round, apply_round
 from app.tick_logic import run_tick
+from app import building_logic
 from apscheduler.schedulers.background import BackgroundScheduler
 from contextlib import asynccontextmanager
 
@@ -410,9 +411,16 @@ class BuildingCreate(BuildingUpdate):
 
 # --- Spiel-Modelle ---
 class PlaceBuildingRequest(BaseModel):
-    building_type: str
+    template_id: int
     x: int
     y: int
+
+class BuildRequest(BaseModel):
+    template_id: int
+    position: int # Used as 'x' or an index if preferred, spec says position
+
+class UpgradeRequest(BaseModel):
+    instance_id: int
 
 class UpgradeBuildingRequest(BaseModel):
     building_x: int
@@ -1289,60 +1297,132 @@ def claim_province(player_id: int, token: str, req: ClaimProvinceRequest):
     conn.close()
     return {"ok": True, "provinz": {"id": prov_id}}
 
-@app.post("/player/{player_id}/provinzen/{prov_id}/build")
-def build_building(player_id: int, prov_id: int, token: str, req: PlaceBuildingRequest):
+@app.get("/province/{province_id}/buildable")
+def get_buildable(province_id: int, token: str, position: int = 0):
     user = get_token_user(token)
     if not user:
         raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    
+    db = SessionLocal()
+    try:
+        # Check if province belongs to user
+        prov = db.query(Province).filter(Province.id == province_id, Province.player_id == user["player_id"]).first()
+        if not prov:
+             raise HTTPException(status_code=404, detail="Provinz nicht gefunden")
+             
+        # Get all non-baubar: 0 templates
+        templates = db.query(BuildingType).filter(BuildingType.baubar == 1).all()
         
-    conn = get_connection()
-    cur = conn.cursor()
-    
-    # Gebäudetyp finden
-    cur.execute("SELECT * FROM gebaeude_typen WHERE name=?", (req.building_type,))
-    typ = cur.fetchone()
-    if not typ:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Gebäudetyp nicht gefunden")
-    
-    # Prüfen ob Feld frei
-    cur.execute("SELECT id FROM provinz_gebaeude WHERE provinz_id=? AND x=? AND y=?", (prov_id, req.x, req.y))
-    if cur.fetchone():
-        conn.close()
-        raise HTTPException(status_code=400, detail="Feld ist bereits belegt")
-        
-    # TODO: Kosten prüfen & abziehen
-    
-    cur.execute("""
-        INSERT INTO provinz_gebaeude (provinz_id, gebaeude_typ_id, x, y, stufe)
-        VALUES (?, ?, ?, ?, 1)
-    """, (prov_id, typ["id"], req.x, req.y))
-    
-    conn.commit()
-    conn.close()
-    return {"ok": True}
+        buildable_list = []
+        for t in templates:
+            can, msg = building_logic.can_build(db, t.id, province_id, position, 0) # simplified x/y for now
+            status = "baubar" if can else msg
+            buildable_list.append({
+                "template_id": t.id,
+                "name": t.name,
+                "baukosten_mips": t.baukosten_mips,
+                "rohstoffbedarf": json.loads(t.rohstoffbedarf_bau),
+                "status": status,
+                "baubar": can
+            })
+            
+        return {
+            "province_id": province_id,
+            "position": position,
+            "city_status": f"Stufe {prov.size_level}", # e.g., Metropole
+            "buildable": buildable_list
+        }
+    finally:
+        db.close()
 
-@app.post("/player/{player_id}/provinzen/{prov_id}/upgrade")
-def upgrade_building(player_id: int, prov_id: int, token: str, req: UpgradeBuildingRequest):
+@app.post("/province/{province_id}/build")
+def post_build(province_id: int, token: str, req: BuildRequest):
     user = get_token_user(token)
     if not user:
         raise HTTPException(status_code=401, detail="Nicht angemeldet")
         
-    conn = get_connection()
-    cur = conn.cursor()
-    
-    cur.execute("""
-        UPDATE provinz_gebaeude SET stufe = stufe + 1
-        WHERE provinz_id=? AND x=? AND y=?
-    """, (prov_id, req.building_x, req.building_y))
-    
-    if cur.rowcount == 0:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Gebäude nicht gefunden")
+    db = SessionLocal()
+    try:
+        # Verify ownership
+        prov = db.query(Province).filter(Province.id == province_id, Province.player_id == user["player_id"]).first()
+        if not prov:
+             raise HTTPException(status_code=404, detail="Provinz nicht gefunden")
+             
+        # spec says position: int. Mapping position to x for BuildingInstance
+        instance = building_logic.build_building(db, req.template_id, province_id, req.position, 0)
+        return {"success": True, "new_instance": {"id": instance.id, "template_id": instance.gebaeude_typ_id, "level": instance.level}}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.post("/province/{province_id}/upgrade/{instance_id}")
+def post_upgrade(province_id: int, instance_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
         
-    conn.commit()
-    conn.close()
-    return {"ok": True}
+    db = SessionLocal()
+    try:
+        # Verify ownership via province
+        instance = db.query(BuildingInstance).filter(BuildingInstance.id == instance_id).first()
+        if not instance or instance.provinz_id != province_id:
+             raise HTTPException(status_code=404, detail="Gebäude nicht gefunden")
+             
+        if instance.province.player_id != user["player_id"]:
+             raise HTTPException(status_code=403, detail="Nicht deine Provinz")
+             
+        upgraded = building_logic.upgrade_building(db, instance_id)
+        return {"success": True, "new_level": upgraded.level}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.get("/buildings/templates")
+def get_building_templates(token: str):
+    user = get_token_user(token) # Optional, but spec might imply logged in
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+        
+    db = SessionLocal()
+    try:
+        templates = db.query(BuildingType).all()
+        return [
+            {c.name: getattr(t, c.name) for c in t.__table__.columns}
+            for t in templates
+        ]
+    finally:
+        db.close()
+
+@app.post("/province/{province_id}/demolish/{instance_id}")
+def post_demolish(province_id: int, instance_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+        
+    db = SessionLocal()
+    try:
+        # Verify ownership
+        instance = db.query(BuildingInstance).filter(BuildingInstance.id == instance_id).first()
+        if not instance or instance.provinz_id != province_id:
+             raise HTTPException(status_code=404, detail="Gebäude nicht gefunden")
+             
+        if instance.province.player_id != user["player_id"]:
+             raise HTTPException(status_code=403, detail="Nicht deine Provinz")
+             
+        result = building_logic.demolish_building(db, instance_id)
+        return {"success": True, **result}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 @app.get("/player/{player_id}/credit")
 def get_player_credit(player_id: int, token: str):

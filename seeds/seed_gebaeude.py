@@ -1,16 +1,17 @@
--- Check, ob das Gebäude expandierbar ist:
-IF GET_BUILDING("GebäudeID").ausbauber = true THEN
-currentLevel = GET_BUILDING("GebäudeID").aktuellErweiterungsLevel
-IF currentLevel < 10 THEN
-currentLevel = currentLevel + 1
-UPDATE BUILDING SET aktuellErweiterungsLevel = currentLevel WHERE id=GebäudeID
-SpielSystemProbenzen("Erweiterungsaktion erfolgreich!")
-ELSE
-SpielSystemProbenzen("Dieses Gebäude ist bereits bis Level 10 erweitert.")
-ENDIF
-ELSE
-SpielSystemProbenben("Erweiterung nicht möglich für dieses Gebäude.")
-ENDIFfrom db_config import get_connection, save_entity
+# -- Check, ob das Gebäude expandierbar ist:
+# IF GET_BUILDING("GebäudeID").ausbauber = true THEN
+# currentLevel = GET_BUILDING("GebäudeID").aktuellErweiterungsLevel
+# IF currentLevel < 10 THEN
+# currentLevel = currentLevel + 1
+# UPDATE BUILDING SET aktuellErweiterungsLevel = currentLevel WHERE id=GebäudeID
+# SpielSystemProbenzen("Erweiterungsaktion erfolgreich!")
+# ELSE
+# SpielSystemProbenzen("Dieses Gebäude ist bereits bis Level 10 erweitert.")
+# ENDIF
+# ELSE
+# SpielSystemProbenben("Erweiterung nicht möglich für dieses Gebäude.")
+# ENDIF
+from db_config import get_connection, save_entity
 
 GEBAEUDE_DATA = [
     {
