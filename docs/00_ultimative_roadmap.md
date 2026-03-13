@@ -7,7 +7,7 @@ Diese Roadmap enthält alle generierten Prompts (01-28), die geplanten Prompts (
 *   **AG-Flash** (Antigravity Gemini 3 Flash): Für kurze Skripte, CRUD-Operationen, isolierte DB-Anpassungen. Sehr günstig im Token-Verbrauch.
 *   **AG-Pro** (Antigravity Gemini 3.1 Pro): Für schwere Logik, komplexe Mathe-Formeln (z.B. Kampf, Rundenmechanik). Verbraucht mehr Quota, liefert aber tieferes Reasoning.
 *   **AG-Claude** (Antigravity Claude Sonnet 4.6): Für UI-Architektur und UX-Entscheidungen von Grund auf. Quota schonen!
-*   **Junie** (JetBrains IDE): Exzellent für das Überarbeiten *bestehender* Code-Basen über mehrere Dateien hinweg (z.B. UI-Overhaul, Refactoring der `app-2.js` und `admin.html`).
+*   **Junie** (JetBrains IDE): Exzellent für das Überarbeiten *bestehender* Code-Basen über mehrere Dateien hinweg (z.B. UI-Overhaul, Refactoring der `app.js` und `admin.html`).
 
 ---
 
@@ -16,12 +16,12 @@ Diese Roadmap enthält alle generierten Prompts (01-28), die geplanten Prompts (
 
 | Datei | Fokus / Tool-Empfehlung |
 | :--- | :--- |
-| `27_weltkarte_db_migration.md` | **AG-Pro** - Map-Datenbank aufsetzen |
-| `24_feature_weltgenerierung.md` | **AG-Pro** - Logik zur Terrain-Platzierung |
-| `29_feature_auth_system.md` | **AG-Flash** - Login, Tokens, Sicherheit |
-| `31_feature_onboarding.md` | **AG-Claude** - Spieler-Einstieg & erste Provinz |
-| `Rundenmechanik.md` | **AG-Pro** - Kern-Logik der Spielzyklen |
-| `30_feature_server_tick.md` | **AG-Pro** - Cronjob/Task-Runner für die Rundenmechanik |
+//| `27_weltkarte_db_migration.md` | **AG-Pro** - Map-Datenbank aufsetzen |
+//| `24_feature_weltgenerierung.md` | **AG-Pro** - Logik zur Terrain-Platzierung |
+//| `29_feature_auth_system.md` | **AG-Flash** - Login, Tokens, Sicherheit |
+//| `31_feature_onboarding.md` | **AG-Claude** - Spieler-Einstieg & erste Provinz |
+//| `Rundenmechanik.md` | **AG-Pro** - Kern-Logik der Spielzyklen |
+//| `30_feature_server_tick.md` | **AG-Pro** - Cronjob/Task-Runner für die Rundenmechanik |
 
 ## 🏗️ PHASE 2: Bauen & Ressourcen (Woche 2)
 *Die Spieler sind im Spiel. Nun müssen sie bauen und Ressourcen fördern können.*

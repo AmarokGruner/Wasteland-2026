@@ -30,6 +30,14 @@ class Province(Base):
     strassennetz = Column(Integer, default=0)
     einheiten_count = Column(Integer, default=0)
     
+    # New columns for building system
+    kulturpunkte = Column(Integer, default=0)
+    size_level = Column(Integer, default=1) # 1-7 (Camp to Metropole)
+    fields_total = Column(Integer, default=40)
+    fields_city = Column(Integer, default=5)
+    arbeitspunkte_current = Column(Integer, default=100)
+    arbeitspunkte_max = Column(Integer, default=100)
+    
     player = relationship("Player", back_populates="provinces")
     buildings = relationship("BuildingInstance", back_populates="province")
     lager = relationship("ProvinceLager", back_populates="province")
@@ -44,6 +52,21 @@ class BuildingType(Base):
     wohnraum = Column(Integer, default=0)
     lagerkapazitaet = Column(Integer, default=0)
     terrain_effektivitaet = Column(String, default='{}') # JSON string
+    
+    # New columns for building system
+    kategorie = Column(String)
+    bautyp = Column(String) # Land/Stadt/Stadtausbau/Weg/Wegkreuzung
+    baubar = Column(Integer, default=1)
+    ausbaubar = Column(Integer, default=0)
+    unique_gebaeude = Column(Integer, default=0)
+    nur_kueste = Column(Integer, default=0)
+    ist_feld = Column(Integer, default=0)
+    tech_level = Column(Integer, default=0)
+    baukosten_mips = Column(Integer, default=0)
+    ausbaukosten_mips = Column(Integer, default=0)
+    rohstoffbedarf_bau = Column(String, default='[]') # JSON string
+    rohstoffgrundbedarf_ausbau = Column(String, default='[]') # JSON string
+    spezial_eigenschaften = Column(String, default='{}') # JSON string
 
 class BuildingInstance(Base):
     __tablename__ = 'provinz_gebaeude'
@@ -52,7 +75,13 @@ class BuildingInstance(Base):
     gebaeude_typ_id = Column(Integer, ForeignKey('gebaeude_typen.id'), nullable=False)
     x = Column(Integer, nullable=False)
     y = Column(Integer, nullable=False)
-    stufe = Column(Integer, default=1)
+    level = Column(Integer, default=1)
+    built_at = Column(DateTime, server_default=func.now())
+    
+    # Compatibility access
+    @property
+    def stufe(self):
+        return self.level
     
     province = relationship("Province", back_populates="buildings")
     type = relationship("BuildingType")
