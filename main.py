@@ -13,7 +13,7 @@ from datetime import timedelta, timezone
 from jose import JWTError, jwt
 import bcrypt
 from sqlalchemy.orm import Session
-from app.models import SessionLocal, Player as DBPlayer, Province, BuildingType, BuildingInstance
+from app.models import SessionLocal, Player as DBPlayer, Province, BuildingType, BuildingInstance, QuickBuildSession
 from app.round_logic import simulate_round, apply_round
 from app.tick_logic import run_tick
 from app import building_logic
@@ -431,6 +431,18 @@ class ClaimProvinceRequest(BaseModel):
     world_y: int
     name: str
     terrain: str
+
+class QuickBuildActivateRequest(BaseModel):
+    template_id: Optional[int] = None
+    mode: str # 'build' or 'demolish'
+
+class QuickBuildSessionResponse(BaseModel):
+    active: bool
+    mode: Optional[str] = None
+    template_id: Optional[int] = None
+    template_name: Optional[str] = None
+    ap_cost_per_build: Optional[int] = None
+    expires_at: Optional[datetime.datetime] = None
 
 class TransportRequest(BaseModel):
     nach_provinz_id: int
@@ -1297,6 +1309,85 @@ def claim_province(player_id: int, token: str, req: ClaimProvinceRequest):
     conn.close()
     return {"ok": True, "provinz": {"id": prov_id}}
 
+@app.get("/province/{province_id}/quickbuild/session", response_model=QuickBuildSessionResponse)
+def get_quickbuild_session(province_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    
+    db = SessionLocal()
+    try:
+        session = db.query(QuickBuildSession).filter(QuickBuildSession.province_id == province_id).first()
+        if not session:
+            return {"active": False}
+        
+        # Check expiry
+        if datetime.datetime.now() - session.last_activity > datetime.timedelta(minutes=30):
+            db.delete(session)
+            db.commit()
+            return {"active": False}
+        
+        template_name = None
+        ap_cost = 0
+        if session.template_id:
+            template = db.query(BuildingType).filter(BuildingType.id == session.template_id).first()
+            if template:
+                template_name = template.name
+                ap_cost = building_logic.get_ap_cost(template)
+        
+        return {
+            "active": True,
+            "mode": session.mode,
+            "template_id": session.template_id,
+            "template_name": template_name,
+            "ap_cost_per_build": ap_cost,
+            "expires_at": session.last_activity + datetime.timedelta(minutes=30)
+        }
+    finally:
+        db.close()
+
+@app.post("/province/{province_id}/quickbuild/activate")
+def activate_quickbuild(province_id: int, token: str, req: QuickBuildActivateRequest):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    
+    db = SessionLocal()
+    try:
+        # Verify ownership
+        prov = db.query(Province).filter(Province.id == province_id, Province.player_id == user["player_id"]).first()
+        if not prov:
+            raise HTTPException(status_code=404, detail="Provinz nicht gefunden")
+            
+        # Clear existing sessions for this province
+        db.query(QuickBuildSession).filter(QuickBuildSession.province_id == province_id).delete()
+        
+        new_session = QuickBuildSession(
+            province_id=province_id,
+            template_id=req.template_id,
+            mode=req.mode,
+            last_activity=datetime.datetime.now()
+        )
+        db.add(new_session)
+        db.commit()
+        return {"success": True}
+    finally:
+        db.close()
+
+@app.post("/province/{province_id}/quickbuild/deactivate")
+def deactivate_quickbuild(province_id: int, token: str):
+    user = get_token_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    
+    db = SessionLocal()
+    try:
+        db.query(QuickBuildSession).filter(QuickBuildSession.province_id == province_id).delete()
+        db.commit()
+        return {"success": True}
+    finally:
+        db.close()
+
 @app.get("/province/{province_id}/buildable")
 def get_buildable(province_id: int, token: str, position: int = 0):
     user = get_token_user(token)
@@ -1336,7 +1427,7 @@ def get_buildable(province_id: int, token: str, position: int = 0):
         db.close()
 
 @app.post("/province/{province_id}/build")
-def post_build(province_id: int, token: str, req: BuildRequest):
+def post_build(province_id: int, token: str, req: BuildRequest, session: bool = False):
     user = get_token_user(token)
     if not user:
         raise HTTPException(status_code=401, detail="Nicht angemeldet")
@@ -1346,11 +1437,19 @@ def post_build(province_id: int, token: str, req: BuildRequest):
         # Verify ownership
         prov = db.query(Province).filter(Province.id == province_id, Province.player_id == user["player_id"]).first()
         if not prov:
-             raise HTTPException(status_code=404, detail="Provinz nicht gefunden")
+            raise HTTPException(status_code=404, detail="Provinz nicht gefunden")
              
+        if session:
+            qb_session = db.query(QuickBuildSession).filter(QuickBuildSession.province_id == province_id, QuickBuildSession.mode == 'build').first()
+            if not qb_session:
+                raise HTTPException(status_code=400, detail="Keine aktive Schnellbau-Sitzung")
+            if qb_session.template_id != req.template_id:
+                raise HTTPException(status_code=400, detail="Falsches Gebäude-Template für diese Sitzung")
+            qb_session.last_activity = datetime.datetime.now()
+
         # spec says position: int. Mapping position to x for BuildingInstance
-        instance = building_logic.build_building(db, req.template_id, province_id, req.position, 0)
-        return {"success": True, "new_instance": {"id": instance.id, "template_id": instance.gebaeude_typ_id, "level": instance.level}}
+        result = building_logic.build_building(db, req.template_id, province_id, req.position, 0)
+        return result
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -1400,7 +1499,7 @@ def get_building_templates(token: str):
         db.close()
 
 @app.post("/province/{province_id}/demolish/{instance_id}")
-def post_demolish(province_id: int, instance_id: int, token: str):
+def post_demolish(province_id: int, instance_id: int, token: str, session: bool = False):
     user = get_token_user(token)
     if not user:
         raise HTTPException(status_code=401, detail="Nicht angemeldet")
@@ -1415,8 +1514,14 @@ def post_demolish(province_id: int, instance_id: int, token: str):
         if instance.province.player_id != user["player_id"]:
              raise HTTPException(status_code=403, detail="Nicht deine Provinz")
              
+        if session:
+            qb_session = db.query(QuickBuildSession).filter(QuickBuildSession.province_id == province_id, QuickBuildSession.mode == 'demolish').first()
+            if not qb_session:
+                raise HTTPException(status_code=400, detail="Keine aktive Schnellabriss-Sitzung")
+            qb_session.last_activity = datetime.datetime.now()
+
         result = building_logic.demolish_building(db, instance_id)
-        return {"success": True, **result}
+        return result
     except HTTPException as e:
         raise e
     except Exception as e:
