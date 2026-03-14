@@ -111,7 +111,19 @@ def build_building(db: Session, template_id: int, province_id: int, x: int, y: i
         apply_city_expansion(db, province, template)
         
     db.commit()
-    return new_instance
+    
+    return {
+        "success": True,
+        "new_instance": {
+            "id": new_instance.id,
+            "template_id": new_instance.gebaeude_typ_id,
+            "level": new_instance.level,
+            "x": new_instance.x,
+            "y": new_instance.y
+        },
+        "ap_remaining": province.arbeitspunkte_current,
+        "mips_remaining": province.mips
+    }
 
 def apply_city_expansion(db: Session, province: Province, template: BuildingType):
     props = json.loads(template.spezial_eigenschaften)
@@ -211,6 +223,11 @@ def can_demolish(db: Session, instance_id: int):
 
     return True, "", ap_cost
 
+def get_ap_cost(template: BuildingType) -> int:
+    """Returns the AP cost for constructing a building."""
+    # Simplified: return 10 for all for now, or use a property if added
+    return 10
+
 def demolish_building(db: Session, instance_id: int):
     ok, msg, ap_cost = can_demolish(db, instance_id)
     if not ok:
@@ -260,7 +277,9 @@ def demolish_building(db: Session, instance_id: int):
     db.commit()
     
     return {
+        "success": True,
         "refunded_resources": refunded_resources,
         "ap_cost": ap_cost,
+        "ap_remaining": province.arbeitspunkte_current,
         "field_id": field_id
     }

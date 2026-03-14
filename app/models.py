@@ -119,6 +119,15 @@ class TickLog(Base):
     provinces_processed = Column(Integer)
     details = Column(String)
 
+class QuickBuildSession(Base):
+    __tablename__ = 'quick_build_sessions'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False, unique=True)
+    template_id = Column(Integer, ForeignKey('gebaeude_typen.id'), nullable=True) # Null for demolish
+    mode = Column(String, nullable=False) # 'build' or 'demolish'
+    last_activity = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+
 # Engine setup
 engine = create_engine('sqlite:///verbrannte_zone.db')
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

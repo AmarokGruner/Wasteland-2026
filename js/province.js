@@ -26,6 +26,9 @@ const CROSSING_LEVELS = {
     4: { name: 'Betonkreuzung', color: '#a8a8a8', cost: 800 }
 };
 
+let currentQuickSession = null;
+let provinceBackendData = null; // Global cache for current province buildings
+
 // Lädt und zeigt eine Provinz-Ansicht
 async function loadProvince(worldX, worldY) {
     console.log(`📍 Lade Provinz (${worldX}, ${worldY})`);
@@ -43,9 +46,14 @@ async function loadProvince(worldX, worldY) {
     // 2. Daten vom Backend laden
     let backendData = { buildings: [], vorkommen: [], lager: [] };
     try {
-        const res = await gameFetch(`${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${provId}`);
-        if (res.ok) backendData = await res.json();
+        const res = await gameFetch(`${window.APIBASE}/province/${provId}`);
+        if (res.ok) {
+            backendData = await res.json();
+            provinceBackendData = backendData;
+        }
     } catch (e) { console.error("Fehler beim Laden der Provinzdaten:", e); }
+
+    await checkQuickSession();
 
     const provinceTerrain = window.WORLD_MAP[worldY][worldX];
     window.currentProvinceTerrain = provinceTerrain;
@@ -241,6 +249,7 @@ async function selectProvinceCell(cellData, backendData) {
             // Upgrade Button
             infoHTML += `<button class="btn-action" onclick="upgradeBuilding(${bX}, ${bY})">⬆️ Ausbauen (100 Eisen)</button>`;
             infoHTML += `<button class="btn-action danger" onclick="removeBuilding(${bX}, ${bY})">🗑️ Abreißen</button>`;
+            infoHTML += `<button class="btn-action" onclick="activateQuickMode('demolish')" style="background: #444; border-color: #f44336; color: #f44336;">⚡ Schnellabriss-Sitzung</button>`;
         } else {
             infoHTML += `<p style="color: var(--accent-success);">✅ Bebaubar!</p>`;
             infoHTML += `<hr style="margin: 10px 0; border-color: var(--border);">`;
@@ -252,9 +261,12 @@ async function selectProvinceCell(cellData, backendData) {
                 const cost = t.baukosten_mips || 0;
                 const costText = t.name === 'Bunker' ? 'KOSTENLOS' : (cost + ' Eisen');
                 infoHTML += `
-                    <div class="build-option" onclick="placeBuilding('${t.name}', ${bX}, ${bY})">
-                        <span>${t.symbol_emoji} ${t.name}</span>
-                        <span style="font-size: 10px; color: var(--text-muted)">${costText}</span>
+                    <div class="build-option">
+                        <div onclick="placeBuilding('${t.name}', ${bX}, ${bY})">
+                            <span>${t.symbol_emoji} ${t.name}</span>
+                            <span style="font-size: 10px; color: var(--text-muted)">${costText}</span>
+                        </div>
+                        <button class="btn-micro" onclick="activateQuickMode('build', '${t.name}')" title="Schnellbau-Modus">⚡</button>
                     </div>`;
             });
         }
@@ -292,21 +304,64 @@ async function selectProvinceCell(cellData, backendData) {
 }
 
 async function placeBuilding(type, x, y) {
-    if (!confirm(`${type} on (${x},${y}) errichten?`)) return;
+    const isQuick = currentQuickSession && currentQuickSession.mode === 'build' && currentQuickSession.template_name === type;
+    if (!isQuick && !confirm(`${type} on (${x},${y}) errichten?`)) return;
+    
     try {
-        const res = await gameFetch(`${window.APIBASE}/player/${window.currentPlayerId}/provinzen/${window.currentProvinzId}/build`, {
+        const template = BUILDINGS_FALLBACK.find(t => t.name === type);
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/build${isQuick ? '?session=true' : ''}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ building_type: type, x: x, y: y })
+            body: JSON.stringify({ template_id: template.id, position: x }) // Backend expects position mapped to x
         });
         if (res.ok) {
-            loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
-            window.loadResources();
+            const result = await res.json();
+            if (isQuick) {
+                // Update local status instead of full reload
+                updateAPCounter(result.ap_remaining);
+                // Simple feedback or mini-reload? For now, reload province to catch all changes
+                loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
+            } else {
+                loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
+                window.loadResources();
+            }
         } else {
             const err = await res.json();
             alert("Fehler beim Bau: " + (err.detail || "Unbekannt"));
         }
     } catch (e) { alert("Serverfehler beim Bau"); }
+}
+
+async function removeBuilding(x, y) {
+    const isQuick = currentQuickSession && currentQuickSession.mode === 'demolish';
+    if (!isQuick && !confirm(`Gebäude auf (${x},${y}) wirklich abreißen?`)) return;
+
+    try {
+        // Find instance ID from backend data
+        const instance = provinceBackendData.buildings.find(b => b.building_x === x && b.building_y === y);
+        if (!instance) {
+            alert("Fehler: Gebäude-Instanz nicht gefunden.");
+            return;
+        }
+
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/demolish/${instance.id}${isQuick ? '?session=true' : ''}`, {
+            method: 'POST'
+        });
+        
+        if (res.ok) {
+            const result = await res.json();
+            if (isQuick) {
+                updateAPCounter(result.ap_remaining);
+                loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
+            } else {
+                loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
+                window.loadResources();
+            }
+        } else {
+            const err = await res.json();
+            alert("Fehler beim Abriss: " + (err.detail || "Unbekannt"));
+        }
+    } catch (e) { alert("Serverfehler beim Abriss"); }
 }
 
 async function placeRoad(type, x, y) {
@@ -349,6 +404,79 @@ function getTerrainColor(terrain) {
         return window.TERRAIN_TYPES[terrain].color;
     }
     return '#5a8c3a';
+}
+
+async function checkQuickSession() {
+    try {
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/quickbuild/session`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.active) {
+                currentQuickSession = data;
+                showQuickOverlay(data);
+            } else {
+                currentQuickSession = null;
+                hideQuickOverlay();
+            }
+        }
+    } catch (e) { console.error("Session Check Failed", e); }
+}
+
+async function activateQuickMode(mode, templateName = null) {
+    let templateId = null;
+    if (templateName) {
+        const t = BUILDINGS_FALLBACK.find(b => b.name === templateName);
+        if (t) templateId = t.id;
+    }
+
+    try {
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/quickbuild/activate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode, template_id: templateId })
+        });
+        if (res.ok) {
+            await checkQuickSession();
+        }
+    } catch (e) { alert("Fehler beim Aktivieren"); }
+}
+
+async function deactivateQuickMode() {
+    try {
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/quickbuild/deactivate`, {
+            method: 'POST'
+        });
+        if (res.ok) {
+            currentQuickSession = null;
+            hideQuickOverlay();
+        }
+    } catch (e) { alert("Fehler beim Deaktivieren"); }
+}
+
+function showQuickOverlay(session) {
+    const overlay = document.getElementById('quickbuild-overlay');
+    const modeText = document.getElementById('qb-mode-text');
+    const apText = document.getElementById('qb-ap-text');
+    
+    if (overlay && modeText) {
+        overlay.style.display = 'flex';
+        const label = session.mode === 'build' ? `Schnellbau: ${session.template_name}` : 'Schnellabriss-Modus';
+        modeText.textContent = label;
+        // AP will be updated via backend soon, for now placeholder
+        apText.textContent = `Mind. ${session.ap_cost_per_build} AP pro Aktion`;
+    }
+}
+
+function hideQuickOverlay() {
+    const overlay = document.getElementById('quickbuild-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function updateAPCounter(apRemaining) {
+    const apText = document.getElementById('qb-ap-text');
+    if (apText && apRemaining !== undefined) {
+        apText.textContent = `Verbleibende AP: ${apRemaining}`;
+    }
 }
 
 function backToWorld() {
