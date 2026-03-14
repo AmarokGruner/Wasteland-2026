@@ -3,6 +3,7 @@ from app.models import Province, BuildingType, BuildingInstance, ProvinceLager, 
 from fastapi import HTTPException
 import json
 from datetime import datetime
+from app.road_logic import is_coastal_position
 
 def get_lager_dict(db: Session, province_id: int):
     lager = db.query(ProvinceLager).filter(ProvinceLager.provinz_id == province_id).all()
@@ -77,6 +78,12 @@ def can_build(db: Session, template_id: int, province_id: int, x: int, y: int):
     if template.bautyp == "Stadtausbau":
         # Only one Stadtausbau active? Actually, they replace each other.
         pass
+
+    # 7. Küsten-Check (nur_kueste)
+    if template.nur_kueste:
+        is_coastal = is_coastal_position(db, province_id, x, y)
+        if not is_coastal:
+            return False, "Dieses Gebäude darf nur auf Küsten-Feldern gebaut werden"
 
     return True, ""
 

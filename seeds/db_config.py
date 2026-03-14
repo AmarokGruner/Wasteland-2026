@@ -56,8 +56,8 @@ def init_tables(conn):
     # Ressourcen
     c.execute("""CREATE TABLE IF NOT EXISTS ressourcen (
         id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, typ TEXT NOT NULL,
-        wert INTEGER DEFAULT 0, verbrauch INTEGER DEFAULT 0, platzbedarf INTEGER DEFAULT 1,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        wert INTEGER DEFAULT 0, produktionswert INTEGER DEFAULT 0, verbrauch INTEGER DEFAULT 0, 
+        platzbedarf INTEGER DEFAULT 1, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
     
     # Vorkommen

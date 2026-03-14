@@ -88,8 +88,8 @@ Query
 ---
 
 ## Security-Hinweise für Agents
-> Das aktuelle Auth-System nutzt SHA256-Tokens (kein JWT).
-> `SECRET_KEY` ist hardcoded → **muss vor Produktiv-Deployment geändert werden.**
+> Das aktuelle Auth-System nutzt JWT-Tokens (`python-jose`).
+> `SECRET_KEY` in `app/config.py` → **muss vor Produktiv-Deployment geändert werden!**
 > Block `b-auth-system` enthält alle Details + offene Punkte.
 
 ---
@@ -102,7 +102,36 @@ Query
 
 ---
 
-## Quellen
-- AGENTS.md (orig v2.2.0), README-5.md, main-2.py, admin.html, login.html, app.js
+## Code-Struktur für Agents (Modularisiert v3.0)
 
-**Updated: 2026-03-01 | Version: v2.3.0**
+```
+app/
+├── main.py            → FastAPI App, Scheduler, Static Files
+├── config.py          → SECRET_KEY, ALGORITHM, Token-Config (ausgelagert)
+├── database.py        → SQLite Connection
+├── models.py          → SQLAlchemy Models (Province, Building, RoadInstance)
+│
+├── api/               → API Router (NEU in v3.0)
+│   ├── __init__.py    → exportiert api_router
+│   ├── auth.py        → /auth/* Endpoints (JWT-basiert)
+│   └── admin/         → Admin-Router
+│       └── users.py   → /admin/users Endpoints
+│
+├── building_logic.py  → Building-Logik (can_build, build, upgrade, demolish)
+├── road_logic.py      → Roads & Straßennetz (BFS-Konnektivität, AP-System)
+├── round_logic.py     → Produktions-Runden (AP-Generierung, simulate_round)
+└── tick_logic.py      → Hourly Tick Engine
+```
+
+### Für Agent-Relevante Dateien:
+- **Auth**: `app/api/auth.py` + `app/config.py`
+- **Buildings**: `app/building_logic.py`, `app/models.py`
+- **Roads/AP**: `app/road_logic.py` + `app/round_logic.py`
+- **DB**: `app/models.py`, `app/database.py`
+
+---
+
+## Quellen
+- AGENTS.md (v2.3.0), README.md, app/main.py, app/config.py, main_old.py
+
+**Updated: 2026-03-14 | Version: v3.0 (Modularisiert)**
