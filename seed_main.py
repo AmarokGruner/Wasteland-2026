@@ -1,6 +1,11 @@
 import sys
 import os
 
+# UTF-8 encoding fix for Windows
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 # Pfad zum "seeds" Ordner hinzufügen, damit die Module gefunden werden
 sys.path.append(os.path.join(os.path.dirname(__file__), 'seeds'))
 

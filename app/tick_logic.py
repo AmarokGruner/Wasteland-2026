@@ -4,6 +4,8 @@ import json
 from sqlalchemy.orm import Session
 from .models import Province, SystemLock, TickLog, ProvinceLager, Player
 from .round_logic import simulate_round
+from .climate_logic import process_climate_tick
+from .animal_logic import process_wild_animal_feeding, process_breeding
 
 def run_tick(db: Session):
     """
@@ -20,7 +22,7 @@ def run_tick(db: Session):
     if lock.is_running:
         print(f"Tick already running (last run: {lock.last_run}). Skipping.")
         return False
-
+    
     # Start tick
     start_time = time.time()
     lock.is_running = 1
@@ -42,8 +44,15 @@ def run_tick(db: Session):
             
             for province in provinces:
                 try:
-                    # 1 hour tick
-                    result = simulate_round(db, province.id, hours=1.0)
+                    # 1 hour tick - climate
+                    climate_data = process_climate_tick(db, province.id)
+                    
+                    # Check feiertag expiry
+                    from app.sammler_jaeger_logic import check_and_process_feiertag
+                    check_and_process_feiertag(db, province.id)
+                    
+                    # 1 hour tick - production
+                    result = simulate_round(db, province.id, hours=1.0, is_raining=climate_data.get("is_raining", False))
                     if not result:
                         continue
                     
@@ -55,14 +64,27 @@ def run_tick(db: Session):
                             ProvinceLager.ressource_id == res_id
                         ).first()
                         if not item:
-                            item = ProvinceLager(provinz_id=province.id, ressource_id=res_id, menge=0)
-                            db.add(item)
-                        item.menge = max(0, item.menge + int(delta))
-                        
-                    # 2. Update Province Stats
-                    province.moral = result['new_moral']
-                    province.gesundheit = result['new_gesundheit']
-                    province.population = result['new_population']
+                            continue
+                    
+                    # Sammeln/Jagen logic (once per day at midnight)
+                    now = datetime.datetime.now()
+                    if now.hour == 0:
+                        from app.sammler_jaeger_logic import get_sammeln_loot, get_jagd_loot
+                        from app.models import ProvinceSettings
+                        settings = db.query(ProvinceSettings).filter(
+                            ProvinceSettings.province_id == province.id
+                        ).first()
+                        if settings:
+                            worker_mode = settings.worker_mode or "idle"
+                            if worker_mode == "sammeln" and not settings.feiertag_active:
+                                get_sammeln_loot(db, province.id)
+                            elif worker_mode == "jagen" and not settings.feiertag_active:
+                                get_jagd_loot(db, province.id)
+                    
+                    # Animal feeding and breeding (once per day at midnight)
+                    if now.hour == 0:
+                        process_wild_animal_feeding(db, province.id)
+                        process_breeding(db, province.id)
                     
                     provinces_total += 1
                 except Exception as e:

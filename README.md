@@ -51,6 +51,47 @@ Spieler2: felix / 345678
 
 ```
 verbrannte-zone/
+├── main.py                    # Entry Point → ruft app/main.py
+│
+├── app/                       # Modularisiertes Backend (FastAPI)
+│   ├── __init__.py
+│   ├── main.py                # FastAPI App, Scheduler, Static Files
+│   ├── config.py              # SECRET_KEY, DB_PATH, Token-Einstellungen
+│   ├── database.py            # SQLite Connection Helper
+│   ├── models.py              # SQLAlchemy Models (Province, Building, etc.)
+│   │
+│   ├── api/                   # API Endpoints (Router-basiert)
+│   │   ├── __init__.py        # Exportiert api_router
+│   │   ├── auth.py            # /auth/* Endpoints (Login, Logout, Token)
+│   │   ├── roads.py           # Roads & Arbeitspunkte
+│   │   └── admin/             # Admin-Router
+│   │       ├── __init__.py
+│   │       └── users.py       # /admin/users Endpoints
+│   │
+│   ├── building_logic.py      # Building Bau/Upgrade/Demolish Logik
+│   ├── road_logic.py          # Roads & Straßennetz Logik
+│   ├── round_logic.py         # Produktions-Runden-Logik
+│   └── tick_logic.py          # Hourly Tick Engine
+│
+├── seeds/                     # Datenbank-Seed-Skripte
+│   ├── seed_gebaeude.py       # 108 Gebäude
+│   ├── seed_ressourcen.py     # 65 Ressourcen
+│   └── ...
+│
+├── js/                        # Frontend (Vanilla JS)
+│   ├── app.js                 # Hauptlogik + Auth-Check
+│   ├── worldmap.js            # Weltkarte
+│   └── ...
+│
+├── css/                       # Stylesheets
+├── terrains/                  # Terrain-GIFs (41 Stück)
+├── context/                   # AI-Context-System
+│   ├── index.yaml             # Block-Index (Einstieg für Agents)
+│   └── blocks/                # b-backend_*.yaml, b_admin_*.yaml ...
+├── main_old.py                # Legacy (vor Modularisierung)
+└── verbrannte_zone.db         # SQLite
+```
+verbrannte-zone/
 ├── main.py                    # FastAPI Backend
 ├── seed_buildings_v5.py       # DB-Init: 108 Gebäude + 65 Ressourcen + 20 Vorkommen
 ├── index.html                 # Frontend Entry (requires auth)

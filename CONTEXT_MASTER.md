@@ -1,11 +1,11 @@
-# CONTEXT_MASTER.md – v2.8.0
-> Datum: 2026-03-03 | Datei: seed_buildings_v5.7.py
+# CONTEXT_MASTER.md – v3.0
+> Datum: 2026-03-14 | Version: Modularisiert
 
 ---
 
 ## Projektübersicht
 Spiel: **Wasteland / Verbrannte Zone** – Browsergame (v3.verbranntezone.ch)
-Ziel: Seed-Datei mit allen Gebäuden, Ressourcen und Vorkommen für die Flask/SQLAlchemy-Datenbank.
+Architektur: Modularisiertes FastAPI-Backend mit Router-basierter Struktur.
 
 ---
 
@@ -227,3 +227,13 @@ Ziel: Seed-Datei mit allen Gebäuden, Ressourcen und Vorkommen für die Flask/SQ
 - File: docs/knowledge_base_wasteland_faq.md
 - Description: Kompakte Wissensdatenbank zu FAQ-konformen Konzepten, Stadtausbau-Logik, CityTiles-Rendering und Seed-/API-Implementierung.
 - Usage: Verweist auf die zentrale Wissensquelle für zukünftige Implementierungen und Entscheidungen.
+
+---
+
+## Version History
+- **v3.0** (2026-03-14): Modularisierung des Backends
+  - API-Router in `app/api/` separiert (auth, admin)
+  - Config in `app/config.py` ausgelagert
+  - Database Helper in `app/database.py`
+  - Roads & Arbeitspunkte Feature implementiert
+- **v2.8** (2026-03-03): Letzte monolithic Version
