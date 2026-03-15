@@ -1,0 +1,7 @@
+fastapi==0.112.0
+uvicorn[standard]==0.30.3
+sqlalchemy==2.0.33
+apscheduler==3.10.4
+python-jose==3.3.0
+bcrypt==4.2.0
+pydantic==2.8.2

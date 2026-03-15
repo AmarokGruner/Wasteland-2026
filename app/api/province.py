@@ -28,6 +28,32 @@ def get_province_climate(province_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Province not found")
     return climate
 
+
+@router.get("/{province_id}/coast")
+def get_province_coast(province_id: int, db: Session = Depends(get_db)):
+    from app.road_logic import is_coastal_position
+    
+    province = db.query(Province).filter(Province.id == province_id).first()
+    if not province:
+        raise HTTPException(status_code=404, detail="Province not found")
+    
+    terrain = province.terrain or ""
+    has_ocean_border = "Ozean" in terrain or "Wasser" in terrain
+    
+    coast_fields = []
+    for x in range(province.fields_total):
+        for y in range(province.fields_total):
+            if is_coastal_position(db, province_id, x, y):
+                coast_fields.append({"x": x, "y": y})
+    
+    return {
+        "province_id": province_id,
+        "has_ocean_border": has_ocean_border,
+        "sea_access": province.sea_access,
+        "coast_field_count": len(coast_fields),
+        "coast_fields": coast_fields[:20]  # Limit for response size
+    }
+
 @router.post("/{province_id}/irrigate")
 def irrigate_province(province_id: int, request: IrrigateRequest, db: Session = Depends(get_db)):
     from app.climate_logic import irrigate_province
@@ -570,3 +596,218 @@ def get_loot_preview(province_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Province not found")
     
     return preview
+
+class TaxSettingsRequest(BaseModel):
+    tax_rate: int = None
+    lohn_rate: float = None
+    sold_rate: float = None
+    rente_rate: float = None
+    state_transfer_pct: int = None
+
+class TransferRequest(BaseModel):
+    amount: float
+    to: str
+
+@router.get("/{province_id}/finance")
+def get_province_finance(province_id: int, db: Session = Depends(get_db)):
+    from app.finance_logic import get_finance_info
+    info = get_finance_info(db, province_id)
+    
+    if not info:
+        raise HTTPException(status_code=404, detail="Province not found")
+    
+    return info
+
+@router.post("/{province_id}/tax-settings")
+def set_tax_settings(province_id: int, request: TaxSettingsRequest, db: Session = Depends(get_db)):
+    from app.finance_logic import update_tax_settings
+    
+    result = update_tax_settings(
+        db, province_id,
+        tax_rate=request.tax_rate,
+        lohn_rate=request.lohn_rate,
+        sold_rate=request.sold_rate,
+        rente_rate=request.rente_rate,
+        state_transfer_pct=request.state_transfer_pct
+    )
+    
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Unknown error"))
+    
+    return result
+
+@router.post("/{province_id}/finance/transfer")
+def transfer_funds(province_id: int, request: TransferRequest, db: Session = Depends(get_db)):
+    from app.finance_logic import transfer_money
+
+    result = transfer_money(db, province_id, request.amount, request.to)
+
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Transfer failed"))
+
+    return result
+
+
+# ========== TRADE ROUTES ENDPOINTS ==========
+
+class CreateTradeRouteRequest(BaseModel):
+    destination_id: int
+    cargo_outbound: dict  # {resource_id: amount}
+    settler_count: int
+    karren_count: int
+
+class LoadCargoRequest(BaseModel):
+    cargo: dict  # {resource_id: amount}
+
+class TradeAtDestinationRequest(BaseModel):
+    cargo_return: dict = {}  # {resource_id: amount}
+
+@router.get("/{province_id}/units")
+def get_province_units(province_id: int, db: Session = Depends(get_db)):
+    """Get all units in province including Handelskarren and Siedler"""
+    from app.models import ProvinceUnit, UnitType, TradeRoute, PopulationCohort
+
+    province = db.query(Province).filter(Province.id == province_id).first()
+    if not province:
+        raise HTTPException(status_code=404, detail="Province not found")
+
+    units = db.query(ProvinceUnit).filter(ProvinceUnit.province_id == province_id).all()
+
+    units_data = []
+    for unit in units:
+        unit_type = db.query(UnitType).filter(UnitType.id == unit.einheiten_typ_id).first()
+        units_data.append({
+            "id": unit.id,
+            "type_id": unit.einheiten_typ_id,
+            "type_name": unit_type.name if unit_type else "",
+            "count": unit.count,
+            "status": unit.status,
+            "geschwindigkeit": unit_type.geschwindigkeit if unit_type else 0,
+            "transport_capacity": unit_type.transport_land if unit_type else 0
+        })
+
+    # Get eligible settlers (tick_age 4-5)
+    from app.trade_route_logic import get_eligible_settlers
+    eligible_settlers = get_eligible_settlers(db, province_id)
+
+    # Get all active trade routes
+    routes = db.query(TradeRoute).filter(
+        (TradeRoute.owner_province_id == province_id) | (TradeRoute.destination_province_id == province_id)
+    ).all()
+
+    routes_data = []
+    for route in routes:
+        routes_data.append({
+            "id": route.id,
+            "owner_province_id": route.owner_province_id,
+            "destination_province_id": route.destination_province_id,
+            "status": route.status,
+            "travel_ticks_remaining": route.travel_ticks_remaining,
+            "total_travel_ticks": route.total_travel_ticks,
+            "settler_count": route.settler_count,
+            "karren_count": route.karren_count,
+            "cargo_outbound": route.cargo_outbound_json,
+            "cargo_return": route.cargo_return_json
+        })
+
+    return {
+        "province_id": province_id,
+        "units": units_data,
+        "eligible_settlers": eligible_settlers,
+        "routes": routes_data
+    }
+
+@router.post("/{province_id}/trade-route/create")
+def create_trade_route_endpoint(province_id: int, request: CreateTradeRouteRequest, db: Session = Depends(get_db)):
+    """Create a new trade route"""
+    from app.trade_route_logic import create_trade_route
+
+    try:
+        route = create_trade_route(
+            db,
+            province_id,
+            request.destination_id,
+            request.cargo_outbound,
+            request.settler_count,
+            request.karren_count
+        )
+        return {
+            "success": True,
+            "route_id": route.id,
+            "status": route.status,
+            "message": f"Trade route created to province {request.destination_id}"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{province_id}/trade-route/{route_id}/load")
+def load_cargo_endpoint(province_id: int, route_id: int, request: LoadCargoRequest, db: Session = Depends(get_db)):
+    """Load additional cargo to a trade route"""
+    from app.trade_route_logic import load_cargo
+
+    try:
+        route = load_cargo(db, route_id, request.cargo)
+        return {
+            "success": True,
+            "route_id": route.id,
+            "cargo_outbound": route.cargo_outbound_json
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{province_id}/trade-route/{route_id}/depart")
+def depart_route_endpoint(province_id: int, route_id: int, db: Session = Depends(get_db)):
+    """Depart the trade route (start traveling)"""
+    from app.trade_route_logic import depart_route
+
+    try:
+        route = depart_route(db, route_id)
+        return {
+            "success": True,
+            "route_id": route.id,
+            "status": route.status,
+            "travel_ticks": route.travel_ticks_remaining,
+            "message": f"Trade route departed, will arrive in {route.travel_ticks_remaining} ticks"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{province_id}/trade-route/{route_id}/status")
+def get_route_status(province_id: int, route_id: int, db: Session = Depends(get_db)):
+    """Get status of a specific trade route"""
+    from app.models import TradeRoute
+
+    route = db.query(TradeRoute).filter(TradeRoute.id == route_id).first()
+    if not route:
+        raise HTTPException(status_code=404, detail="Trade route not found")
+
+    import json
+    return {
+        "route_id": route.id,
+        "owner_province_id": route.owner_province_id,
+        "destination_province_id": route.destination_province_id,
+        "status": route.status,
+        "travel_ticks_remaining": route.travel_ticks_remaining,
+        "total_travel_ticks": route.total_travel_ticks,
+        "settler_count": route.settler_count,
+        "karren_count": route.karren_count,
+        "cargo_outbound": json.loads(route.cargo_outbound_json),
+        "cargo_return": json.loads(route.cargo_return_json)
+    }
+
+@router.post("/{province_id}/trade-route/{route_id}/trade")
+def trade_at_destination_endpoint(province_id: int, route_id: int, request: TradeAtDestinationRequest, db: Session = Depends(get_db)):
+    """Execute trade at destination and start return journey"""
+    from app.trade_route_logic import execute_trade_at_destination
+
+    try:
+        route = execute_trade_at_destination(db, route_id, request.cargo_return)
+        return {
+            "success": True,
+            "route_id": route.id,
+            "status": route.status,
+            "travel_ticks": route.travel_ticks_remaining,
+            "message": f"Trade completed, returning home in {route.travel_ticks_remaining} ticks"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

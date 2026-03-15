@@ -13,6 +13,12 @@ class Player(Base):
     time_credit = Column(Float, default=240.0)
     tech_level = Column(Integer, default=0)
     provinces = relationship("Province", back_populates="player")
+    
+    # State finance account
+    staatskonto = Column(Float, default=0.0)
+    
+    # Trading
+    karren_count = Column(Integer, default=2)  # Start with 2 Handelskarren
 
 class Province(Base):
     __tablename__ = 'provinzen'
@@ -43,9 +49,20 @@ class Province(Base):
     buildings = relationship("BuildingInstance", back_populates="province")
     roads = relationship("RoadInstance", back_populates="province")
     lager = relationship("ProvinceLager", back_populates="province")
+    market_stands = relationship("MarketStand", back_populates="province")
+    trade_routes = relationship("TradeRoute", foreign_keys="TradeRoute.origin_province_id", back_populates="origin_province")
+    kontor_prices = relationship("KontorPrice", back_populates="province")
     
     # Add new relationship for animals
     animals = relationship("ProvinceAnimal", back_populates="province")
+    
+    # Finance accounts (4 accounts system)
+    provinzkonto = Column(Float, default=0.0)
+    volkskonto = Column(Float, default=0.0)
+    handelskonto = Column(Float, default=0.0)
+    
+    # Coast & Sea access
+    sea_access = Column(String, default=None)  # None, "boats", "ships"
 
 class BuildingType(Base):
     __tablename__ = 'gebaeude_typen'
@@ -168,7 +185,7 @@ class ProvinceDeposit(Base):
     __tablename__ = 'provinz_reserven'
     id = Column(Integer, primary_key=True, autoincrement=True)
     province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
-    vorkommen_id = Column(Integer, nullable=False) # References Vorkommen.id
+    vorkommen_id = Column(Integer, ForeignKey('vorkommen.id'), nullable=False)
     deposit_found = Column(Integer, default=0)
     deposit_searched = Column(Integer, default=0)
     quality = Column(Integer, default=2) # 1=50%, 2=100%, 3=150%
@@ -197,6 +214,19 @@ class ProvinceSettings(Base):
     worker_mode = Column(String, default="idle") # idle/sammeln/jagen
     feiertag_active = Column(Integer, default=0)
     feiertag_expires_at = Column(DateTime, nullable=True)
+    
+    province = relationship("Province")
+
+class TaxSettings(Base):
+    __tablename__ = 'steuer_einstellungen'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False, unique=True)
+    
+    tax_rate = Column(Integer, default=10)      # 0-100
+    lohn_rate = Column(Float, default=1.0)       # Lohn per worker
+    sold_rate = Column(Float, default=1.0)       # Military pay per unit
+    rente_rate = Column(Float, default=0.5)      # Renten rate
+    state_transfer_pct = Column(Integer, default=0)  # % transfer to Staatskonto
     
     province = relationship("Province")
 
@@ -250,6 +280,85 @@ class AnimalTemplate(Base):
     
     resource = relationship("Resource", foreign_keys=[resource_id])
     feed_resource = relationship("Resource", foreign_keys=[feed_resource_id])
+
+class MarketStand(Base):
+    __tablename__ = 'markt_staende'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    resource_id = Column(Integer, ForeignKey('ressourcen.id'), nullable=False)
+    auto_buy = Column(Integer, default=1) # 1=True, 0=False
+
+    province = relationship("Province", back_populates="market_stands")
+    resource = relationship("Resource")
+
+class TradeRoute(Base):
+    __tablename__ = 'handelsrouten'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    owner_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    origin_province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    destination_province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    cargo_json = Column(String, default="{}") # {resource_id: amount}
+    settlers_count = Column(Integer, default=0)
+    status = Column(String, default="traveling") # traveling/arrived/returning
+    
+    owner = relationship("Player")
+    origin_province = relationship("Province", foreign_keys=[origin_province_id], back_populates="trade_routes")
+    destination_province = relationship("Province", foreign_keys=[destination_province_id])
+
+class KontorPrice(Base):
+    __tablename__ = 'kontor_preise'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    resource_id = Column(Integer, ForeignKey('ressourcen.id'), nullable=False)
+    mode = Column(String, nullable=False) # "buy" (kontor buys from visitor) or "sell" (kontor sells to visitor)
+    price = Column(Float, nullable=False)
+    friends_only = Column(Integer, default=0)
+    verbündete_only = Column(Integer, default=0)
+    active = Column(Integer, default=1)
+
+    province = relationship("Province", back_populates="kontor_prices")
+    resource = relationship("Resource")
+
+class UnitType(Base):
+    __tablename__ = 'einheiten_typen'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    geschwindigkeit = Column(Float, default=1.0)
+    transport_land = Column(Integer, default=1)
+    einheitengroesse = Column(Integer, default=1)
+    module_json = Column(String, default="[]")  # JSON array of modules
+
+class ProvinceUnit(Base):
+    __tablename__ = 'provinz_einheiten'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    einheiten_typ_id = Column(Integer, ForeignKey('einheiten_typen.id'), nullable=False)
+    count = Column(Integer, default=1)
+    status = Column(String, default="idle")  # idle/marching/trading
+    cargo_json = Column(String, default="{}")  # JSON {resource_id: amount}
+    
+    unit_type = relationship("UnitType")
+    province = relationship("Province")
+
+class PopulationCohort(Base):
+    __tablename__ = 'population_cohorts'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    tick_age = Column(Integer, default=0)  # 0-11 (0-5 years, 6-10, 11-15, ..., 56-60+)
+    count = Column(Integer, default=0)
+
+    province = relationship("Province")
+
+class GameLog(Base):
+    __tablename__ = 'game_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    timestamp = Column(DateTime, server_default=func.now())
+    event_type = Column(String, nullable=False)  # ROUTE_CREATED, ROUTE_ARRIVED, ROUTE_RETURNED, etc.
+    message = Column(String, nullable=False)
+    details_json = Column(String, default="{}")  # JSON for additional data
+
+    province = relationship("Province")
 
 # Engine setup
 engine = create_engine('sqlite:///verbrannte_zone.db')

@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  wasteland:
+    build: .
+    container_name: wasteland
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-wasteland_ultra_secure_secret_2026}
+    volumes:
+      - ./verbrannte_zone.db:/app/verbrannte_zone.db
+    restart: unless-stopped

@@ -12,42 +12,73 @@
 - Steueramt: enables Gewerbepunkte (fresh capital production)
 - Building costs → money goes TO Volkskonto
 
+## Implementation Status: ✓ IMPLEMENTED (2026-03-15)
+
+### Changes Made
+1. **Model Extensions** (`app/models.py`):
+   - `Province`: +provinzkonto, +volkskonto, +handelskonto (lines 60-62)
+   - `Player`: +staatskonto (line 18)
+   - `TaxSettings` model (lines 217-228)
+
+2. **Finance Logic** (`app/finance_logic.py`):
+   - `get_finance_overview()`: Returns all 4 account balances + PKV calculation
+   - `transfer_money()`: Supports transfer to handelskonto/staatskonto
+   - `process_tax_tick()`: Tax collection with Bank bonus (+20%)
+   - `process_wages_tick()`: Wage/sold distribution
+
+3. **API Endpoints** (`app/api/province.py`):
+   - GET `/province/{id}/finance` → finance overview
+   - POST `/province/{id}/tax-settings` → update rates
+   - POST `/province/{id}/finance/transfer` → transfer funds
+
 ## Data Models
 ```python
-ProvinceFinance: province_id, provinzkonto, volkskonto, handelskonto
-StateFinance: player_id, staatskonto
-TaxSettings: province_id, tax_rate(0-100), lohn_rate, sold_rate, rente_rate, state_transfer_pct
+Province (app/models.py):
+  - provinzkonto: Column(Float, default=0.0)
+  - volkskonto: Column(Float, default=0.0) 
+  - handelskonto: Column(Float, default=0.0)
+
+Player (app/models.py):
+  - staatskonto: Column(Float, default=0.0)
+
+TaxSettings (app/models.py):
+  - tax_rate: Column(Integer, default=10)
+  - lohn_rate: Column(Float, default=1.0)
+  - sold_rate: Column(Float, default=1.0)
+  - rente_rate: Column(Float, default=0.5)
+  - state_transfer_pct: Column(Integer, default=0)
 ```
 
-## Core Logic (per 24h tick)
+## Core Logic (Implemented in app/finance_logic.py)
 ```
-MIPS PRODUCTION:
-  for each Münzerei: consume 0.05 Kupfer → +1500 provinzkonto
+GET_FINANCE_OVERVIEW:
+  pkv = (provinzkonto + volkskonto) / max(population, 1)
+  returns {provinzkonto, volkskonto, handelskonto, staatskonto, pkv}
 
-TAX COLLECTION (requires Steueramt):
-  steuer = volkskonto * tax_rate/100
-  if volkskonto < 0: steuer = 0 (warn: "PKV_NEGATIVE")
-  provinzkonto += steuer * (1.2 if has_Bank else 1.0)
-  volkskonto -= steuer
+TRANSFER_MONEY (handelskonto):
+  valid targets: ["provinzkonto", "volkskonto", "handelskonto", "staatskonto"]
+  if from="provinzkonto" to="handelskonto": province.handelskonto += amount
 
-WAGES/SOLD (requires Steueramt):
-  wages = sum(building.arbeiter) * lohn_rate
-  sold = units.count * sold_rate
-  provinzkonto -= wages + sold
-  volkskonto += wages + sold
+TAX COLLECTION (process_tax_tick):
+  requires Steueramt building
+  steuer = volkskonto * tax_rate/100  
+  if pkv < 0: steuer = 0, warn "PKV_NEGATIVE"
+  bonus = 1.2 if has_Bank else 1.0
+  provinzkonto += steuer * bonus
 
-TAX MORAL IMPACT:
-  on tax_rate change: delta = new - old
-  if delta > 0: moral -= delta * 1.5   # increase hurts more
-  if delta < 0: moral += abs(delta) * 1.0
-
-STATE TRANSFER (requires Bank OR Steueramt %):
-  if state_transfer_pct > 0: staatskonto += provinzkonto * state_transfer_pct/100
+STATE TRANSFER:
+  if state_transfer_pct > 0: 
+    player.staatskonto += province.provinzkonto * state_transfer_pct/100
 ```
 
-## Endpoints
-```
-GET  /province/{id}/finance → all 4 account balances + PKV
-POST /province/{id}/tax-settings → update tax/wage rates
-POST /province/{id}/finance/transfer {"amount":float, "to":"staatskonto"/"handelskonto"}
-```
+## Endpoints (Implemented)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/province/{id}/finance` | GET | All 4 account balances + PKV |
+| `/province/{id}/tax-settings` | POST | Update tax_rate, lohn_rate, etc. |
+| `/province/{id}/finance/transfer` | POST | Transfer between accounts |
+
+## Validation
+- Tax collection blocked if PKV negative (volk cannot pay)
+- Bank building provides +20% tax income bonus
+- Transfer validation: sufficient source balance required

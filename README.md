@@ -222,6 +222,41 @@ Das Admin-Panel (`admin.html`) verwaltet aktuell:
 
 ## Roadmap
 
+## Docker / Deployment
+
+### Build the Docker image
+```bash
+docker build -t wasteland .
+```
+
+### Run the container (quick test)
+```bash
+docker run -d \
+  -p 8000:8000 \
+  -v "$(pwd)/verbrannte_zone.db:/app/verbrannte_zone.db" \
+  -e SECRET_KEY=my_super_secret \
+  --name wasteland \
+  wasteland
+```
+- `-p 8000:8000` maps the FastAPI port.
+- `-v …/verbrannte_zone.db:/app/verbrannte_zone.db` persists the SQLite DB.
+- `-e SECRET_KEY=…` overrides the default secret.
+
+### With docker‑compose (recommended for development)
+```bash
+docker compose up -d
+```
+The `docker-compose.yml` in the repository already contains the needed configuration (port mapping, DB volume, environment variable and restart policy).
+
+### Access the API
+Open your browser at `http://localhost:8000/docs` to view the Swagger UI or `http://localhost:8000/login.html` for the game UI.
+
+### Notes
+- The image uses `python:3.11‑slim`, which works on both x86_64 and ARM (Raspberry Pi).
+- All Python dependencies are listed in `requirements.txt` and installed during the build.
+- Adjust `SECRET_KEY` and other environment variables as needed for production.
+
+
 - [x] Admin: fehlende Backend-Endpoints (Artikel, Einheiten, Lebewesen)
 - [ ] Auth: JWT statt SHA256-Token
 - [ ] Produktions-Logik: Arbeiter/Wohnraum vollständig binden

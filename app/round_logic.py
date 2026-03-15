@@ -54,6 +54,12 @@ def is_building_rain_dependent(building: BuildingInstance) -> bool:
     spezial = json.loads(building.type.spezial_eigenschaften)
     return bool(spezial.get("regenabhaengig", False))
 
+
+def is_building_coastal_only(building: BuildingInstance) -> bool:
+    """Check if building only works on coast (like Entsalzungsanlage)."""
+    spezial = json.loads(building.type.spezial_eigenschaften)
+    return bool(spezial.get("kueste_only", False))
+
 def simulate_round(db: Session, province_id: int, hours: float = 24.0, is_raining: bool = False):
     """
     Simulates production/consumption for a given province and duration.
@@ -72,6 +78,16 @@ def simulate_round(db: Session, province_id: int, hours: float = 24.0, is_rainin
         
         if is_building_rain_dependent(building) and not is_raining:
             continue
+        
+        if is_building_coastal_only(building):
+            from app.road_logic import is_coastal_position
+            has_ocean = any(
+                is_coastal_position(db, province_id, b.x, b.y)
+                for b in province.buildings if hasattr(b, 'x')
+            )
+            terrain = province.terrain or ""
+            if "Ozean" not in terrain and "Wasser" not in terrain:
+                continue
         
         # Production
         prod_data = json.loads(building.type.produktion)

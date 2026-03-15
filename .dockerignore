@@ -1,0 +1,24 @@
+# Exclude compiled Python files and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Exclude local environment files
+.env
+.venv/
+
+# Exclude OS‑specific files
+.DS_Store
+Thumbs.db
+
+# Exclude version‑control metadata
+.git
+.gitignore
+
+# Exclude build artefacts
+build/
+Dist/
+*.egg-info/
+
+# Exclude the SQLite database (optional – keep it outside the image)
+verbrannte_zone.db

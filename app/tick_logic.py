@@ -86,13 +86,29 @@ def run_tick(db: Session):
                         process_wild_animal_feeding(db, province.id)
                         process_breeding(db, province.id)
                     
+                    # Finance tick (once per day at midnight)
+                    if now.hour == 0:
+                        from app.finance_logic import process_daily_finance_tick
+                        finance_result = process_daily_finance_tick(db, province.id)
+                        
+                        # Market tick
+                        from app.market_logic import process_market_tick
+                        market_result = process_market_tick(db, province.id)
+
                     provinces_total += 1
                 except Exception as e:
                     errors.append(f"Error in province {province.id}: {str(e)}")
             
             offset += chunk_size
             db.commit() # Commit per chunk
-            
+
+        # Process trade routes (every tick)
+        try:
+            from app.trade_route_logic import process_trade_routes
+            process_trade_routes(db)
+        except Exception as e:
+            errors.append(f"Error processing trade routes: {str(e)}")
+
         status = 1 if not errors else 0
         details = json.dumps({"errors": errors}) if errors else "Success"
         
