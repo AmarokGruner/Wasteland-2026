@@ -78,10 +78,11 @@ def create_trade_route(db: Session, province_id: int, destination_id: int, cargo
     if not origin or not dest:
         raise ValueError("Origin or destination province not found")
 
-    # Diplomacy check: Cannot send to enemy province
+    # Diplomacy check: Cannot send to enemy or unwanted province
     if dest.player_id != origin.player_id:
-        # TODO: Add diplomacy check here when diplomacy system exists
-        pass
+        from .diplomacy_logic import can_trade_with
+        if not can_trade_with(db, origin.player_id, dest.player_id):
+            raise ValueError("TRADE_BLOCKED: Hostile or unwanted relation with target player")
 
     # Validate player ownership
     player = db.query(Player).filter(Player.id == origin.player_id).first()
@@ -220,6 +221,28 @@ def execute_trade_at_destination(db: Session, route_id: int, cargo_return: dict 
         raise ValueError("Can only trade when status is 'arrived'")
 
     dest_province = db.query(Province).filter(Province.id == route.destination_province_id).first()
+    origin_province = db.query(Province).filter(Province.id == route.owner_province_id).first()
+
+    # Diplomacy check: If relation became hostile/unwanted, block trade
+    if dest_province.player_id != origin_province.player_id:
+        from .diplomacy_logic import can_trade_with
+        if not can_trade_with(db, origin_province.player_id, dest_province.player_id):
+            # Route must return without trading
+            route.status = "returning"
+            distance = get_distance(db, route.destination_province_id, route.owner_province_id)
+            karren_type = get_unit_type_by_name(db, "Handelskarren")
+            speed = karren_type.geschwindigkeit or 0.5
+            if has_pferde_upgrade(db, route.owner_province_id):
+                speed *= 2.0
+            route.travel_ticks_remaining = max(1, int(distance / speed))
+            db.commit()
+
+            log_game_event(
+                db, route.owner_province_id, "TRADE_BLOCKED",
+                f"Trade route to {route.destination_province_id} was blocked due to hostile relations",
+                {"destination_id": route.destination_province_id}
+            )
+            return route
 
     # Deposit outbound cargo to destination lager
     outbound_cargo = json.loads(route.cargo_outbound_json)

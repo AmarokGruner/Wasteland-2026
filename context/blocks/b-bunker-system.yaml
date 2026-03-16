@@ -1,0 +1,28 @@
+id: "b-bunker-system"
+type: "code|mechanics"
+domain: "backend|military"
+title: "Bunker & Startprovinz System"
+summary: "System für Startprovinzen via Bunker-Opening. Bietet Tech-Bonus (+2) und Verteidigungsbonus (1.3x). Wird bei Eroberung zerstört."
+details: |
+  ### Kernmechaniken
+  - **Claim**: Spieler können eine unbesetzte Provinz über `/world/claim` beanspruchen.
+  - **Bunker**: Jede Startprovinz erhält ein Bunker-Gebäude (nicht baubar, unzerstörbar durch Spieler).
+  - **Boni**:
+    - Tech-Produktion: +2 Punkte täglich (automatisch über `kultur_bildung_logic`).
+    - Verteidigung: 30% Bonus auf die defensive Kampfstärke in der Provinz.
+  - **Eroberung**: Wenn eine Bunker-Provinz erobert wird, wird der Bunker automatisch zerstört (`has_bunker = False`).
+  - **Limit**: Maximal 1 Bunker-Provinz pro Spieler.
+
+  ### Dateien
+  - `app/bunker_logic.py`: Claim- und Destruktionslogik.
+  - `app/models.py`: `Province` Felder (`has_bunker`, `is_bunker_province`).
+  - `app/combat_logic.py`: Integration des Verteidigungsbonus und Zerstörung bei Sieg.
+  - `app/api/world.py`: `/world/claim` Endpunkt.
+  - `app/api/province.py`: `/province/{id}/bunker` Endpunkt.
+
+sources: ["app/bunker_logic.py", "app/models.py", "app/combat_logic.py"]
+related_blocks: ["b-combat-system", "b-military-system"]
+tokens_estimate: 350
+created_at: "2026-03-16T13:00:00Z"
+updated_at: "2026-03-16T13:00:00Z"
+status: "active"

@@ -12,6 +12,13 @@ class IrrigateRequest(BaseModel):
 class SearchDepositRequest(BaseModel):
     vorkommen_id: int
 
+class MilitaryTrainRequest(BaseModel):
+    unit_type: str
+    count: int
+
+class MilitaryDismissRequest(BaseModel):
+    count: int
+
 class ReleaseAnimalsRequest(BaseModel):
     animal_resource_id: int
     count: int
@@ -59,6 +66,50 @@ def irrigate_province(province_id: int, request: IrrigateRequest, db: Session = 
     from app.climate_logic import irrigate_province
     result = irrigate_province(db, province_id, request.water_amount)
     return result
+
+@router.get("/{province_id}/military/status")
+def get_military_status(province_id: int, db: Session = Depends(get_db)):
+    """Get military status of a province"""
+    from app.military_logic import get_military_status
+    status = get_military_status(db, province_id)
+    if not status:
+        raise HTTPException(status_code=404, detail="Province not found")
+    return status
+
+@router.post("/{province_id}/military/train")
+def train_military(province_id: int, request: MilitaryTrainRequest, db: Session = Depends(get_db)):
+    """Train new units in a province"""
+    from app.military_logic import train_units
+    try:
+        unit = train_units(db, province_id, request.unit_type, request.count)
+        return {"success": True, "unit_count": unit.count, "type": unit.type}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{province_id}/military/dismiss")
+def dismiss_military(province_id: int, request: MilitaryDismissRequest, db: Session = Depends(get_db)):
+    """Dismiss military units and return them to population"""
+    from app.military_logic import dismiss_units
+    try:
+        unit = dismiss_units(db, province_id, request.count)
+        return {"success": True, "remaining_count": unit.count}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{province_id}/bunker")
+def get_bunker_status(province_id: int, db: Session = Depends(get_db)):
+    """Get bunker status of a province"""
+    province = db.query(Province).filter(Province.id == province_id).first()
+    if not province:
+        raise HTTPException(status_code=404, detail="Province not found")
+        
+    return {
+        "province_id": province.id,
+        "has_bunker": bool(province.has_bunker),
+        "is_bunker_province": bool(province.is_bunker_province),
+        "defense_bonus": province.bunker_defense_bonus if province.has_bunker else 1.0,
+        "tech_contribution": 2 if province.has_bunker else 0
+    }
 
 @router.get("/{province_id}/deposits")
 def get_province_deposits(province_id: int, db: Session = Depends(get_db)):
@@ -407,120 +458,6 @@ def preview_animal_actions(province_id: int, db: Session = Depends(get_db)):
 
 # Existing endpoints for settings, etc. (unchanged)
 
-
-@router.get("/{province_id}/deposits/searchable")
-def get_searchable_deposits(province_id: int, db: Session = Depends(get_db)):
-    province = db.query(Province).filter(Province.id == province_id).first()
-    if not province:
-        raise HTTPException(status_code=404, detail="Province not found")
-    
-    player = db.query(Player).filter(Player.id == province.player_id).first()
-    all_vorkommen = db.query(Vorkommen).all()
-    
-    result_deposits = []
-    for v in all_vorkommen:
-        prob = v.get_probability(province.terrain)
-        
-        if not prob or prob <= 0:
-            continue
-        
-        if player.tech_level < v.tech:
-            continue
-        
-        prov_deposit = db.query(ProvinceDeposit).filter(
-            ProvinceDeposit.province_id == province_id,
-            ProvinceDeposit.vorkommen_id == v.id
-        ).first()
-        
-        if prov_deposit and prov_deposit.deposit_searched:
-            continue
-        
-        result_deposits.append({
-            "vorkommen_id": v.id,
-            "name": v.name,
-            "typ": v.typ,
-            "tech_level": v.tech,
-            "suchkosten_mips": v.suchkosten,
-            "probability": prob
-        })
-    
-    return {
-        "province_id": province_id,
-        "terrain": province.terrain,
-        "searchable_deposits": result_deposits
-    }
-
-@router.post("/{province_id}/deposits/search")
-def search_deposit(province_id: int, request: SearchDepositRequest, db: Session = Depends(get_db)):
-    import random
-    from app.round_logic import QUALITY_MULTIPLIERS
-    
-    province = db.query(Province).filter(Province.id == province_id).first()
-    if not province:
-        raise HTTPException(status_code=404, detail="Province not found")
-    
-    vorkommen = db.query(Vorkommen).filter(
-        Vorkommen.id == request.vorkommen_id
-    ).first()
-    
-    if not vorkommen:
-        raise HTTPException(status_code=404, detail="Vorkommen not found")
-    
-    player = db.query(Player).filter(Player.id == province.player_id).first()
-    
-    if player.tech_level < vorkommen.tech:
-        raise HTTPException(status_code=400, detail=f"TECH_TOO_LOW: {player.tech_level}/{vorkommen.tech}")
-    
-    prob = vorkommen.get_probability(province.terrain)
-    if not prob or prob <= 0:
-        raise HTTPException(status_code=400, detail="NOT_POSSIBLE_IN_TERRAIN")
-    
-    prov_deposit = db.query(ProvinceDeposit).filter(
-        ProvinceDeposit.province_id == province_id,
-        ProvinceDeposit.vorkommen_id == vorkommen.id
-    ).first()
-    
-    if prov_deposit and prov_deposit.deposit_searched:
-        raise HTTPException(status_code=400, detail="ALREADY_SEARCHED")
-    
-    if province.mips < vorkommen.suchkosten_mips:
-        raise HTTPException(status_code=400, detail=f"INSUFFICIENT_MIPS: {province.mips}/{vorkommen.suchkosten_mips}")
-    
-    province.mips -= vorkommen.suchkosten_mips
-    
-    roll = random.randint(1, 100)
-    found = roll <= prob
-    
-    if found:
-        quality = random.choices([1, 2, 3], weights=[0.4, 0.4, 0.2])[0]
-    else:
-        quality = None
-    
-    if not prov_deposit:
-        prov_deposit = ProvinceDeposit(
-            province_id=province_id,
-            vorkommen_id=vorkommen.id,
-            deposit_found=int(found),
-            deposit_searched=1,
-            quality=quality if found else 2
-        )
-        db.add(prov_deposit)
-    else:
-        prov_deposit.deposit_searched = 1
-        prov_deposit.deposit_found = int(found)
-        if found:
-            prov_deposit.quality = quality
-    
-    db.commit()
-    
-    return {
-        "success": True,
-        "found": found,
-        "quality": quality,
-        "cost": vorkommen.suchkosten_mips,
-        "mips_remaining": province.mips
-    }
-
 class WorkerModeRequest(BaseModel):
     worker_mode: str
 
@@ -811,3 +748,190 @@ def trade_at_destination_endpoint(province_id: int, route_id: int, request: Trad
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+class SozialesSettingsRequest(BaseModel):
+    kindergeld_rate: float
+    rente_rate: float
+
+
+@router.get("/{province_id}/population")
+def get_province_population(province_id: int, db: Session = Depends(get_db)):
+    """Get population summary with age groups"""
+    from app.population_logic import get_population_summary
+    
+    province = db.query(Province).filter(Province.id == province_id).first()
+    if not province:
+        raise HTTPException(status_code=404, detail="Province not found")
+    
+    summary = get_population_summary(db, province_id)
+    return summary
+
+
+@router.get("/{province_id}/population/forecast")
+def get_population_forecast(province_id: int, ticks: int = 5, db: Session = Depends(get_db)):
+    """Get projected population evolution"""
+    from app.population_logic import get_population_forecast
+    
+    province = db.query(Province).filter(Province.id == province_id).first()
+    if not province:
+        raise HTTPException(status_code=404, detail="Province not found")
+    
+    ticks = max(1, min(30, ticks))
+    forecast = get_population_forecast(db, province_id, ticks)
+    
+    return {"province_id": province_id, "ticks_requested": ticks, "forecast": forecast}
+
+
+@router.post("/{province_id}/settings/soziales")
+def update_soziale_settings(province_id: int, request: SozialesSettingsRequest, db: Session = Depends(get_db)):
+    """Update kindergeld and rente rates"""
+    from app.population_logic import update_soziale_settings
+    
+    province = db.query(Province).filter(Province.id == province_id).first()
+    if not province:
+        raise HTTPException(status_code=404, detail="Province not found")
+    
+    result = update_soziale_settings(
+        db, 
+        province_id, 
+        kindergeld_rate=request.kindergeld_rate,
+        rente_rate=request.rente_rate
+    )
+    
+    return {
+        "success": True,
+        "province_id": province_id,
+        "kindergeld_rate": result["kindergeld_rate"],
+        "rente_rate": result["rente_rate"]
+    }
+
+
+@router.get("/{province_id}/kultur")
+def get_province_kultur(province_id: int, db: Session = Depends(get_db)):
+    """Get culture points and influence data for province"""
+    from app.kultur_bildung_logic import get_kultur_influence_data
+    
+    province = db.query(Province).filter(Province.id == province_id).first()
+    if not province:
+        raise HTTPException(status_code=404, detail="Province not found")
+    
+    kultur_data = get_kultur_influence_data(db, province_id)
+    
+    return {
+        "province_id": province_id,
+        "kulturpunkte_current": province.kulturpunkte,
+        "kultureinfluss_total": kultur_data.get("kultureinfluss_total", 0),
+        "kulturpunkte_daily": kultur_data.get("kulturpunkte_daily", 0),
+        "can_annex_field": kultur_data.get("can_annex_field", False),
+        "progress_percent": kultur_data.get("progress_percent", 0),
+        "next_annex_at": kultur_data.get("next_annex_at", 100)
+    }
+
+
+class CreateExpeditionRequest(BaseModel):
+    destination_province_id: int
+    settler_count: int
+    karren_count: int
+    cargo: dict
+
+
+@router.post("/{province_id}/expedition/create")
+def create_expedition(province_id: int, request: CreateExpeditionRequest, db: Session = Depends(get_db)):
+    """Create a new Siedler expedition to colonize a province"""
+    from app.siedler_logic import create_siedler_expedition
+    
+    try:
+        expedition = create_siedler_expedition(
+            db,
+            province_id,
+            request.destination_province_id,
+            request.settler_count,
+            request.karren_count,
+            request.cargo
+        )
+        return {
+            "success": True,
+            "expedition_id": expedition.id,
+            "status": expedition.status,
+            "message": f"Expedition created to province {request.destination_province_id}"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{province_id}/expedition/{expedition_id}/depart")
+def depart_expedition(province_id: int, expedition_id: int, db: Session = Depends(get_db)):
+    """Depart the expedition (start traveling)"""
+    from app.siedler_logic import depart_expedition
+    
+    try:
+        expedition = depart_expedition(db, expedition_id)
+        return {
+            "success": True,
+            "expedition_id": expedition.id,
+            "status": expedition.status,
+            "travel_ticks_remaining": expedition.travel_ticks_remaining,
+            "message": f"Expedition departed, will arrive in {expedition.travel_ticks_remaining} ticks"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/{province_id}/expedition/{expedition_id}/status")
+def get_expedition_status(province_id: int, expedition_id: int, db: Session = Depends(get_db)):
+    """Get status of a specific expedition"""
+    from app.models import SiedlerExpedition
+    
+    expedition = db.query(SiedlerExpedition).filter(
+        SiedlerExpedition.id == expedition_id,
+        (SiedlerExpedition.origin_province_id == province_id) | 
+        (SiedlerExpedition.destination_province_id == province_id)
+    ).first()
+    
+    if not expedition:
+        raise HTTPException(status_code=404, detail="Expedition not found")
+    
+    import json
+    return {
+        "expedition_id": expedition.id,
+        "origin_province_id": expedition.origin_province_id,
+        "destination_province_id": expedition.destination_province_id,
+        "status": expedition.status,
+        "travel_ticks_remaining": expedition.travel_ticks_remaining,
+        "total_travel_ticks": expedition.total_travel_ticks,
+        "settler_count": expedition.settler_count,
+        "karren_count": expedition.karren_count,
+        "cargo": json.loads(expedition.cargo_json),
+        "progress_percent": 0 if expedition.total_travel_ticks == 0 else 
+            int((1 - expedition.travel_ticks_remaining / expedition.total_travel_ticks) * 100)
+    }
+
+
+@router.get("/{province_id}/expeditions")
+def get_province_expeditions(province_id: int, db: Session = Depends(get_db)):
+    """Get all expeditions from/to a province"""
+    from app.models import SiedlerExpedition
+    
+    expeditions = db.query(SiedlerExpedition).filter(
+        (SiedlerExpedition.origin_province_id == province_id) |
+        (SiedlerExpedition.destination_province_id == province_id)
+    ).all()
+    
+    result = []
+    for e in expeditions:
+        import json
+        result.append({
+            "expedition_id": e.id,
+            "origin_province_id": e.origin_province_id,
+            "destination_province_id": e.destination_province_id,
+            "status": e.status,
+            "travel_ticks_remaining": e.travel_ticks_remaining,
+            "settler_count": e.settler_count,
+            "karren_count": e.karren_count
+        })
+    
+    return {
+        "province_id": province_id,
+        "expeditions": result
+    }

@@ -1,0 +1,32 @@
+id: "b-military-system"
+type: "overview|api|code"
+domain: "backend"
+title: "Military System"
+summary: "Manages units, training, fitness, and security in provinces"
+details: |
+  ### Core Components
+  - **Units**: Soldiers and Settlers. Tracked per province with count, training (0-100), and fitness (0-100).
+  - **Training**: Requires training facilities (Ausbildungscamp). Units gain training over time or via recruitment.
+  - **Security**: Target is 1 soldier per 10 inhabitants (10%).
+    - Ratio >= 10%: Moral bonus based on `security_bonus` (from buildings like Palisaden).
+    - Ratio < 10%: Moral malus proportional to the deficit.
+  - **Supply**: Units consume 0.5 Food and 0.5 Drink per 24h.
+
+  ### Data Model
+  - `Unit`: Stores unit data and links to `Province`.
+  - `Province`: Extended with `min_soldiers` (default 20) and `security_bonus`.
+
+  ### API Endpoints
+  - `GET /province/{id}/military/status`: Current military stats and security ratio.
+  - `POST /province/{id}/military/train`: Convert population to units (requires training facility).
+  - `POST /province/{id}/military/dismiss`: Return units to population (min 20 enforced).
+
+  ### Implementation
+  - Logic: `app/military_logic.py`
+  - Integration: `app/round_logic.py` (consumption), `app/tick_logic.py` (daily training/security update).
+sources: ["app/military_logic.py", "app/api/province.py", "app/models.py", "app/round_logic.py"]
+related_blocks: ["b-backend-endpoints", "b-api-endpoints", "b-diplomacy-system"]
+tokens_estimate: 400
+created_at: "2026-03-16T13:10:00Z"
+updated_at: "2026-03-16T13:10:00Z"
+status: "active"

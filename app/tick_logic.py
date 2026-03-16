@@ -86,6 +86,23 @@ def run_tick(db: Session):
                         process_wild_animal_feeding(db, province.id)
                         process_breeding(db, province.id)
                     
+                    # Population aging and births (once per day at midnight)
+                    if now.hour == 0:
+                        from app.population_logic import process_population_tick, process_kindergeld_and_rente
+                        process_population_tick(db, province.id)
+                        
+                        from app.finance_logic import has_steueramt
+                        if has_steueramt(db, province.id):
+                            soziale_result = process_kindergeld_and_rente(db, province.id)
+                        
+                        # Kultur and Tech production (once per day at midnight)
+                        from app.kultur_bildung_logic import process_kultur_and_tech_tick
+                        kultur_result = process_kultur_and_tech_tick(db, province.id)
+                        
+                        # Military training and security (once per day at midnight)
+                        from app.military_logic import process_military_tick
+                        process_military_tick(db, province.id)
+                    
                     # Finance tick (once per day at midnight)
                     if now.hour == 0:
                         from app.finance_logic import process_daily_finance_tick
@@ -108,6 +125,64 @@ def run_tick(db: Session):
             process_trade_routes(db)
         except Exception as e:
             errors.append(f"Error processing trade routes: {str(e)}")
+        
+        # Process Siedler expeditions (every tick)
+        try:
+            from app.siedler_logic import process_expeditions
+            process_expeditions(db)
+        except Exception as e:
+            errors.append(f"Error processing expeditions: {str(e)}")
+        
+        # Process player tech level (once per day at midnight)
+        if now.hour == 0:
+            try:
+                from app.kultur_bildung_logic import process_player_tech_level
+                for player in db.query(Player).all():
+                    process_player_tech_level(db, player.id)
+            except Exception as e:
+                errors.append(f"Error processing tech levels: {str(e)}")
+        
+        # Process multi-province moral penalty (once per day at midnight)
+        if now.hour == 0:
+            try:
+                from app.kultur_bildung_logic import process_multi_province_moral_penalty
+                for player in db.query(Player).all():
+                    process_multi_province_moral_penalty(db, player.id)
+            except Exception as e:
+                errors.append(f"Error processing moral penalty: {str(e)}")
+
+        # Process regierungsform transition (once per day at midnight)
+        if now.hour == 0:
+            try:
+                from app.regierungsform_logic import process_regierungsform_transition
+                for player in db.query(Player).all():
+                    transition_result = process_regierungsform_transition(db, player.id)
+            except Exception as e:
+                errors.append(f"Error processing regierungsform transition: {str(e)}")
+
+        # Process regierungsform daily effects (once per day at midnight)
+        if now.hour == 0:
+            try:
+                from app.regierungsform_logic import process_regierungsform_daily
+                for player in db.query(Player).all():
+                    process_regierungsform_daily(db, player.id)
+            except Exception as e:
+                errors.append(f"Error processing regierungsform daily effects: {str(e)}")
+
+        # Process Army movement (every tick)
+        try:
+            from app.army_logic import update_armies
+            update_armies(db)
+        except Exception as e:
+            errors.append(f"Error processing army movement: {str(e)}")
+
+        # Process Combat rounds (once per day at midnight)
+        if now.hour == 0:
+            try:
+                from app.army_logic import process_combat_ticks
+                process_combat_ticks(db)
+            except Exception as e:
+                errors.append(f"Error processing combat: {str(e)}")
 
         status = 1 if not errors else 0
         details = json.dumps({"errors": errors}) if errors else "Success"

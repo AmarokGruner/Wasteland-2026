@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String, ForeignKey, JSON, DateTime, func
+from sqlalchemy import Column, Integer, Float, String, ForeignKey, JSON, DateTime, func, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
@@ -6,12 +6,53 @@ import json
 
 Base = declarative_base()
 
+class TerrainType(Base):
+    __tablename__ = 'terrain_typen'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False, unique=True)
+    playable = Column(Integer, default=1)
+    color = Column(String)
+    icon = Column(String)
+    beschreibung = Column(String)
+    bild_url = Column(String)
+    gif_filename = Column(String)
+    
+    # Costs
+    mips_kosten = Column(Integer, default=0)
+    
+    # Bonuses
+    holz_yield = Column(Float, default=1.0)
+    stein_yield = Column(Float, default=1.0)
+    eisen_yield = Column(Float, default=1.0)
+    
+    def get_probability(self, terrain_name: str) -> float:
+        """Helper to get probability of a resource occurring on this terrain"""
+        # This logic is usually on the resource/vorkommen, but let's see
+        return 0.0
+
+class MapCell(Base):
+    __tablename__ = 'world_map_cells'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    x = Column(Integer, nullable=False)
+    y = Column(Integer, nullable=False)
+    terrain_id = Column(Integer, ForeignKey('terrain_typen.id'), nullable=False)
+    owner_id = Column(Integer, ForeignKey('players.id'), nullable=True)
+    is_ruin_province = Column(Integer, default=0)
+    has_ocean_border = Column(Integer, default=0)
+    
+    terrain = relationship("TerrainType")
+    owner = relationship("Player")
+    
+    __table_args__ = (UniqueConstraint('x', 'y', name='_x_y_uc'),)
+
 class Player(Base):
     __tablename__ = 'players'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True, nullable=False)
     time_credit = Column(Float, default=240.0)
     tech_level = Column(Integer, default=0)
+    regierungsform_id = Column(Integer, ForeignKey('regierungsformen.id'), default=1)
+    regierungsform_transition_ticks_remaining = Column(Integer, default=0)  # 0=done
     provinces = relationship("Province", back_populates="player")
     
     # State finance account
@@ -19,6 +60,8 @@ class Player(Base):
     
     # Trading
     karren_count = Column(Integer, default=2)  # Start with 2 Handelskarren
+    
+    regierungsform = relationship("Regierungsform")
 
 class Province(Base):
     __tablename__ = 'provinzen'
@@ -38,6 +81,9 @@ class Province(Base):
     
     # New columns for building system
     kulturpunkte = Column(Integer, default=0)
+    kultureinfluss_total = Column(Float, default=0.0)  # Accumulates for field annexation
+    kultureinfluss_owner_id = Column(Integer, ForeignKey('players.id'), nullable=True)  # Owner of culture influence
+    tech_production = Column(Integer, default=0)  # Daily tech production points
     size_level = Column(Integer, default=1) # 1-7 (Camp to Metropole)
     fields_total = Column(Integer, default=40)
     fields_city = Column(Integer, default=5)
@@ -46,12 +92,14 @@ class Province(Base):
     terrain_yield_malus = Column(Float, default=0.0)
     
     player = relationship("Player", back_populates="provinces")
+    kultureinfluss_owner = relationship("Player", foreign_keys=[kultureinfluss_owner_id])
     buildings = relationship("BuildingInstance", back_populates="province")
     roads = relationship("RoadInstance", back_populates="province")
     lager = relationship("ProvinceLager", back_populates="province")
     market_stands = relationship("MarketStand", back_populates="province")
     trade_routes = relationship("TradeRoute", foreign_keys="TradeRoute.origin_province_id", back_populates="origin_province")
     kontor_prices = relationship("KontorPrice", back_populates="province")
+    units = relationship("Unit", back_populates="province")
     
     # Add new relationship for animals
     animals = relationship("ProvinceAnimal", back_populates="province")
@@ -63,6 +111,65 @@ class Province(Base):
     
     # Coast & Sea access
     sea_access = Column(String, default=None)  # None, "boats", "ships"
+    
+    # Military
+    min_soldiers = Column(Integer, default=20)
+    security_bonus = Column(Integer, default=0)
+    
+    # Bunker
+    has_bunker = Column(Integer, default=0) # 1=True, 0=False
+    is_bunker_province = Column(Integer, default=0) # 1=True, 0=False (for start province)
+    bunker_defense_bonus = Column(Float, default=1.3) # 30% bonus
+    
+    stationed_armies = relationship("Army", back_populates="province")
+
+class Army(Base):
+    __tablename__ = 'armies'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    owner_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    
+    # units: List of {einheiten_typ_id, count, training, fitness}
+    units_json = Column(String, default="[]") 
+    
+    status = Column(String, default="stationed") # stationed/marching/besieging/in_combat
+    
+    # Movement data
+    target_province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=True)
+    travel_ticks_remaining = Column(Integer, default=0)
+    
+    owner = relationship("Player")
+    province = relationship("Province", foreign_keys=[province_id], back_populates="stationed_armies")
+    target_province = relationship("Province", foreign_keys=[target_province_id])
+
+class CombatLog(Base):
+    __tablename__ = 'combat_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    attacker_army_id = Column(Integer, ForeignKey('armies.id'), nullable=False)
+    defender_army_id = Column(Integer, ForeignKey('armies.id'), nullable=True) # Can be Null if only garrison? 
+    # Better: province_id for defensive garrison/buildings
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    
+    rounds_json = Column(String, default="[]") # JSON list of round details
+    attacker_losses = Column(Integer, default=0)
+    defender_losses = Column(Integer, default=0)
+    outcome = Column(String, default="ongoing") # attacker_wins/defender_wins/ongoing
+    resolved_at = Column(DateTime, nullable=True)
+    
+    attacker_army = relationship("Army", foreign_keys=[attacker_army_id])
+    defender_army = relationship("Army", foreign_keys=[defender_army_id])
+    province = relationship("Province")
+
+class Unit(Base):
+    __tablename__ = 'units'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    count = Column(Integer, default=0)
+    training = Column(Float, default=0.0) # 0-100
+    fitness = Column(Float, default=100.0) # 0-100
+    type = Column(String, default="soldier") # "soldier"/"settler"
+    
+    province = relationship("Province", back_populates="units")
 
 class BuildingType(Base):
     __tablename__ = 'gebaeude_typen'
@@ -227,6 +334,7 @@ class TaxSettings(Base):
     sold_rate = Column(Float, default=1.0)       # Military pay per unit
     rente_rate = Column(Float, default=0.5)      # Renten rate
     state_transfer_pct = Column(Integer, default=0)  # % transfer to Staatskonto
+    kindergeld_rate = Column(Float, default=0.5)  # Kindergeld rate per child
     
     province = relationship("Province")
 
@@ -293,7 +401,7 @@ class MarketStand(Base):
 
 class TradeRoute(Base):
     __tablename__ = 'handelsrouten'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     owner_id = Column(Integer, ForeignKey('players.id'), nullable=False)
     origin_province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
     destination_province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
@@ -304,6 +412,39 @@ class TradeRoute(Base):
     owner = relationship("Player")
     origin_province = relationship("Province", foreign_keys=[origin_province_id], back_populates="trade_routes")
     destination_province = relationship("Province", foreign_keys=[destination_province_id])
+
+
+class SiedlerExpedition(Base):
+    __tablename__ = 'siedler_expeditionen'
+    id = Column(Integer, primary_key=True)
+    owner_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    origin_province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    destination_province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    settler_count = Column(Integer, default=0)
+    karren_count = Column(Integer, default=0)
+    cargo_json = Column(String, default="{}")  # {resource_id: amount}
+    status = Column(String, default="preparing")  # preparing/traveling/arrived/colonizing
+    travel_ticks_remaining = Column(Integer, default=0)
+    total_travel_ticks = Column(Integer, default=0)
+    settler_tick_age = Column(Integer, default=4)  # tick_age of settlers (4-5)
+    
+    owner = relationship("Player")
+    origin_province = relationship("Province", foreign_keys=[origin_province_id])
+    destination_province = relationship("Province", foreign_keys=[destination_province_id])
+
+
+class ProvinceTransfer(Base):
+    __tablename__ = 'provinz_transfers'
+    id = Column(Integer, primary_key=True)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
+    from_player_id = Column(Integer, ForeignKey('players.id'), nullable=True)  # NULL for unowned
+    to_player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    status = Column(String, default="pending")  # pending/accepted/rejected
+    created_at = Column(DateTime, server_default=func.now())
+    
+    province = relationship("Province")
+    from_player = relationship("Player", foreign_keys=[from_player_id])
+    to_player = relationship("Player", foreign_keys=[to_player_id])
 
 class KontorPrice(Base):
     __tablename__ = 'kontor_preise'
@@ -344,7 +485,8 @@ class PopulationCohort(Base):
     __tablename__ = 'population_cohorts'
     id = Column(Integer, primary_key=True, autoincrement=True)
     province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
-    tick_age = Column(Integer, default=0)  # 0-11 (0-5 years, 6-10, 11-15, ..., 56-60+)
+    tick_age = Column(Integer, default=0)  # 0-15 (each tick = 5 years: 0-75+)
+    age_group = Column(String, default="kind")  # "kind" (0-14), "arbeiter" (15-64), "rentner" (65+)
     count = Column(Integer, default=0)
 
     province = relationship("Province")
@@ -359,6 +501,46 @@ class GameLog(Base):
     details_json = Column(String, default="{}")  # JSON for additional data
 
     province = relationship("Province")
+
+class DiplomacyRelation(Base):
+    __tablename__ = 'diplomatie'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    target_player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    status = Column(String, nullable=False)  # verbündet/freund/neutral/unerwünscht/feind
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    __table_args__ = (
+        UniqueConstraint('player_id', 'target_player_id', name='uq_diplomatie_player_target'),
+    )
+
+
+class Regierungsform(Base):
+    __tablename__ = 'regierungsformen'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    formtyp = Column(String, default='')
+    techlevel = Column(Integer, default=0)
+    ausbauwert_regierungssitz = Column(Integer, default=None)  # Required government seat level
+    kulturverbreitung = Column(Float, default=1.0)
+    grundmoral = Column(Integer, default=50)
+    forschungsfortschritt = Column(Float, default=1.0)
+    produktivitaet = Column(Float, default=1.0)
+    wachstum = Column(Float, default=1.0)
+    finanzen = Column(Float, default=1.0)
+    sicherheit = Column(Float, default=1.0)
+    moralmalus_armee_aussen = Column(Integer, default=10)
+    entfernungsmalus = Column(Float, default=1.0)
+    lebensmittelbedarf = Column(Float, default=1.0)
+    verbrauchsgutbedarf = Column(Float, default=1.0)
+    streikbereitschaft = Column(Float, default=0.0)
+    auswanderbereitschaft = Column(Float, default=0.0)
+    milizen = Column(Float, default=0.0)
+    fremdkultur_verlust = Column(Integer, default=0)
+    aufstand = Column(Integer, default=0)
+    krieg_moeglich = Column(Integer, default=0)
+    provinzanzahl_bis_malus = Column(Integer, default=2)
+    malus_beschreibung = Column(String, default='')
 
 # Engine setup
 engine = create_engine('sqlite:///verbrannte_zone.db')

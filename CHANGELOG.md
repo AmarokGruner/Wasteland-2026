@@ -65,19 +65,44 @@ verbrannte_zone_project/
 5. **Debugging:** Fehler leichter zu lokalisieren
 6. **Performance:** Browser cached einzelne Dateien
 
+### ⚔️ Diplomatie-System (2026-03-16)
+- **Modell**: `DiplomacyRelation` in `app/models.py` hinzugefügt/verifiziert.
+- **Logik**: `app/diplomacy_logic.py` mit Funktionen für effektive Beziehungen, Kriegserklärungen und Grenzüberschreitungs-Checks implementiert.
+- **Handel**: Integration in `app/trade_route_logic.py` (Blockade bei feindseligen Beziehungen).
+- **Moral**: `fremdkultur_verlust` Check in `app/kultur_bildung_logic.py` hinzugefügt.
+- **API**: Endpunkte unter `/player/{id}/diplomacy` in `app/api/player.py` verfügbar.
+- **Dokumentation**: Neuer Context-Block `b-diplomacy-system` erstellt.
+
+### ⚔️ Militär-System (2026-03-16)
+- **Modell**: `Unit` Tabelle hinzugefügt; `Province` um `min_soldiers` und `security_bonus` erweitert.
+- **Logik**: `app/military_logic.py` implementiert (Training, Fitness, Sicherheits-Checks, Moral-Boni/Malus).
+- **Versorgung**: Integration in `app/round_logic.py` (Einheiten verbrauchen 0.5 Nahrung/Getränk).
+- **Automatisierung**: Täglicher Training- und Sicherheits-Tick in `app/tick_logic.py` integriert.
+- **API**: Neue Endpunkte unter `/province/{id}/military/` (status, train, dismiss).
+- **Dokumentation**: Neuer Context-Block `b-military-system` erstellt und registriert.
+
+### ⚔️ Kampf- & Belagerungssystem (2026-03-16)
+- **Modell**: `Army` und `CombatLog` in `app/models.py` hinzugefügt; Beziehungen zu `Player` und `Province` definiert.
+- **Kampf-Logik**: `app/combat_logic.py` mit Power-Berechnung (Training, Fitness, Boni), Verlustverteilung und Provinz-Eroberung implementiert.
+- **Armee-Logik**: `app/army_logic.py` für Bewegungs-Validierung (Nachbarschaft, Diplomatie) und Tick-Updates aufgesetzt.
+- **Tick-Integration**: Server-Tick in `app/tick_logic.py` um Armeebewegung und Kampfrunden erweitert.
+- **API**: Neue Endpunkte unter `/army/` (move, status, retreat) und `/province/{id}/combat/status` verfügbar.
+- **Dokumentation**: Context-Block `b-combat-system` erstellt und registriert.
+
+### 🛡️ Bunker- & Startprovinz-System (2026-03-16)
+- **Modell**: `Province` um `has_bunker`, `is_bunker_province` und `bunker_defense_bonus` erweitert.
+- **Logik**: `app/bunker_logic.py` implementiert (Bunker öffnen/schließen, Provinz beanspruchen, automatische Zerstörung bei Eroberung).
+- **Tech-Bonus**: Automatische Tech-Produktion (+2) über Bunker-Gebäude in `app/kultur_bildung_logic.py` integriert.
+- **Verteidigung**: 30% Bonus auf defensive Kampfstärke in `app/combat_logic.py` aktiviert.
+- **API**: Neue Endpunkte `/world/claim` (Bunker öffnen) und `/province/{id}/bunker` (Status abrufen) hinzugefügt.
+- **Dokumentation**: Context-Block `b-bunker-system` erstellt und im Index registriert.
+
 ### 🚀 Nächste Schritte
 
-1. Terrain-Bilder erstellen (30x30 PNG)
-2. Gebäude-System in province.js implementieren
-3. Einheiten-System hinzufügen
-4. Backend-Anbindung für Provinzen
-5. Multiplayer-Features
-
-### 📦 Dateien für Dropbox
-
-- verbrannte_zone_modularisiert.zip (komplettes Projekt)
-- Alle einzelnen Dateien als Backup
+1. **Phase 5 (UI-Refactoring)**: Integration der neuen Backend-Systeme (Militär, Kampf, Diplomatie, Bunker) ins Spieler-Frontend.
+2. **Phase 5 (Admin-Panel)**: Erweiterung des Admin-Panels um Truppen- und Beziehungsmanagement.
+3. **Phase 6 (Polish)**: Terrain-Bilder finalisieren und Event-System implementieren.
 
 ---
-**Datum:** 2026-02-22
-**Erstellt von:** AI Assistant für Wasteland Team
+**Datum:** 2026-03-16
+**Erstellt von:** Junie (JetBrains AI)

@@ -133,17 +133,21 @@ def get_kontor_prices(province_id: int, visitor_player_id: int = None, db: Sessi
     if visitor_player_id:
         visitor = db.query(Player).filter(Player.id == visitor_player_id).first()
     
+    province_owner_id = int(province.player_id)
+    
     result = []
     for p in prices:
         visible = True
         
-        # Price visibility logic
+        # Price visibility logic using diplomacy system
         if visitor and p.friends_only == 1:
-            # Check if visitor is friend (simplified - would need player.freunde)
-            visible = False
+            from app.diplomacy_logic import can_see_friends_only_listing
+            if not can_see_friends_only_listing(db, visitor_player_id, province_owner_id):
+                visible = False
         if visitor and p.verbündete_only == 1:
-            # Check if visitor is verbündeter (simplified)
-            visible = False
+            from app.diplomacy_logic import can_see_allied_listing
+            if not can_see_allied_listing(db, visitor_player_id, province_owner_id):
+                visible = False
         
         result.append({
             "id": p.id,
@@ -271,6 +275,14 @@ def execute_kontor_trade(province_id: int, request: KontorTradeRequest, db: Sess
     route = db.query(TradeRoute).filter(TradeRoute.id == request.route_id).first()
     if not route:
         raise HTTPException(status_code=404, detail="Trade route not found")
+    
+    # Check diplomacy - block trade if enemy or unwanted
+    from app.diplomacy_logic import can_trade_with
+    route_owner_id = route.owner_id
+    province_owner_id = province.player_id
+    
+    if not can_trade_with(db, route_owner_id, province_owner_id):
+        raise HTTPException(status_code=403, detail="TRADE_BLOCKED: Diplomatic relation prevents trading")
     
     # Load cargo from route
     import json as json_module

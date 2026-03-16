@@ -1,0 +1,30 @@
+id: "b-diplomacy-system"
+type: "overview|api|code"
+domain: "backend"
+title: "Diplomacy System"
+summary: "Manages player-to-player relations: Allied, Friend, Neutral, Unwanted, Hostile"
+details: |
+  ### Relation Types
+  - **Allied**: Border crossing allowed, trade allowed, friends-only Kontor access.
+  - **Friend**: Trade allowed, friends-only Kontor access.
+  - **Neutral**: Default. Trade allowed.
+  - **Unwanted**: Trade blocked.
+  - **Hostile**: Trade blocked, auto-attack on encounter.
+
+  ### Effective Relation
+  Asymmetric relations are combined into an effective bilateral status (worst-case for hostiles, best-case for friends).
+
+  ### Government Restrictions
+  - `krieg_moeglich=0` blocks war declaration (setting status to 'feind').
+  - `fremdkultur_verlust=1` causes moral malus if foreign culture influence is present.
+
+  ### Implementation
+  - Logic: `app/diplomacy_logic.py`
+  - Endpoints: `app/api/player.py` (/player/{id}/diplomacy)
+  - Model: `app/models.py` (DiplomacyRelation)
+sources: ["app/diplomacy_logic.py", "app/api/player.py", "app/models.py"]
+related_blocks: ["b-backend-endpoints", "b-api-endpoints"]
+tokens_estimate: 350
+created_at: "2026-03-16T12:50:00Z"
+updated_at: "2026-03-16T12:50:00Z"
+status: "active"

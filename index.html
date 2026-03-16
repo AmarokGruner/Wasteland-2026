@@ -132,6 +132,42 @@
       50% { box-shadow: 0 0 0 4px #8888ff99; }
     }
   </style>
+  <style>
+    /* ... existing styles ... */
+    .player-marker {
+      font-size: 1.2em;
+      text-shadow: 0 0 5px rgba(0,0,0,0.8);
+      pointer-events: none;
+      z-index: 10;
+    }
+    .army-marker {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      font-size: 1.2em;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      padding: 2px;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .status-badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+    .status-feind { background: #d32f2f; color: white; }
+    .status-neutral { background: #555; color: white; }
+    .status-allianz { background: #2e7d32; color: white; }
+    
+    .view-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 
 <body>
@@ -194,6 +230,7 @@
           </div>
         </div>
         <button class="province-menu-item" onclick="switchView('production')">📊 Produktionsübersicht</button>
+        <button class="province-menu-item" onclick="switchView('diplomacy')">🤝 Diplomatie</button>
       </div>
 
       <!-- Provinzansicht: Navigationsmenü -->
@@ -205,6 +242,8 @@
             Provinz-Vorschau</button>
           <button class="province-menu-item" id="menu-btn-lager" onclick="showProvinceSubView('lager')">🏪
             Provinzlager</button>
+          <button class="province-menu-item" id="menu-btn-militaer" onclick="showProvinceSubView('militaer')">⚔️
+            Militär</button>
           <button class="province-menu-item" id="menu-btn-transport" onclick="showProvinceSubView('transport')">🛺
             Warentransport</button>
         </div>
@@ -272,6 +311,37 @@
           </div>
         </div>
 
+        <!-- Sub-View: Militär -->
+        <div id="province-militaer-container" style="display:none">
+          <div class="military-header" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0">⚔️ Militär & Verteidigung</h3>
+            <div style="display: flex; gap: 20px;">
+              <div class="mil-stat-item">Soldaten: <strong id="mil-count">0</strong></div>
+              <div class="mil-stat-item">Fitness: <strong id="mil-fitness">100</strong>%</div>
+              <div class="mil-stat-item">Sicherheitsbonus: <strong id="mil-security-bonus">0</strong>%</div>
+            </div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: #222; padding: 15px; border-radius: 8px;">
+              <h4>Einheiten ausbilden</h4>
+              <p style="font-size: 0.9em; color: var(--text-muted)">Kosten: Eisen, Nahrung, Zeit. Erhöht Verteidigung.</p>
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="number" id="mil-train-amount" value="10" min="1" style="width: 80px; background: #333; color: #fff; border: 1px solid #444; padding: 5px;">
+                <button class="btn-action" onclick="trainUnits()" style="background: #2e7d32">Ausbilden</button>
+              </div>
+            </div>
+            <div style="background: #222; padding: 15px; border-radius: 8px;">
+              <h4>Einheiten entlassen</h4>
+              <p style="font-size: 0.9em; color: var(--text-muted)">Minimale Besatzung: 20 Soldaten.</p>
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="number" id="mil-dismiss-amount" value="10" min="1" style="width: 80px; background: #333; color: #fff; border: 1px solid #444; padding: 5px;">
+                <button class="btn-action" onclick="dismissUnits()" style="background: #d32f2f">Entlassen</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Sub-View: Warentransport (UI Skizze) -->
         <div id="province-transport-container" style="display:none">
           <div class="transport-layout">
@@ -326,6 +396,31 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- Diplomatie-Ansicht -->
+      <div id="diplomacy-view" style="display:none; width: 100%;">
+        <div class="view-controls">
+          <h2>🤝 Diplomatie & Beziehungen</h2>
+          <button class="btn-action" onclick="switchView('world')" style="width: auto; height: auto;">Zurück zur Weltkarte</button>
+        </div>
+        <div class="diplomacy-container" style="background: #222; border-radius: 8px; padding: 20px;">
+          <table class="data-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+              <tr style="border-bottom: 2px solid #444; text-align: left;">
+                <th style="padding: 10px;">Spieler</th>
+                <th style="padding: 10px;">Status</th>
+                <th style="padding: 10px;">Punkte</th>
+                <th style="padding: 10px;">Handel</th>
+                <th style="padding: 10px;">Aktion</th>
+              </tr>
+            </thead>
+            <tbody id="diplomacy-list">
+              <!-- Dynamisch gefüllt -->
+              <tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">Lade Diplomatie-Daten...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Produktionsübersicht (Global) -->

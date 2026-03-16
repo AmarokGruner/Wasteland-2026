@@ -485,8 +485,73 @@ function backToWorld() {
     }
 }
 
+async function loadMilitaryStatus() {
+    if (!window.currentProvinzId) return;
+    const statusEl = document.getElementById('mil-count');
+    const fitnessEl = document.getElementById('mil-fitness');
+    const securityEl = document.getElementById('mil-security-bonus');
+    
+    if (!statusEl) return;
+    
+    try {
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/military/status`);
+        if (res.ok) {
+            const data = await res.json();
+            statusEl.textContent = data.soldier_count;
+            fitnessEl.textContent = Math.round(data.fitness * 100);
+            securityEl.textContent = Math.round(data.security_bonus * 100);
+        }
+    } catch (e) { console.warn("Fehler beim Laden des Militär-Status:", e); }
+}
+
+async function trainUnits() {
+    const amount = parseInt(document.getElementById('mil-train-amount').value);
+    if (!amount || amount < 1) return;
+    
+    try {
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/military/train`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`✅ Ausbildung von ${amount} Einheiten gestartet!`);
+            loadMilitaryStatus();
+            window.loadResources();
+        } else {
+            alert("❌ Fehler: " + (data.detail || JSON.stringify(data)));
+        }
+    } catch (e) { alert("Serverfehler beim Training: " + e.message); }
+}
+
+async function dismissUnits() {
+    const amount = parseInt(document.getElementById('mil-dismiss-amount').value);
+    if (!amount || amount < 1) return;
+    
+    if (!confirm(`${amount} Einheiten wirklich entlassen?`)) return;
+    
+    try {
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/military/dismiss`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`✅ ${amount} Einheiten entlassen.`);
+            loadMilitaryStatus();
+        } else {
+            alert("❌ Fehler: " + (data.detail || JSON.stringify(data)));
+        }
+    } catch (e) { alert("Serverfehler beim Entlassen: " + e.message); }
+}
+
 // Exportiere Funktionen
 if (typeof window !== 'undefined') {
     window.loadProvince = loadProvince;
     window.backToWorld = backToWorld;
+    window.loadMilitaryStatus = loadMilitaryStatus;
+    window.trainUnits = trainUnits;
+    window.dismissUnits = dismissUnits;
 }

@@ -1,0 +1,34 @@
+id: "b-combat-system"
+type: "overview|api|code"
+domain: "backend"
+title: "Combat & Army System"
+summary: "Manages armies, movement, and combat logic including sieges and province conquest."
+details: |
+  ### Army Model
+  - **Army**: id, owner_id, province_id, units_json, status (stationed/marching/in_combat), travel_ticks_remaining.
+  - Armies move between adjacent provinces.
+  
+  ### Combat Logic
+  - **Trigger**: Entering a foreign province with 'feind' diplomacy status.
+  - **Combat Round**: Occurs once per daily tick (midnight).
+  - **Attack Power**: Sum of (count * strength * training * fitness).
+  - **Defense Power**: Garrison units + stationed armies + building bonuses (Palisade +20%, Bunker +30%).
+  - **Losses**: Proportional to enemy power, distributed across units.
+  - **Conquest**: If defender units reach 0, attacker takes ownership; province moral reset to 10.
+  
+  ### Endpoints
+  - `POST /army/{id}/move`: Move army to adjacent province.
+  - `POST /army/{id}/retreat`: Manual retreat from ongoing combat.
+  - `GET /army/{id}/status`: Current units and position.
+  - `GET /province/{id}/combat/status`: Active combat info.
+  
+  ### Files
+  - Logic: `app/combat_logic.py`, `app/army_logic.py`
+  - API: `app/api/army.py`
+  - Model: `app/models.py` (Army, CombatLog)
+sources: ["app/combat_logic.py", "app/army_logic.py", "app/api/army.py", "app/models.py"]
+related_blocks: ["b-military-system", "b-diplomacy-system"]
+tokens_estimate: 400
+created_at: "2026-03-16T13:30:00Z"
+updated_at: "2026-03-16T13:30:00Z"
+status: "active"
