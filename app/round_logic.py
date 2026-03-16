@@ -54,6 +54,12 @@ def is_building_rain_dependent(building: BuildingInstance) -> bool:
     spezial = json.loads(building.type.spezial_eigenschaften)
     return bool(spezial.get("regenabhaengig", False))
 
+
+def is_building_coastal_only(building: BuildingInstance) -> bool:
+    """Check if building only works on coast (like Entsalzungsanlage)."""
+    spezial = json.loads(building.type.spezial_eigenschaften)
+    return bool(spezial.get("kueste_only", False))
+
 def simulate_round(db: Session, province_id: int, hours: float = 24.0, is_raining: bool = False):
     """
     Simulates production/consumption for a given province and duration.
@@ -72,6 +78,16 @@ def simulate_round(db: Session, province_id: int, hours: float = 24.0, is_rainin
         
         if is_building_rain_dependent(building) and not is_raining:
             continue
+        
+        if is_building_coastal_only(building):
+            from app.road_logic import is_coastal_position
+            has_ocean = any(
+                is_coastal_position(db, province_id, b.x, b.y)
+                for b in province.buildings if hasattr(b, 'x')
+            )
+            terrain = province.terrain or ""
+            if "Ozean" not in terrain and "Wasser" not in terrain:
+                continue
         
         # Production
         prod_data = json.loads(building.type.produktion)
@@ -94,24 +110,39 @@ def simulate_round(db: Session, province_id: int, hours: float = 24.0, is_rainin
             if res:
                 deltas[res.id] = deltas.get(res.id, 0) - amount
 
-    # 2. Population Consumption (Nahrung & Getränk)
+    # 2. Population & Military Consumption (Nahrung & Getränk)
     # Linear scale: 10 population consume 1 unit per 24h? (Assumption based on docs "Faktor 1.0")
     # Docs: "Verbrauch = Population / 10 * Faktor"
+    # Units: Soldiers consume 0.5 Nahrung + 0.5 Getränk per unit per 24h
+    
+    total_soldiers = sum(u.count for u in province.units if u.type == "soldier")
+    
     pop_factor = province.population / 10.0 * scale
+    mil_factor = total_soldiers * 0.5 * scale
     
     # We need to find "Nahrung" and "Getränk" resources
     resources = db.query(Resource).all()
     nahrung_ids = [r.id for r in resources if r.typ == 'Nahrung']
     getraenk_ids = [r.id for r in resources if r.typ == 'Getränk']
     
-    # Apply population consumption
-    # For simplicity, we deduct from the first available or split? 
-    # The simulation just shows "Total needed"
+    # Apply population and military consumption
     pop_nahrung_needed = 1.0 * pop_factor
     pop_getraenk_needed = 1.0 * pop_factor
     
-    # Update deltas (we'll need a better way to distribute this later)
-    # For preview, we just aggregate
+    mil_nahrung_needed = 1.0 * mil_factor
+    mil_getraenk_needed = 1.0 * mil_factor
+    
+    total_nahrung_needed = pop_nahrung_needed + mil_nahrung_needed
+    total_getraenk_needed = pop_getraenk_needed + mil_getraenk_needed
+    
+    # Update deltas for Nahrung and Getränk
+    # Simplified: Subtract from first ID found
+    if nahrung_ids:
+        res_id = nahrung_ids[0]
+        deltas[res_id] = deltas.get(res_id, 0) - total_nahrung_needed
+    if getraenk_ids:
+        res_id = getraenk_ids[0]
+        deltas[res_id] = deltas.get(res_id, 0) - total_getraenk_needed
     
     # 3. Moral & Health (Simplified)
     new_moral = province.moral

@@ -10,40 +10,67 @@
 - Handelskonto funded separately; player trade routes use Handelskarren
 - Only citizens aged 20-25 can form trade routes leaving province
 
+## Implementation Status: ✓ IMPLEMENTED (2026-03-15)
+
+### Changes Made
+1. **Market Logic** (`app/market_logic.py`):
+   - `get_market_preview()`: Demand calculation per category
+   - `process_market_tick()`: Auto-buy 5-day supply at 150% Staatswert
+
+2. **API Endpoints** (`app/api/market.py`):
+   - GET `/province/{id}/market/stands`
+   - POST `/province/{id}/market/stands`
+   - DELETE `/province/{id}/market/stands/{resource_id}`
+   - GET `/province/{id}/market/preview`
+
+3. **Kontor Integration** (see Feature 16):
+   - POST `/province/{id}/kontor/prices`
+   - GET `/province/{id}/kontor/balance`
+
 ## Data Models
 ```python
-MarketStand: province_id, resource_id, auto_buy(bool)
-TradeRoute: id, owner_id, origin_province, destination, cargo{dict}, 
-            settlers_count, status("traveling"/"arrived"/"returning")
-KontorPrice: province_id, resource_id, buy_price, sell_price, friends_only(bool)
+MarketStand (app/models.py):
+  - id, province_id, resource_id, auto_buy(int)
+
+KontorPrice (app/models.py):
+  - id, province_id, resource_id
+  - mode: String ("buy"/"sell") 
+  - price: Float
+  - friends_only(int), verbündete_only(int), active(int)
 ```
 
-## Market Logic (per 24h tick)
+## Market Logic (Implemented in app/market_logic.py)
 ```
-DEMAND CALCULATION:
-  demand_per_category = population * consumption_rate[category]
+GET_MARKET_PREVIEW:
+  demand_nahrung = population * 0.1
+  demand_getraenk = population * 0.05
+  
+  for each category:
+    total_stands = sum(stands[resource] for resource in category)
+    
+  returns {demand, suggested_stand_count, potential_revenue}
 
-STAND SPLIT:
-  for each category: 
-    total_stands = sum(stands for resource in category)
-    per_resource_sold = demand * (stands[resource] / total_stands)
-
-MARKET BUY (pre-purchase):
-  market_stock[resource] += min(demand*5, lager[resource]) 
-  lager[resource] -= purchased
-  provinzkonto += purchased * staatswert * 1.5
-  volkskonto -= purchased * staatswert * 1.5
-
-STAATSWERT FLOOR:
-  if supply_ratio >= 1.0: staatswert = base_value * 0.5 (minimum)
+PROCESS_MARKET_TICK:
+  for each active MarketStand:
+    resource_demand = demand_per_category * stand_ratio
+    buy_amount = min(resource_demand * 5, lager[resource])
+    
+    if buy_amount > 0:
+      price = staatswert * 1.5
+      lager[resource] -= buy_amount
+      provinzkonto += buy_amount * price  
+      volkskonto -= buy_amount * price
 ```
 
-## Endpoints
-```
-GET  /province/{id}/market/stands → current stands + stats
-POST /province/{id}/market/stands {"resource_id":int, "auto_buy":bool}
-DELETE /province/{id}/market/stands/{resource_id} → dissolve (160% buyback)
-GET  /province/{id}/market/preview → demand forecast, suggested stands
-POST /province/{id}/kontor/prices → set buy/sell prices
-POST /province/{id}/trade-route/create {"destination":int, "cargo":{}, "settlers":int}
-```
+## Endpoints (Implemented)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/province/{id}/market/stands` | GET | Current stands + stats |
+| `/province/{id}/market/stands` | POST | Create new stand |
+| `/province/{id}/market/stands/{resource_id}` | DELETE | Remove stand |
+| `/province/{id}/market/preview` | GET | Demand forecast |
+
+## Validation
+- Stand creation requires available marktpunkte (marktpunkte > used_stands)
+- Cannot create duplicate stand for same resource
+- Auto-buy enabled by default on stand creation

@@ -116,7 +116,14 @@ def build_building(db: Session, template_id: int, province_id: int, x: int, y: i
     # Special Logic: Stadtausbau
     if template.bautyp == "Stadtausbau":
         apply_city_expansion(db, province, template)
-        
+    
+    # Special Logic: Hafen unlock
+    if "Großhafen" in template.name or "GroßHafen" in template.name:
+        province.sea_access = "ships"
+    elif "Hafen" in template.name and "Großhafen" not in template.name:
+        if province.sea_access != "ships":
+            province.sea_access = "boats"
+    
     db.commit()
     
     return {

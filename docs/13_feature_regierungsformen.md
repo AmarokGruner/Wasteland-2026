@@ -1,5 +1,16 @@
 # Feature: Regierungsformen
 
+## Status: ✅ IMPLEMENTIERT (v1.0)
+
+### Änderungen:
+- `models.py`: Regierungsform-Modell erweitert mit `ausbauwert_regierungssitz`
+- `regierungsform_logic.py`: NEU - Alle Berechnungsfunktionen
+- `kultur_bildung_logic.py`: Refaktoriert, delegiert an regierungsform_logic
+- `tick_logic.py`: Transition und tägliche Effekte integriert (Mitternacht)
+- `api/player.py`: Endpoints erweitert
+
+---
+
 ## Source (seed_regierungsformen-3.py)
 Fields: id, name, formtyp, techlevel, ausbauwert_regierungssitz, kulturverbreitung,
 grundmoral, forschungsfortschritt, produktivitaet, wachstum, finanzen, sicherheit,
@@ -63,17 +74,15 @@ VORAUSSETZUNGEN CHECK:
   reg.ausbauwert_regierungssitz <= province.regierungssitz_level
 ```
 
-## Endpoints
+## Endpoints (IMPLEMENTED)
 ```
-GET  /player/{id}/regierungsform → current form + all modifiers active
-GET  /regierungsformen → all available forms + player eligibility
-POST /player/{id}/regierungsform/change {"form_id": int}
-     → {"transition_ticks": 5, "anarchie_warnings": [...]}
-GET  /player/{id}/regierungsform/preview {"form_id": int}
-     → diff of all modifiers vs current form
+GET  /player/{id}/regierungsform                    → current form + all modifiers active
+GET  /player/{id}/regierungsformen                   → all available forms + player eligibility  
+POST /player/{id}/regierungsform                     → {"form_id": int} - starts transition
+GET  /player/{id}/regierungsform/preview?form_id=    → diff of all modifiers vs current form
 ```
 
-## Validation
-- Cannot change during Anarchie transition (ticks_remaining > 0)
-- Requires Regierungssitz building (ausbauwert_regierungssitz check)
-- krieg_moeglich=0 → cannot declare war (block in diplomacy endpoint)
+## Validation (IMPLEMENTED)
+- Cannot change during Anarchie transition (`regierungsform_transition_ticks_remaining > 0`)
+- Requires Regierungssitz building (ausbauwert_regierungssitz check) - via `check_regierungsform_voraussetzungen()`
+- krieg_moeglich=0 → muss noch in diplomacy endpoint blockiert werden (nicht implementiert)

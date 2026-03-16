@@ -1,0 +1,70 @@
+id: "b-siedler-kolonisierung"
+type: "code"
+domain: "backend"
+title: "Siedler & Kolonisierung (Feature 21)"
+summary: "Kolonisierung von Provinces durch Siedler-Expeditionen + Provincia-Transfer"
+details: |
+  ## Feature Overview
+  
+  **Siedler (id=21)**: Zivilist, geschwindigkeit=1.0, fortbewegung=Boden
+  
+  Nur Bürger mit `tick_age` 4-5 (20-25 Jahre) können als Siedler rekrutiert werden.
+  
+  ## Data Models
+  
+  `SiedlerExpedition` (in models.py):
+  - id, owner_id, origin_province_id, destination_province_id
+  - settler_count, karren_count, cargo{dict}
+  - status: "preparing" | "traveling" | "arrived" | "colonizing"
+  - travel_ticks_remaining, settler_tick_age
+  
+  `ProvinceTransfer` für Provincia-Übergabe:
+  - province_id, from_player_id, to_player_id
+  - status: "pending" | "accepted" | "rejected"
+  
+  ## Core Logic
+  
+  **Expedition erstellen** (`siedler_logic.py`):
+  - Prüfe: eligible_settlers (tick_age 4-5) >= settler_count
+  - Prüfe: destination.owner_id IS NULL ODER kultureinfluss_owner_id == player_id
+  - Deduziere Siedler von PopulationCohort
+  - Lade Cargo (Bauholz min 50, Stein min 30, Notrationen min 20)
+  
+  **Kulturbonus**: 20% günstiger (0.8x) bei eigener Kultur
+  
+  **Ankunft & Kolonisierung**:
+  - Wenn destination unbesetzt → Province owner=player
+  - Cargo in neues Lager platzieren
+  - Siedler als PopulationCohort + ProvinceUnit
+  
+  **Provinz-Transfer**:
+  - Beide Spieler müssen zustimmen
+  - Bunker wird automatisch zerstört
+  
+  ## API Endpoints
+  
+  ```
+  POST /province/{id}/expedition/create
+       Body: {destination_province_id, settler_count, karren_count, cargo}
+  GET  /province/{id}/expedition/{eid}/status
+  POST /province/{id}/expedition/{eid}/depart
+  
+  GET  /world/provinces/colonizable?player_id={id}
+  POST /world/provinces/{id}/transfer {"target_player_id": int}
+  
+  GET  /province/{id}/expeditions
+  ```
+  
+  ## Tick Processing
+  
+  `tick_logic.py` ruft `process_expeditions()` auf:
+  - travel_ticks_remaining dekrementieren
+  - Bei Ankunft: `colonize_destination()` aufrufen
+  - Bei Fehler: LOG Event "EXPEDITION_FAILED"
+
+sources: ["app/models.py", "app/siedler_logic.py", "app/api/province.py", "app/api/world.py", "app/tick_logic.py"]
+related_blocks: ["b-backend-endpoints", "b-world-endpoints", "b-data-models"]
+tokens_estimate: 350
+created_at: "2026-03-16T18:00:00Z"
+updated_at: "2026-03-16T18:00:00Z"
+status: "active"

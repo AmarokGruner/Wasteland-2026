@@ -4,7 +4,7 @@
 Standardisierte Rollen und Workflows für AI-Agents (Perplexity, Copilot etc.).
 Ziel: Schnelles Onboarding ohne Context-Überladung – via modulare Blocks in `context/`.
 
-**Version:** v2.3.0 | **Updated:** 2026-03-01
+**Version:** v3.1 | **Updated:** 2026-03-16
 
 ---
 
@@ -85,6 +85,9 @@ Query
 **Data:**
 - b-world-endpoints, b-data-models, b-merged-master
 
+**Kolonisierung (NEU v3.1):**
+- b-siedler-kolonisierung ← Siedler-Expeditionen, Provincia-Transfer
+
 ---
 
 ## Security-Hinweise für Agents
@@ -134,4 +137,4 @@ app/
 ## Quellen
 - AGENTS.md (v2.3.0), README.md, app/main.py, app/config.py, main_old.py
 
-**Updated: 2026-03-14 | Version: v3.0 (Modularisiert)**
+**Updated: 2026-03-16 | Version: v3.1 (Siedler & Kolonisierung)**

@@ -9,64 +9,81 @@ Siedler (id=21): geschwindigkeit=1.0, einheitengroesse=1
 - Travel time based on map distance × (1/geschwindigkeit) per province hop
 - Karren can be upgraded with Pferde → geschwindigkeit bonus
 
+## Implementation Status: ✓ IMPLEMENTED (2026-03-15)
+
+### Changes Made
+1. **Trade Route Logic** (`app/trade_route_logic.py`):
+   - `create_trade_route()`: Validates settlers, karren, capacity
+   - `depart_route()`: Sets status to traveling, calculates travel time
+   - `execute_trade_at_destination()`: Handles cargo_return loading
+   - Returns settlers to PopulationCohort on homecoming
+
+2. **API Endpoints** (`app/api/province.py:653-804`):
+   - GET `/province/{id}/units` → all units + routes
+   - POST `/province/{id}/trade-route/create`
+   - POST `/province/{id}/trade-route/{route_id}/load`
+   - POST `/province/{id}/trade-route/{route_id}/depart`
+   - GET `/province/{id}/trade-route/{route_id}/status`
+   - POST `/province/{id}/trade-route/{route_id}/trade`
+
+3. **Tick Processing** (`app/tick_logic.py:105-110`):
+   - `process_trade_routes()` called every tick
+
 ## Data Models
 ```python
-EinheitenTyp: id, name, geschwindigkeit, transport_land, module(JSON)  # from seed
+TradeRoute (app/models.py):
+  - id: Column(Integer, primary_key=True)
+  - owner_province_id: FK to Province
+  - destination_province_id: FK to Province  
+  - cargo_json: Column(String) # {resource_id: amount}
+  - status: String ("loading"/"traveling"/"arrived"/"returning"/"home")
+  - travel_ticks_remaining: Integer
+  - settler_count: Integer
 
-ProvinceUnit: id, province_id, einheiten_typ_id, count, status,
-              cargo{dict}, route_id, current_location_province_id
-
-TradeRoute: id, owner_province_id, destination_province_id, 
-            cargo_outbound{dict}, cargo_return{dict},
-            status("loading"/"traveling"/"arrived"/"returning"/"home"),
-            travel_ticks_remaining, settler_count, karren_count
+ProvinceUnit (app/models.py):
+  - province_id, einheiten_typ_id, count, status
+  - cargo_json: Column(String) # {resource_id: amount}
 ```
 
-## Core Logic
+## Core Logic (Implemented in app/trade_route_logic.py)
 ```
-CREATE ROUTE:
-  require eligible_settlers (tick_age 4-5) >= settler_count
-  require karren_available >= karren_count
-  require cargo_outbound resources in lager
-  deduct cargo + settlers from province
-  set travel_ticks = distance(origin, destination) / geschwindigkeit
+CREATE_ROUTE:
+  - validate eligible settlers (tick_age 4-5) >= settler_count
+  - validate karren available >= karren_count  
+  - validate cargo fits in capacity (karren_count * transport_land)
+  - deduct cargo from lager, settlers from PopulationCohort
+  - calculate travel_ticks = distance / geschwindigkeit
 
-TRAVEL (per 24h tick):
-  travel_ticks_remaining -= 1
-  if travel_ticks_remaining <= 0: status = "arrived"
-  → GameLog: "ROUTE_ARRIVED: {destination}"
+TRAVEL (process_trade_routes):
+  for routes with status="traveling":
+    travel_ticks_remaining -= 1
+    if <= 0: status = "arrived", log event
 
-TRADING AT DESTINATION (when status="arrived"):
-  auto-execute if KontorPrice matches available resources
-  OR player manually selects trade at destination province
-  load cargo_return
-  status = "returning", travel_ticks = same as outbound
+TRADING AT DESTINATION:
+  execute_trade_at_destination():
+    - load cargo_return from destination lager
+    - status = "returning"
 
-RETURN (per 24h tick):
-  travel_ticks_remaining -= 1
-  if 0: status = "home"
-  deposit cargo_return into lager
-  settlers return to PopulationCohort (tick_age preserved)
-  → GameLog: "ROUTE_RETURNED: {cargo_summary}"
-
-PFERDE UPGRADE:
-  if unit has Pferde module: geschwindigkeit *= 2.0
+RETURN:
+  travel_ticks_remaining -= 1  
+  if <= 0: status = "home"
+    - deposit cargo_return to origin lager
+    - return settlers to PopulationCohort
 ```
 
-## Endpoints
-```
-GET  /province/{id}/units → all units + routes + status
-POST /province/{id}/trade-route/create
-     Body: {destination_id, cargo_outbound{}, settler_count, karren_count}
-POST /province/{id}/trade-route/{route_id}/load {"cargo": {}}
-POST /province/{id}/trade-route/{route_id}/depart
-GET  /province/{id}/trade-route/{route_id}/status
-POST /province/{id}/trade-route/{route_id}/trade  # manual trade at destination
-```
+## Endpoints (Implemented)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/province/{id}/units` | GET | All units + routes |
+| `/province/{id}/trade-route/create` | POST | Create new route |
+| `/province/{id}/trade-route/{route_id}/load` | POST | Load cargo |
+| `/province/{id}/trade-route/{route_id}/depart` | POST | Depart route |
+| `/province/{id}/trade-route/{route_id}/status` | GET | Route status |
+| `/province/{id}/trade-route/{route_id}/trade` | POST | Trade at destination |
 
-## Validation
-- settler_count requires eligible citizens (tick_age 4-5) in PopulationCohort
-- karren_count <= player.karren_available
-- cargo weight <= karren_count * transport_land(100)
-- Cannot depart if destination province is enemy (diplomacy check)
-- "NO_ELIGIBLE_SETTLERS" if no 20-25 age cohort available
+## Validation Errors
+| Error | Cause |
+|-------|-------|
+| NO_ELIGIBLE_SETTLERS | No citizens aged 20-25 available |
+| Not enough Handelskarren | Insufficient karren units in province |
+| Cargo exceeds capacity | weight > total transport capacity |

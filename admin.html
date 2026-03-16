@@ -356,6 +356,7 @@
             <li onclick="showSection('players')">Spieler</li>
             <li onclick="showSection('worldmap')">Weltkarte</li>
             <li onclick="showSection('ticks')">Tick-Engine</li>
+            <li onclick="showSection('armies')">Armeen</li>
             <li onclick="showSection('auditlogs')">Logs</li>
             <li onclick="AuthService.logout()" style="color: var(--danger); cursor: pointer;">Abmelden</li>
         </ul>
@@ -626,6 +627,32 @@
                         <tbody id="regierungsformenTable">
                             <tr>
                                 <td colspan="4" class="loading">Laden...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Armies Section -->
+        <section id="armiesSection" class="section">
+            <div class="card">
+                <h2>Armee-Verwaltung</h2>
+                <div style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Besitzer (ID)</th>
+                                <th>Provinz</th>
+                                <th>Status</th>
+                                <th>Einheiten</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="armiesTable">
+                            <tr>
+                                <td colspan="6" class="loading">Laden...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2203,7 +2230,40 @@
             if (id === 'worldmap') loadWorldMapAdmin();
             if (id === 'auditlogs') loadAuditLogs();
             if (id === 'ticks') loadTickEngine();
+            if (id === 'armies') loadArmiesAdmin();
         };
+
+        // ── ARMIES ──────────────────────────────────────────────────
+        async function loadArmiesAdmin() {
+            try {
+                const res = await adminFetch(`${APIBASE}/admin/armies?token=${token}`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                document.getElementById('armiesTable').innerHTML = data.map(a => `
+                    <tr>
+                        <td>${a.id}</td>
+                        <td>${a.owner_name} (ID: ${a.owner_id})</td>
+                        <td>Prov: ${a.province_id}</td>
+                        <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+                        <td>${a.units_count}</td>
+                        <td>
+                            <button class="btn btn-sm" style="background: var(--danger)" onclick="adminDeleteArmy(${a.id})">Löschen</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch {
+                document.getElementById('armiesTable').innerHTML = '<tr><td colspan="6">Fehler beim Laden der Armeen oder Endpunkt fehlt.</td></tr>';
+            }
+        }
+
+        async function adminDeleteArmy(armyId) {
+            if (!confirm(`Armee ${armyId} wirklich löschen?`)) return;
+            try {
+                const res = await adminFetch(`${APIBASE}/admin/armies/${armyId}?token=${token}`, { method: 'DELETE' });
+                if (res.ok) loadArmiesAdmin();
+                else alert("Fehler beim Löschen");
+            } catch (e) { alert(e); }
+        }
 
         // ── TICK ENGINE ─────────────────────────────────────────────
         async function loadTickEngine() {

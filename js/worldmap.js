@@ -4,6 +4,8 @@
 
 const WORLD_SIZE = 50;
 window.WORLD_MAP = [];
+window.WORLD_PROV_IDS = []; // 2D array of province_ids
+window.ARMY_LOCATIONS = {}; // province_id -> {id, status, count}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TERRAIN-GRAFIK-KONFIGURATION
@@ -99,7 +101,7 @@ async function preloadTerrainImages() {
 async function initWorldMap() {
     console.log('🗺️ Lade Weltkarte und Terrains vom Server...');
     try {
-        const terrainsResponse = await gameFetch('/terrains');
+        const terrainsResponse = await gameFetch('/world/terrains');
         const terrains = await terrainsResponse.json();
 
         window.TERRAIN_TYPES = {};
@@ -118,6 +120,7 @@ async function initWorldMap() {
 
         if (mapData && mapData.cells && mapData.cells.length > 0) {
             window.WORLD_MAP = mapData.cells;
+            window.WORLD_PROV_IDS = mapData.province_ids || [];
             console.log('✅ Weltkarte geladen');
         } else {
             console.error('⚠️ Weltkarte leer oder fehlerhaft!');
@@ -129,7 +132,21 @@ async function initWorldMap() {
     }
 
     await preloadTerrainImages();
+    await loadArmies();
     renderWorldMap();
+}
+
+async function loadArmies() {
+    try {
+        const res = await gameFetch(`/army/player/${window.currentPlayerId}/armies`);
+        if (res.ok) {
+            const armies = await res.json();
+            window.ARMY_LOCATIONS = {};
+            armies.forEach(a => {
+                window.ARMY_LOCATIONS[a.province_id] = a;
+            });
+        }
+    } catch (e) { console.warn("Laden der Armeen fehlgeschlagen", e); }
 }
 
 function generateEmptyMap() {
@@ -184,6 +201,17 @@ function renderWorldMap() {
                     : `(${x}, ${y}) – ${terrainKey}`;
             } else {
                 cell.title = `(${x}, ${y}) – ${terrainKey}`;
+            }
+
+            // ── Armee-Marker
+            const provId = (window.WORLD_PROV_IDS && window.WORLD_PROV_IDS[y]) ? window.WORLD_PROV_IDS[y][x] : null;
+            if (provId && window.ARMY_LOCATIONS[provId]) {
+                const army = window.ARMY_LOCATIONS[provId];
+                const armyMarker = document.createElement('span');
+                armyMarker.className = 'army-marker';
+                armyMarker.textContent = '⚔️';
+                cell.title += `\nArmee #${army.id} (${army.status})\nEinheiten: ${army.units_count}`;
+                cell.appendChild(armyMarker);
             }
 
             cell.onclick = () => selectWorldProvince(x, y);

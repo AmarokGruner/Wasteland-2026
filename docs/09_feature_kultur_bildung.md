@@ -1,52 +1,107 @@
 # Feature: Kulturpunkte, Bildung & Staatsform
 
+## Status
+**IMPLEMENTIERT** (v1.0)
+
 ## Source (FAQ 2.8, 2.9, 6.5)
 - Kulturpunkte: 1 per province size_level + from buildings (e.g. Glockenturm)
 - Regierungsform modifies kulturpunkte by percentage
-- Kultureinfluss grows → annexes free neighboring fields on world map
-- Foreign culture in own province → moral malus
+- Kultureinfluss grows → annexes free neighboring fields on world map (TODO)
+- Foreign culture in own province → moral malus (TODO)
 - Bildung (Education): increases techproduktion bonus + reduces birth rate
 - Bildung raised by: higher average citizen age + Bildungsgebäude (Bildungspunkte)
 - Techproduktion: Bunker=2, Feuerstelle=+1 each, Ruine-Laboratorium=+2
 - Every province has independent tech_level that catches up to player max over time
 
-## Data Models
+## Data Models (app/models.py)
 ```python
-Province: ..., kulturpunkte_per_day, kultureinfluss_total, bildung(0-100), tech_production
-Player: ..., tech_level, regierungsform_id
-RegierungsformModifier: id, name, kultur_mult, provinz_max_no_penalty, ...
+Province:
+  - kulturpunkte (int): Current culture points
+  - kultureinfluss_total (float): Accumulates for field annexation
+  - tech_production (int): Daily tech production points
+  - size_level (int): 1-7 (Camp to Metropole)
+
+Player:
+  - tech_level (int): Player's technology level
+  - regierungsform_id (int, FK): Current government form
+
+Regierungsform:
+  - id, name, kulturverbreitung (kultur_mult), forschungsfortschritt
+  - produktivitaet, wachstum, finanzen, sicherheit
+  - provinzanzahl_bis_malus (max provinces without moral penalty)
 ```
 
-## Core Logic (per 24h tick)
+## Core Logic (app/kultur_bildung_logic.py)
+
+### TECHPRODUKTION (daily at midnight)
 ```
-TECHPRODUKTION:
-  tech_points = sum(building.spezialeigenschaften.techproduktion) 
-              * (1 + bildung/100)
-  player.tech_level += tech_points
+tech_multiplier = 1 + (bildung / 100.0) * forschungsfortschritt
+tech_production = sum(building.techproduktion) * tech_multiplier
+player.tech_level += tech_production
+```
+- Bunker: +2 techproduktion per level
+- Ruine-Laboratorium terrain: +2 base
 
-KULTURPUNKTE:
-  daily_kultur = province.size_level 
-               + sum(building.spezialeigenschaften.kulturpunkte)
-  daily_kultur *= regierungsform.kultur_mult
-  province.kultureinfluss_total += daily_kultur
+### KULTURPUNKTE (daily at midnight)
+```
+daily_kultur = size_level + sum(building.kulturpunkte * level)
+daily_kultur *= regierungsform.kulturverbreitung
+kulturpunkte += daily_kultur
+kultureinfluss_total += daily_kultur
+```
+- Buildings: Glockenturm, Theater, etc. add kulturpunkte
 
-KULTUREINFLUSS (world map effect):
-  if kultureinfluss_total > threshold: annex nearest free field
-  → triggers GameLog event
+### BILDUNG (computed)
+```
+bildung = min(100, avg_tick_age * 6 + bildungsgebaeude_points)
+```
+- Used for tech multiplier and birth rate reduction
 
-BILDUNG:
-  avg_age = population_age_distribution.mean()
-  bildung = min(100, avg_age * 2 + bildungsgebaeude_points)
-  birth_rate = base_birth_rate * (1 - bildung/200)  # higher edu = lower births
-
-MULTI-PROVINCE MORAL PENALTY:
-  extra_provinces = max(0, len(player.provinces) - regierungsform.provinz_max)
-  all_provinces.moral -= extra_provinces * penalty_per_province
+### MULTI-PROVINCE MORAL PENALTY (daily at midnight)
+```
+provinz_max = regierungsform.provinzanzahl_bis_malus
+extra_provinces = max(0, province_count - provinz_max)
+moral_loss = extra_provinces * 16
 ```
 
-## Endpoints
+## Endpoints (app/api/)
+
+### GET /player/{id}/tech
+Returns player's tech level and daily production per province:
+```json
+{
+  "player_id": 1,
+  "total_tech_level": 42,
+  "daily_tech_total": 5,
+  "forschungs_mult": 1.0,
+  "provinces": [
+    {"province_id": 1, "name": "Home", "tech_production_base": 4, "daily_tech_expected": 4}
+  ]
+}
 ```
-GET  /player/{id}/tech → tech_level, daily_techproduktion, bildung per province
-GET  /province/{id}/kultur → kulturpunkte, einfluss, annexed_fields
-POST /player/{id}/regierungsform {"form_id": int}  # requires Regierungssitz
+
+### GET /province/{id}/kultur
+Returns culture points and influence data:
+```json
+{
+  "province_id": 1,
+  "kulturpunkte_current": 25,
+  "kultureinfluss_total": 150.0,
+  "kulturpunkte_daily": 5,
+  "can_annex_field": true,
+  "progress_percent": 50.0,
+  "next_annex_at": 100
+}
 ```
+
+### POST /player/{id}/regierungsform
+Change player's government form:
+```json
+{"form_id": 2}
+```
+Returns: `{"success": true, "player_id": 1, "regierungsform_id": 2, "regierungsform_name": "Anarchie"}`
+
+## Notes
+- Kultur/Tech processing runs once daily at midnight (hour 0)
+- Bildung is calculated from population age distribution + building points
+- Multi-province penalty applies only when exceeding provincial limit
