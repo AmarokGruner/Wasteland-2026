@@ -85,8 +85,15 @@ Query
 **Data:**
 - b-world-endpoints, b-data-models, b-merged-master
 
-**Kolonisierung (NEU v3.1):**
+**Kolonisierung & Kommunikation (NEU v3.2):**
 - b-siedler-kolonisierung ← Siedler-Expeditionen, Provincia-Transfer
+- b-gamelog-system ← Gamelog, Weltereignisse, Notification-Settings
+- b-player-messaging ← Direktnachrichten, Posteingang/Ausgang
+
+**Building System v3 (NEU v3.3):**
+- b-admin-city-grid ← 15x15 Grid Config, Level Unlocks
+- b-province-city-grid ← Player Grid View, Building/Demolish Rules
+- b-city-expansion-logic ← Progressive Unlock Logic, Level 1-8
 
 ---
 
@@ -117,8 +124,12 @@ app/
 ├── api/               → API Router (NEU in v3.0)
 │   ├── __init__.py    → exportiert api_router
 │   ├── auth.py        → /auth/* Endpoints (JWT-basiert)
+│   ├── gamelog.py     → /gamelog/* Endpoints
+│   ├── messages.py    → /messages/* Endpoints
+│   ├── city_grid.py   → /province/{id}/fields & /build Endpoints
 │   └── admin/         → Admin-Router
-│       └── users.py   → /admin/users Endpoints
+│       ├── users.py   → /admin/users Endpoints
+│       └── city_grid.py → /admin/city-config Endpoints
 │
 ├── building_logic.py  → Building-Logik (can_build, build, upgrade, demolish)
 ├── road_logic.py      → Roads & Straßennetz (BFS-Konnektivität, AP-System)
@@ -137,4 +148,4 @@ app/
 ## Quellen
 - AGENTS.md (v2.3.0), README.md, app/main.py, app/config.py, main_old.py
 
-**Updated: 2026-03-16 | Version: v3.1 (Siedler & Kolonisierung)**
+**Updated: 2026-03-16 | Version: v3.3 (City Grid System)**

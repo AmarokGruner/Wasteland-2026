@@ -1,0 +1,27 @@
+id: "b-admin-overhaul"
+type: "overview|api|ui"
+domain: "admin"
+title: "Admin-Oberfläche Überarbeitung v2.3.0"
+summary: "Modernisiertes Admin-Panel mit Tab-Navigation, Dashboard-KPIs, Notfall-Tools und erweitertem Weltkarten-Editor."
+details: |
+  Die Admin-Oberfläche wurde grundlegend überarbeitet (März 2026).
+  
+  ### Neue Features:
+  - **Dashboard**: KPI-Karten für aktive Spieler, Provinzen, Kämpfe und Revolten. Warnlisten für Revolten-Risiko und Inaktivität (>7 Tage).
+  - **Spieler-Management**: Filterbare Liste, Notfall-Eingriffe (Moral/Gesundheit setzen, MIPS/Lager hinzufügen, Spieler bannen).
+  - **Daten-Editoren**: Alle Tabellen unterstützen nun Inline-Editing via PATCH-Requests.
+  - **Broadcast**: Systemweite Nachrichten an alle oder einzelne Spieler.
+  - **Gamelog**: Zentrale Ansicht aller Weltereignisse für Admins.
+  - **Weltkarten-Editor**: Visueller Editor mit Terrain-Palette.
+
+  ### Architektur:
+  - **Backend**: Modulare Router in `app/api/admin/` (dashboard.py, players.py, etc.)
+  - **Frontend**: Vanilla JS mit Tab-System und `localStorage` Persistenz in `admin.html`.
+  - **Sicherheit**: Token-Check `role == 'admin'` für alle Endpoints.
+
+sources: ["admin.html", "app/api/admin/"]
+related_blocks: ["b-admin-endpoints", "b-admin-panel", "b-auth-system"]
+tokens_estimate: 450
+created_at: "2026-03-16T13:50:00Z"
+updated_at: "2026-03-16T15:00:00Z"
+status: "active"

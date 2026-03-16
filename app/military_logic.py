@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from .models import Province, Unit, BuildingInstance, BuildingType
+from app.gamelog_logic import log_event
 import json
 
 def get_military_status(db: Session, province_id: int):
@@ -70,6 +71,16 @@ def train_units(db: Session, province_id: int, unit_type: str, count: int):
         unit.count = new_total
         
     db.commit()
+    
+    # Log Event
+    log_event(
+        db, 
+        event_type="UNITS_TRAINED", 
+        message=f"{count} {unit_type} in {province.name} ausgebildet.",
+        player_id=province.player_id,
+        province_id=province_id
+    )
+    
     return unit
 
 def dismiss_units(db: Session, province_id: int, count: int):
@@ -85,6 +96,16 @@ def dismiss_units(db: Session, province_id: int, count: int):
     unit.count -= count
     province.population += count
     db.commit()
+    
+    # Log Event
+    log_event(
+        db, 
+        event_type="UNITS_DISMISSED", 
+        message=f"{count} Einheiten in {province.name} entlassen.",
+        player_id=province.player_id,
+        province_id=province_id
+    )
+    
     return unit
 
 def process_military_tick(db: Session, province_id: int):

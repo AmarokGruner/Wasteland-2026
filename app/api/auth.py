@@ -133,6 +133,9 @@ def login(req: LoginRequest):
     access_token = create_access_token({"sub": req.username})
     refresh_token = create_refresh_token({"sub": req.username})
     
+    # Update last_login
+    cur.execute("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?", (row["id"],))
+    conn.commit()
     conn.close()
     
     return TokenResponse(

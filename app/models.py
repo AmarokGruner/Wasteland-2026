@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String, ForeignKey, JSON, DateTime, func, UniqueConstraint
+from sqlalchemy import Column, Integer, Float, String, ForeignKey, JSON, DateTime, func, UniqueConstraint, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
@@ -53,7 +53,7 @@ class Player(Base):
     tech_level = Column(Integer, default=0)
     regierungsform_id = Column(Integer, ForeignKey('regierungsformen.id'), default=1)
     regierungsform_transition_ticks_remaining = Column(Integer, default=0)  # 0=done
-    provinces = relationship("Province", back_populates="player")
+    provinces = relationship("Province", back_populates="player", foreign_keys="Province.player_id")
     
     # State finance account
     staatskonto = Column(Float, default=0.0)
@@ -61,7 +61,78 @@ class Player(Base):
     # Trading
     karren_count = Column(Integer, default=2)  # Start with 2 Handelskarren
     
+    # Relationships for messaging and logging
+    messages_sent = relationship("PlayerMessage", foreign_keys="PlayerMessage.sender_id", back_populates="sender")
+    messages_received = relationship("PlayerMessage", foreign_keys="PlayerMessage.recipient_id", back_populates="recipient")
+    log_entries = relationship("GameLogEntry", back_populates="player")
+    notification_settings = relationship("PlayerNotificationSettings", back_populates="player", uselist=False)
+
     regierungsform = relationship("Regierungsform")
+    user = relationship("User", back_populates="player", uselist=False)
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String, unique=True, nullable=False)
+    email = Column(String)
+    password = Column(String, name="password_hash") # Note: DB column is password_hash but auth.py uses 'password' in row dict? No, let's check.
+    role = Column(String, default='player')
+    player_id = Column(Integer, ForeignKey('players.id'), nullable=True)
+    last_login = Column(DateTime)
+    reset_token = Column(String)
+    
+    player = relationship("Player", back_populates="user")
+
+class GameLog(Base):
+    __tablename__ = 'game_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(DateTime, server_default=func.now())
+    event_type = Column(String)
+    message = Column(String)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=True)
+    player_id = Column(Integer, ForeignKey('players.id'), nullable=True)
+    details_json = Column(String, default="{}")
+
+# DEPRECATED: Use GameLog instead
+class GameLogEntry(Base):
+    __tablename__ = 'gamelog_entries'
+    __table_args__ = {'extend_existing': True}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    event_type = Column(String, nullable=False)
+    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=True)
+    player_id = Column(Integer, ForeignKey('players.id'), nullable=True)
+    message = Column(String, nullable=False)
+    visibility = Column(String, default="player") # "player", "all", "admin"
+    created_at = Column(DateTime, server_default=func.now())
+    is_system = Column(Boolean, default=False)
+
+    player = relationship("Player", back_populates="log_entries")
+    province = relationship("Province")
+
+class PlayerMessage(Base):
+    __tablename__ = 'player_messages'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    sender_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    recipient_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    subject = Column(String, nullable=False)
+    body = Column(String, nullable=False)
+    read = Column(Boolean, default=False)
+    sent_at = Column(DateTime, server_default=func.now())
+    deleted_sender = Column(Boolean, default=False)
+    deleted_recipient = Column(Boolean, default=False)
+
+    sender = relationship("Player", foreign_keys=[sender_id], back_populates="messages_sent")
+    recipient = relationship("Player", foreign_keys=[recipient_id], back_populates="messages_received")
+
+class PlayerNotificationSettings(Base):
+    __tablename__ = 'player_notification_settings'
+    player_id = Column(Integer, ForeignKey('players.id'), primary_key=True)
+    show_war = Column(Boolean, default=True)
+    show_trade = Column(Boolean, default=True)
+    show_system = Column(Boolean, default=True)
+    max_entries = Column(Integer, default=50)
+
+    player = relationship("Player", back_populates="notification_settings")
 
 class Province(Base):
     __tablename__ = 'provinzen'
@@ -91,7 +162,7 @@ class Province(Base):
     arbeitspunkte_max = Column(Integer, default=100)
     terrain_yield_malus = Column(Float, default=0.0)
     
-    player = relationship("Player", back_populates="provinces")
+    player = relationship("Player", back_populates="provinces", foreign_keys=[player_id])
     kultureinfluss_owner = relationship("Player", foreign_keys=[kultureinfluss_owner_id])
     buildings = relationship("BuildingInstance", back_populates="province")
     roads = relationship("RoadInstance", back_populates="province")
@@ -116,12 +187,16 @@ class Province(Base):
     min_soldiers = Column(Integer, default=20)
     security_bonus = Column(Integer, default=0)
     
+    # Building System v3 - Admin Grid
+    current_city_level = Column(Integer, default=0) # 0-8
+    next_required_building_id = Column(Integer, ForeignKey('gebaeude_typen.id'), nullable=True)
+    
     # Bunker
     has_bunker = Column(Integer, default=0) # 1=True, 0=False
     is_bunker_province = Column(Integer, default=0) # 1=True, 0=False (for start province)
     bunker_defense_bonus = Column(Float, default=1.3) # 30% bonus
     
-    stationed_armies = relationship("Army", back_populates="province")
+    stationed_armies = relationship("Army", foreign_keys="Army.province_id", back_populates="province")
 
 class Army(Base):
     __tablename__ = 'armies'
@@ -491,16 +566,6 @@ class PopulationCohort(Base):
 
     province = relationship("Province")
 
-class GameLog(Base):
-    __tablename__ = 'game_logs'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    province_id = Column(Integer, ForeignKey('provinzen.id'), nullable=False)
-    timestamp = Column(DateTime, server_default=func.now())
-    event_type = Column(String, nullable=False)  # ROUTE_CREATED, ROUTE_ARRIVED, ROUTE_RETURNED, etc.
-    message = Column(String, nullable=False)
-    details_json = Column(String, default="{}")  # JSON for additional data
-
-    province = relationship("Province")
 
 class DiplomacyRelation(Base):
     __tablename__ = 'diplomatie'
@@ -541,6 +606,35 @@ class Regierungsform(Base):
     krieg_moeglich = Column(Integer, default=0)
     provinzanzahl_bis_malus = Column(Integer, default=2)
     malus_beschreibung = Column(String, default='')
+
+class ProvinceField(Base):
+    __tablename__ = 'province_fields'
+    id = Column(Integer, primary_key=True) # 0-224 for 15x15 grid
+    province_id = Column(Integer, ForeignKey('provinzen.id'), primary_key=True)
+    x = Column(Integer, nullable=False)
+    y = Column(Integer, nullable=False)
+    type = Column(String, default="land") # "land" or "city"
+    city_unlock_level = Column(Integer, default=0) # 0=land, 1-8=stadtfeld
+    occupied_building_id = Column(Integer, ForeignKey('provinz_gebaeude.id'), nullable=True)
+
+    province = relationship("Province")
+    building = relationship("BuildingInstance")
+
+class CityExpansionConfig(Base):
+    __tablename__ = 'city_expansion_configs'
+    level = Column(Integer, primary_key=True) # 1-8
+    unlocked_fields_json = Column(String, default="[]") # List of field IDs (0-224)
+
+    @property
+    def unlocked_fields(self):
+        return json.loads(self.unlocked_fields_json)
+    
+    @unlocked_fields.setter
+    def unlocked_fields(self, value):
+        self.unlocked_fields_json = json.dumps(value)
+
+# Aliases for compatibility
+BuildingTemplate = BuildingType
 
 # Engine setup
 engine = create_engine('sqlite:///verbrannte_zone.db')

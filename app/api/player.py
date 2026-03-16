@@ -186,4 +186,49 @@ def get_player_enemies(player_id: int, db: Session = Depends(get_db)):
     return {"player_id": player_id, "enemies": enemies}
 
 
+@router.get("/{player_id}/resources/total")
+def get_player_resources_total(player_id: int, db: Session = Depends(get_db)):
+    """Aggregated player resources across all provinces plus coins, average moral and total population"""
+    from app.models import Province, ProvinceLager, Player
+    
+    player = db.query(Player).filter(Player.id == player_id).first()
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+        
+    provinces = db.query(Province).filter(Province.player_id == player_id).all()
+    province_ids = [p.id for p in provinces]
+    
+    # Resources (from ProvinceLager)
+    # We assume iron_id=1, steel_id=2, fuel_id=3 for now (matching existing logic if any)
+    # Better: query resource names
+    from sqlalchemy import func
+    res_rows = db.query(ProvinceLager.ressource_id, func.sum(ProvinceLager.menge).label('total'))\
+                 .filter(ProvinceLager.provinz_id.in_(province_ids) if province_ids else False)\
+                 .group_by(ProvinceLager.ressource_id).all()
+    
+    # Mapping to name (assuming ids 1=Eisen, 2=Stahl, 3=Brennstoff based on common pattern)
+    # Let's use a more robust approach if possible, but for UI we need specific keys
+    resources = {"iron": 0, "steel": 0, "fuel": 0}
+    for row in res_rows:
+        if row.ressource_id == 1: resources["iron"] = int(row.total)
+        elif row.ressource_id == 2: resources["steel"] = int(row.total)
+        elif row.ressource_id == 3: resources["fuel"] = int(row.total)
+    
+    # Stats from provinces
+    pop_total = sum(p.population or 0 for p in provinces)
+    moral_sum = sum(p.moral or 0 for p in provinces)
+    moral_avg = int(moral_sum / len(provinces)) if provinces else 0
+    
+    return {
+        "player_id": player_id,
+        "iron": resources["iron"],
+        "steel": resources["steel"],
+        "fuel": resources["fuel"],
+        "coins": int(player.staatskonto or 0),
+        "moral_avg": moral_avg,
+        "pop_total": pop_total,
+        "time_credit": int(player.time_credit or 0)
+    }
+
+
 router.include_router(router)
