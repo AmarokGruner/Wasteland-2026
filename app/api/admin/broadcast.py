@@ -22,7 +22,7 @@ class BroadcastRequest(BaseModel):
     subject: constr(strip_whitespace=True, min_length=1)
     body: constr(strip_whitespace=True, min_length=1)
 
-@router.post("/admin/broadcast")
+@router.post("/broadcast")
 def send_broadcast(req: BroadcastRequest, token: str, db: Session = Depends(get_db)):
     require_admin(token)
     
@@ -60,7 +60,7 @@ def send_broadcast(req: BroadcastRequest, token: str, db: Session = Depends(get_
     db.commit()
     return {"success": True, "sent_to": req.recipient}
 
-@router.get("/admin/broadcast/history")
+@router.get("/broadcast/history")
 def get_broadcast_history(token: str, db: Session = Depends(get_db)):
     require_admin(token)
     # Broadcasts are messages from sender_id=0

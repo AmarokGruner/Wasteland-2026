@@ -5,7 +5,7 @@ from app.api.admin.users import require_admin
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
-router = APIRouter(prefix="/admin", tags=["Admin-City-Grid"])
+router = APIRouter(tags=["Admin-City-Grid"])
 
 class CityConfigSave(BaseModel):
     level: int

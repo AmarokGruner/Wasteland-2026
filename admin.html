@@ -1265,6 +1265,10 @@
                         <input type="number" name="lagerkapazitaet">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Spezial-Eigenschaften (kommagetrennt)</label>
+                    <input type="text" name="spezial_eigenschaften" placeholder="z.B. Brunnen, Kaserne">
+                </div>
 
                 <!-- Produktion Section -->
                 <div class="form-group">
@@ -1332,6 +1336,10 @@
                         <label>Lagerkapazität</label>
                         <input type="number" name="lagerkapazitaet" value="0">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>Spezial-Eigenschaften (kommagetrennt)</label>
+                    <input type="text" name="spezial_eigenschaften" placeholder="z.B. Brunnen, Kaserne">
                 </div>
 
                 <!-- Produktion Section -->
@@ -1668,22 +1676,22 @@
         // ── Load lists from DB for dropdowns ────────────────
         async function loadDropdownData() {
             try {
-                const resR = await adminFetch(`${APIBASE}/admin/ressourcen?token=${token}`);
+                const resR = await adminFetch(`/admin/rohstoffe`);
                 if (resR.ok) {
                     const data = await resR.json();
-                    RESOURCES = data.map(r => r.name).filter(Boolean).sort();
+                    RESOURCES = (Array.isArray(data) ? data : []).map(r => r.name).filter(Boolean).sort();
                 }
-                const resT = await adminFetch(`${APIBASE}/admin/terrain?token=${token}`);
+                const resT = await adminFetch(`/admin/terrain`);
                 if (resT.ok) {
                     const data = await resT.json();
-                    TERRAINS = data.map(t => t.name).filter(Boolean).sort();
+                    TERRAINS = (Array.isArray(data) ? data : []).map(t => t.name).filter(Boolean).sort();
                 }
-                const resB = await adminFetch(`${APIBASE}/admin/buildings?token=${token}`);
+                const resB = await adminFetch(`/admin/gebaeude_typen`);
                 if (resB.ok) {
                     const data = await resB.json();
-                    BUILDINGS = data.map(b => b.name).filter(Boolean).sort();
+                    BUILDINGS = (Array.isArray(data) ? data : []).map(b => b.name).filter(Boolean).sort();
                 }
-            } catch { }
+            } catch (e) { console.error("Error loading dropdown data:", e); }
         }
         loadDropdownData();
 
@@ -2109,24 +2117,40 @@
         }
 
         // ── BUILDINGS ───────────────────────────────────────────────
+        function safeParseArray(data, defaultVal = []) {
+            if (!data) return defaultVal;
+            if (Array.isArray(data)) return data;
+            try {
+                const parsed = JSON.parse(data);
+                return Array.isArray(parsed) ? parsed : defaultVal;
+            } catch (e) {
+                console.error("JSON Parse Error:", e, data);
+                return defaultVal;
+            }
+        }
+
         async function loadBuildings() {
             try {
                 const res = await adminFetch(`/admin/gebaeude_typen`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const buildings = await res.json();
+                if (!Array.isArray(buildings)) throw new Error('Data is not an array');
+
                 document.getElementById('buildingsTable').innerHTML = buildings.map(b => {
-                    const prod = JSON.parse(b.produktion || '[]');
-                    const prodTags = prod.slice(0, 3).map(p => `<span class="badge" style="background:var(--success)">${p.ressource}</span>`).join(' ');
-                    const special = JSON.parse(b.spezialeigenschaften || '[]');
+                    const prod = safeParseArray(b.produktion);
+                    const prodTags = prod.slice(0, 3).map(p => p.ressource ? `<span class="badge" style="background:var(--success)">${p.ressource}</span>` : '').join(' ');
+                    const special = safeParseArray(b.spezial_eigenschaften);
                     const specTags = special.map(s => `<span class="badge" title="${s}">✨</span>`).join('');
 
                     return `
                         <tr>
                             <td>${b.id}</td>
-                            <td contenteditable="true" onblur="patchEntity('gebaeude_typen', ${b.id}, 'name', this.textContent)">${b.name || '-'}</td>
-                            <td contenteditable="true" onblur="patchEntity('gebaeude_typen', ${b.id}, 'kategorie', this.textContent)">${b.kategorie || '-'}</td>
-                            <td contenteditable="true" onblur="patchEntity('gebaeude_typen', ${b.id}, 'baukosten_mips', this.textContent)">${b.baukosten_mips || 0}</td>
-                            <td>${prodTags}</td>
-                            <td>${specTags}</td>
+                            <td><b>${b.name || '-'}</b></td>
+                            <td>${b.kategorie || '-'}</td>
+                            <td>${b.baukosten_mips || 0}</td>
+                            <td>${b.arbeiter || 0} ${prodTags}</td>
+                            <td>${b.wohnraum || 0} ${specTags}</td>
+                            <td>${b.lagerkapazitaet || 0}</td>
                             <td class="actions">
                                 <button class="btn btn-primary" onclick="editBuilding(${b.id})">Bearbeiten</button>
                                 <button class="btn btn-danger" onclick="deleteBuilding(${b.id})">Löschen</button>
@@ -2135,13 +2159,14 @@
                     `;
                 }).join('');
             } catch (e) {
-                document.getElementById('buildingsTable').innerHTML = '<tr><td colspan="8">Fehler beim Laden</td></tr>';
+                console.error("Error loading buildings:", e);
+                document.getElementById('buildingsTable').innerHTML = `<tr><td colspan="8">Fehler beim Laden: ${e.message}</td></tr>`;
             }
         }
 
         async function editBuilding(id) {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/buildings/${id}?token=${token}`);
+                const res = await adminFetch(`/admin/buildings/${id}`);
                 const building = await res.json();
                 if (!building) return;
                 const form = document.getElementById('editBuildingForm');
@@ -2150,22 +2175,22 @@
                 form.querySelector('[name="kategorie"]').value = building.kategorie || '';
                 form.querySelector('[name="baukosten_mips"]').value = building.baukosten_mips || 0;
                 form.querySelector('[name="arbeiter"]').value = building.arbeiter || 0;
-                form.querySelector('[name="wohnraum"]').value = building.wohnraum || 0;
-                form.querySelector('[name="lagerkapazitaet"]').value = building.lagerkapazitaet || 0;
+                form.querySelector('[name="spezial_eigenschaften"]').value = Array.isArray(building.spezial_eigenschaften) ? building.spezial_eigenschaften.join(', ') : (typeof building.spezial_eigenschaften === 'string' ? JSON.parse(building.spezial_eigenschaften || '[]').join(', ') : '');
+                
                 // Production
-                const production = JSON.parse(building.produktion || '[]');
+                const production = typeof building.produktion === 'string' ? JSON.parse(building.produktion || '[]') : (building.produktion || []);
                 const prodContainer = document.getElementById('productionContainer');
                 prodContainer.innerHTML = '';
                 production.forEach(p => addProductionRow(p.ressource, p.menge));
                 if (production.length === 0) addProductionRow();
                 // Consumption
-                const consumption = JSON.parse(building.rohstoffverbrauch || '[]');
+                const consumption = typeof building.rohstoffverbrauch === 'string' ? JSON.parse(building.rohstoffverbrauch || '[]') : (building.rohstoffverbrauch || []);
                 const consContainer = document.getElementById('consumptionContainer');
                 consContainer.innerHTML = '';
                 consumption.forEach(c => addConsumptionRow(c.ressource, c.menge));
                 if (consumption.length === 0) addConsumptionRow();
                 // Terrain
-                const terrain = JSON.parse(building.terrain_effektivitaet || '{}');
+                const terrain = typeof building.terrain_effektivitaet === 'string' ? JSON.parse(building.terrain_effektivitaet || '{}') : (building.terrain_effektivitaet || {});
                 const terrainContainer = document.getElementById('terrainContainer');
                 terrainContainer.innerHTML = '';
                 Object.entries(terrain).forEach(([bonus, terrains]) => addTerrainRow(bonus, Array.isArray(terrains) ? terrains.join(', ') : terrains));
@@ -2320,7 +2345,7 @@
             const formData = new FormData(e.target);
             const buildingId = formData.get('building_id');
             try {
-                const res = await adminFetch(`${APIBASE}/admin/buildings/${buildingId}?token=${token}`, {
+                const res = await adminFetch(`/admin/buildings/${buildingId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2330,6 +2355,7 @@
                         arbeiter: parseInt(formData.get('arbeiter')) || 0,
                         wohnraum: parseInt(formData.get('wohnraum')) || 0,
                         lagerkapazitaet: parseInt(formData.get('lagerkapazitaet')) || 0,
+                        spezial_eigenschaften: formData.get('spezial_eigenschaften').split(',').map(s => s.trim()).filter(s => s),
                         produktion: getRowsData('#productionContainer', 'prod-resource', 'prod-menge'),
                         rohstoffverbrauch: getRowsData('#consumptionContainer', 'cons-resource', 'cons-menge'),
                         terrain_effektivitaet: getTerrainRowsData('#terrainContainer')
@@ -2355,7 +2381,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             try {
-                const res = await adminFetch(`${APIBASE}/admin/buildings?token=${token}`, {
+                const res = await adminFetch(`/admin/buildings`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2365,6 +2391,7 @@
                         arbeiter: parseInt(formData.get('arbeiter')) || 0,
                         wohnraum: parseInt(formData.get('wohnraum')) || 0,
                         lagerkapazitaet: parseInt(formData.get('lagerkapazitaet')) || 0,
+                        spezial_eigenschaften: formData.get('spezial_eigenschaften').split(',').map(s => s.trim()).filter(s => s),
                         produktion: getRowsData('#createProductionContainer', 'prod-resource', 'prod-menge'),
                         rohstoffverbrauch: getRowsData('#createConsumptionContainer', 'cons-resource', 'cons-menge'),
                         terrain_effektivitaet: getTerrainRowsData('#createTerrainContainer')
@@ -2378,7 +2405,7 @@
         async function deleteBuilding(id) {
             if (!confirm('Gebäude wirklich löschen?')) return;
             try {
-                const res = await adminFetch(`${APIBASE}/admin/buildings/${id}?token=${token}`, { method: 'DELETE' });
+                const res = await adminFetch(`/admin/buildings/${id}`, { method: 'DELETE' });
                 if (res.ok) { loadBuildings(); }
                 else { alert('Fehler beim Löschen'); }
             } catch { alert('Verbindungsfehler'); }
@@ -2388,13 +2415,16 @@
         async function loadRessourcen() {
             try {
                 const res = await adminFetch(`/admin/rohstoffe`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const data = await res.json();
+                if (!Array.isArray(data)) throw new Error('Data is not an array');
+
                 document.getElementById('ressourcenTable').innerHTML = data.map(r => `
                     <tr>
                         <td>${r.id}</td>
-                        <td contenteditable="true" onblur="patchEntity('rohstoffe', ${r.id}, 'name', this.textContent)"><b>${r.name}</b></td>
+                        <td><b>${r.name}</b></td>
                         <td>${r.typ || '-'}</td>
-                        <td contenteditable="true" onblur="patchEntity('rohstoffe', ${r.id}, 'produktionswert', this.textContent)">${r.produktionswert || 0}</td>
+                        <td>${r.produktionswert || 0}</td>
                         <td>${r.platz_land || 1}/${r.platz_wasser || 1}/${r.platz_luft || 1}</td>
                         <td>${(r.beschreibung || '').substring(0, 30)}...</td>
                         <td class="actions">
@@ -2402,13 +2432,16 @@
                             <button class="btn btn-danger"  onclick="deleteItem('ressourcen',${r.id})">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error("Error loading resources:", e);
+                document.getElementById('ressourcenTable').innerHTML = `<tr><td colspan="7">Fehler beim Laden: ${e.message}</td></tr>`;
+            }
         }
 
         async function loadVorkommen() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/vorkommen?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await adminFetch(`/admin/vorkommen`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const data = await res.json();
                 document.getElementById('vorkommenTable').innerHTML = data.map(v => `
                     <tr>
@@ -2419,13 +2452,16 @@
                             <button class="btn btn-danger"  onclick="deleteItem('vorkommen',${v.id})">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch { document.getElementById('vorkommenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+            } catch (e) { 
+                console.error("Error loading vorkommen:", e);
+                document.getElementById('vorkommenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; 
+            }
         }
 
         async function loadGebaeudeFelder() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/gebaeude_felder?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await adminFetch(`/admin/gebaeude_felder`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const data = await res.json();
                 document.getElementById('gebaeude_felderTable').innerHTML = data.map(t => `
                     <tr>
@@ -2437,13 +2473,16 @@
                             <button class="btn btn-danger"  onclick="deleteItem('gebaeude_felder','${t.id}')">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch { document.getElementById('gebaeude_felderTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+            } catch (e) {
+                console.error("Error loading gebaeude_felder:", e);
+                document.getElementById('gebaeude_felderTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; 
+            }
         }
 
         async function loadTerrain() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/terrain?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await adminFetch(`/admin/terrain`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const data = await res.json();
                 document.getElementById('terrainTable').innerHTML = data.map(t => `
                     <tr>
@@ -2455,13 +2494,16 @@
                             <button class="btn btn-danger"  onclick="deleteItem('terrain','${t.id}')">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch { document.getElementById('terrainTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+            } catch (e) {
+                console.error("Error loading terrain:", e);
+                document.getElementById('terrainTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; 
+            }
         }
 
         async function loadArtikel() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/artikel?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await adminFetch(`/admin/artikel`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const data = await res.json();
                 document.getElementById('artikelTable').innerHTML = data.map(a => `
                     <tr>
@@ -2472,13 +2514,16 @@
                             <button class="btn btn-danger"  onclick="deleteItem('artikel',${a.id})">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch { document.getElementById('artikelTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+            } catch (e) {
+                console.error("Error loading artikel:", e);
+                document.getElementById('artikelTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; 
+            }
         }
 
         async function loadEinheiten() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/einheiten?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await adminFetch(`/admin/einheiten`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const data = await res.json();
                 document.getElementById('einheitenTable').innerHTML = data.map(e => `
                     <tr>
@@ -2489,13 +2534,16 @@
                             <button class="btn btn-danger"  onclick="deleteItem('einheiten',${e.id})">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch { document.getElementById('einheitenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+            } catch (e) {
+                console.error("Error loading einheiten:", e);
+                document.getElementById('einheitenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; 
+            }
         }
 
         async function loadLebewesen() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/lebewesen?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await adminFetch(`/admin/lebewesen`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const data = await res.json();
                 document.getElementById('lebewesenTable').innerHTML = data.map(l => `
                     <tr>
@@ -2506,27 +2554,36 @@
                             <button class="btn btn-danger"  onclick="deleteItem('lebewesen',${l.id})">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch { document.getElementById('lebewesenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; }
+            } catch (e) {
+                console.error("Error loading lebewesen:", e);
+                document.getElementById('lebewesenTable').innerHTML = '<tr><td colspan="6">Fehler</td></tr>'; 
+            }
         }
 
         async function loadRegierungsformen() {
             try {
                 const res = await adminFetch(`/admin/regierungsformen`);
+                if (!res.ok) throw new Error('Response not OK: ' + res.status);
                 const data = await res.json();
+                if (!Array.isArray(data)) throw new Error('Data is not an array');
+
                 document.getElementById('regierungsformenTable').innerHTML = data.map(r => `
                     <tr>
                         <td>${r.id}</td>
-                        <td contenteditable="true" onblur="patchEntity('regierungsformen', ${r.id}, 'name', this.textContent)"><b>${r.name}</b></td>
-                        <td contenteditable="true" onblur="patchEntity('regierungsformen', ${r.id}, 'moral_base', this.textContent)">${r.moral_base || 0}</td>
-                        <td contenteditable="true" onblur="patchEntity('regierungsformen', ${r.id}, 'produktions_mod', this.textContent)">${r.produktions_mod || 1}</td>
-                        <td contenteditable="true" onblur="patchEntity('regierungsformen', ${r.id}, 'provinz_max', this.textContent)">${r.provinz_max || 1}</td>
+                        <td><b>${r.name}</b></td>
+                        <td>${r.grundmoral || 0}</td>
+                        <td>${r.produktivitaet || 1}</td>
+                        <td>${r.provinzanzahl_bis_malus || 1}</td>
                         <td>${(r.beschreibung || '').substring(0, 30)}...</td>
                         <td class="actions">
                             <button class="btn btn-primary" onclick="editItem('regierungsformen',${r.id})">Bearbeiten</button>
                             <button class="btn btn-danger"  onclick="deleteItem('regierungsformen',${r.id})">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error("Error loading regierungsformen:", e);
+                document.getElementById('regierungsformenTable').innerHTML = `<tr><td colspan="7">Fehler beim Laden: ${e.message}</td></tr>`;
+            }
         }
 
         // ── WORLD MAP EDITOR ────────────────────────────────────────

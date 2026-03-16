@@ -6,7 +6,7 @@ import json
 from app.database import get_connection
 from app.api.auth import get_token_user, create_access_token
 
-router = APIRouter(prefix="/admin", tags=["Admin"])
+router = APIRouter(tags=["Admin-Data-Editors"])
 
 # --- Helper Functions ---
 def require_admin(token: str):

@@ -9,7 +9,7 @@ from app.api.admin.data_editors import router as data_editors_router
 from app.api.admin.world import router as world_router
 from app.api.admin.city_grid import router as city_grid_router
 
-router = APIRouter()
+router = APIRouter(prefix="/admin")
 router.include_router(users_router)
 router.include_router(armies_router)
 router.include_router(dashboard_router)

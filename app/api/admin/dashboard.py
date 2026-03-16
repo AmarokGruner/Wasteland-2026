@@ -7,7 +7,7 @@ import datetime
 
 router = APIRouter(tags=["Admin-Dashboard"])
 
-@router.get("/admin/dashboard")
+@router.get("/dashboard")
 def get_dashboard_stats(token: str, db: Session = Depends(get_db)):
     require_admin(token)
     

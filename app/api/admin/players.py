@@ -15,7 +15,7 @@ class PlayerStats(BaseModel):
     tech_level: int
     regierungsform: str
 
-@router.get("/admin/players", response_model=List[PlayerStats])
+@router.get("/dashboard", response_model=List[PlayerStats])
 def get_admin_players(token: str, db: Session = Depends(get_db)):
     require_admin(token)
     
@@ -51,7 +51,7 @@ class SetStatsRequest(BaseModel):
     moral: Optional[int] = None
     gesundheit: Optional[int] = None
 
-@router.post("/admin/province/{id}/set")
+@router.post("/world/province/{x}/{y}")
 def admin_set_province_stats(id: int, req: SetStatsRequest, token: str, db: Session = Depends(get_db)):
     admin = require_admin(token)
     prov = db.query(Province).filter(Province.id == id).first()
@@ -70,7 +70,7 @@ def admin_set_province_stats(id: int, req: SetStatsRequest, token: str, db: Sess
 class AddMipsRequest(BaseModel):
     amount: float
 
-@router.post("/admin/province/{id}/mips")
+@router.get("/world/map_data")
 def admin_add_mips(id: int, req: AddMipsRequest, token: str, db: Session = Depends(get_db)):
     admin = require_admin(token)
     prov = db.query(Province).filter(Province.id == id).first()
@@ -86,7 +86,7 @@ class AddLagerRequest(BaseModel):
     resource_id: int
     amount: float
 
-@router.post("/admin/province/{id}/lager")
+@router.post("/province/{id}/lager")
 def admin_add_lager(id: int, req: AddLagerRequest, token: str, db: Session = Depends(get_db)):
     admin = require_admin(token)
     # This needs the ProvinceLager model
@@ -104,7 +104,7 @@ def admin_add_lager(id: int, req: AddLagerRequest, token: str, db: Session = Dep
 class SetTechRequest(BaseModel):
     tech_level: int
 
-@router.post("/admin/player/{id}/tech")
+@router.post("/player/{id}/tech")
 def admin_set_tech(id: int, req: SetTechRequest, token: str, db: Session = Depends(get_db)):
     admin = require_admin(token)
     player = db.query(Player).filter(Player.id == id).first()
@@ -116,7 +116,7 @@ def admin_set_tech(id: int, req: SetTechRequest, token: str, db: Session = Depen
     log_admin_action(0, "set_tech", "player", str(id), req.dict())
     return {"success": True}
 
-@router.post("/admin/player/{id}/ban")
+@router.post("/player/{id}/ban")
 def admin_ban_player(id: int, token: str, db: Session = Depends(get_db)):
     admin = require_admin(token)
     # Search for user associated with player

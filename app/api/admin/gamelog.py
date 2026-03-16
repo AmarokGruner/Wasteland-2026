@@ -16,7 +16,7 @@ class AdminGameLogResponse(BaseModel):
     province_name: Optional[str]
     message: str
 
-@router.get("/admin/gamelog", response_model=List[AdminGameLogResponse])
+@router.get("/gamelog", response_model=List[AdminGameLogResponse])
 def get_admin_gamelog(
     token: str,
     player_id: Optional[int] = None,
