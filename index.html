@@ -594,7 +594,7 @@
   </div>
 
   <!-- Scripts – REIHENFOLGE WICHTIG! -->
-  <script src="js/auth-service.js"></script>
+  <script src="js/auth-service.js?v=2"></script>
   <script>
     // Initial Auth Check
     const token = AuthService.getAccessToken();
@@ -604,7 +604,13 @@
 
     // Global fetch replacement if possible or just careful in app.js
     async function gameFetch(url, options = {}) {
-      const res = await AuthService.fetch(url, options);
+      // Automatic prefix for /api if missing and not an absolute external URL
+      let finalUrl = url;
+      if (url.startsWith('/') && !url.startsWith('/api/') && url !== '/api') {
+          finalUrl = '/api' + url;
+      }
+      
+      const res = await AuthService.fetch(finalUrl, options);
       if (res.status === 401) {
         AuthService.logout();
       }

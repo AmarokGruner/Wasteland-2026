@@ -6,15 +6,23 @@ from pydantic import BaseModel, constr
 from typing import List, Optional
 from datetime import datetime
 
-router = APIRouter(prefix="/admin/broadcast", tags=["Admin-Broadcast"])
+router = APIRouter(tags=["Admin-Broadcast"])
 
 class BroadcastRequest(BaseModel):
-    recipient: str # "all" or player_id as string
-    subject: constr(min_length=1, max_length=100)
-    body: constr(min_length=1, max_length=2000)
-    typ: str # "info", "warning", "system"
+    """Request-Body für Admin-Broadcasts.
 
-@router.post("")
+    Felder:
+    - typ: Kennzeichnung/Level der Nachricht (z. B. info, warn, alert)
+    - recipient: "all" oder eine Player-ID als String/Zahl
+    - subject: Betreffzeile (kurz)
+    - body: Nachrichtentext
+    """
+    typ: constr(strip_whitespace=True, min_length=1) = "info"
+    recipient: constr(strip_whitespace=True, min_length=1)
+    subject: constr(strip_whitespace=True, min_length=1)
+    body: constr(strip_whitespace=True, min_length=1)
+
+@router.post("/admin/broadcast")
 def send_broadcast(req: BroadcastRequest, token: str, db: Session = Depends(get_db)):
     require_admin(token)
     
@@ -52,7 +60,7 @@ def send_broadcast(req: BroadcastRequest, token: str, db: Session = Depends(get_
     db.commit()
     return {"success": True, "sent_to": req.recipient}
 
-@router.get("/history")
+@router.get("/admin/broadcast/history")
 def get_broadcast_history(token: str, db: Session = Depends(get_db)):
     require_admin(token)
     # Broadcasts are messages from sender_id=0

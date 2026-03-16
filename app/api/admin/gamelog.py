@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-router = APIRouter(prefix="/admin/gamelog", tags=["Admin-Gamelog"])
+router = APIRouter(tags=["Admin-Gamelog"])
 
 class AdminGameLogResponse(BaseModel):
     id: int
@@ -16,10 +16,7 @@ class AdminGameLogResponse(BaseModel):
     province_name: Optional[str]
     message: str
 
-    class Config:
-        from_attributes = True
-
-@router.get("", response_model=List[AdminGameLogResponse])
+@router.get("/admin/gamelog", response_model=List[AdminGameLogResponse])
 def get_admin_gamelog(
     token: str,
     player_id: Optional[int] = None,

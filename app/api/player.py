@@ -230,5 +230,4 @@ def get_player_resources_total(player_id: int, db: Session = Depends(get_db)):
         "time_credit": int(player.time_credit or 0)
     }
 
-
-router.include_router(router)
+

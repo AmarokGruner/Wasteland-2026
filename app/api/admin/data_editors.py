@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from app.models import get_db, BuildingTemplate, Resource, Regierungsform
+from app.models import get_db, BuildingTemplate, Resource, Regierungsform, TerrainType, Article, Vorkommen, AnimalTemplate, UnitType, ProvinceField
 from app.api.admin.users import require_admin, log_admin_action
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 router = APIRouter(prefix="/admin", tags=["Admin-Data-Editors"])
 
@@ -16,7 +16,12 @@ def patch_entity(entity: str, id: int, data: Dict[str, Any], token: str, db: Ses
         "gebaeude_typen": BuildingTemplate,
         "rohstoffe": Resource,
         "regierungsformen": Regierungsform,
-        # Add more mappings as needed from existing tables in admin.html
+        "terrain": TerrainType,
+        "artikel": Article,
+        "vorkommen": Vorkommen,
+        "lebewesen": AnimalTemplate,
+        "einheiten": UnitType,
+        "gebaeude_felder": ProvinceField
     }
     
     if entity not in model_map:
@@ -55,3 +60,33 @@ def get_admin_resources(token: str, db: Session = Depends(get_db)):
 def get_admin_govs(token: str, db: Session = Depends(get_db)):
     require_admin(token)
     return db.query(Regierungsform).all()
+
+@router.get("/terrain")
+def get_admin_terrain(token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    return db.query(TerrainType).all()
+
+@router.get("/artikel")
+def get_admin_artikel(token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    return db.query(Article).all()
+
+@router.get("/vorkommen")
+def get_admin_vorkommen(token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    return db.query(Vorkommen).all()
+
+@router.get("/lebewesen")
+def get_admin_lebewesen(token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    return db.query(AnimalTemplate).all()
+
+@router.get("/einheiten")
+def get_admin_einheiten(token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    return db.query(UnitType).all()
+
+@router.get("/gebaeude_felder")
+def get_admin_gebaeude_felder(token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    return db.query(ProvinceField).all()

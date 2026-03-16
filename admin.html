@@ -336,7 +336,8 @@
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            overflow-x: auto;
+            /* overflow-x: auto removed to prevent clipping absolutely positioned dropdowns */
+            overflow: visible;
         }
 
         .admin-nav-item {
@@ -368,11 +369,13 @@
             display: none;
             position: absolute;
             background-color: var(--bg-card);
-            min-width: 200px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
-            z-index: 100;
+            min-width: 220px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.6);
+            z-index: 1000;
             border: 1px solid var(--border);
             border-radius: 0 0 4px 4px;
+            top: 100%;
+            left: 0;
         }
 
         .dropdown-content .admin-nav-item {
@@ -1126,7 +1129,7 @@
                             <span id="mapStatus" style="color: var(--text-muted); align-self: center;"></span>
                         </div>
                         <div id="adminMapGrid"
-                            style="display: grid; grid-template-columns: repeat(50, 15px); grid-template-rows: repeat(50, 15px); gap: 1px; background: #000; border: 1px solid var(--border); width: fit-content; user-select: none;">
+                            style="display: grid; grid-template-columns: repeat(50, 15px); grid-template-rows: repeat(50, 15px); gap: 1px; background: #222; border: 1px solid var(--border); width: 800px; height: 800px; overflow: hidden; user-select: none;">
                             <!-- Cells injected via JS -->
                         </div>
                     </div>
@@ -1360,7 +1363,7 @@
         </div>
     </div>
 
-    <script src="js/auth-service.js"></script>
+    <script src="js/auth-service.js?v=2"></script>
     <script>
         // --- Tab System ---
         function showAdminTab(tabId) {
@@ -1396,7 +1399,7 @@
             if (tabId === 'buildings') loadBuildings();
             if (tabId === 'ressourcen') loadRessourcen();
             if (tabId === 'regierungsformen') loadRegierungsformen();
-            if (tabId === 'worldmap') loadAdminMapData();
+            if (tabId === 'worldmap') loadWorldMapAdmin();
         }
 
         // Init Tabs
@@ -1424,7 +1427,7 @@
         // --- Dashboard ---
         async function loadDashboard() {
             try {
-                const res = await fetch('/api/admin/dashboard?token=' + localStorage.getItem('token'));
+                const res = await adminFetch('/admin/dashboard');
                 const data = await res.json();
                 
                 document.getElementById('kpi-active-players').textContent = data.active_players_today;
@@ -1460,7 +1463,7 @@
         // --- Players ---
         async function loadAdminPlayers() {
             try {
-                const res = await fetch('/api/admin/players?token=' + localStorage.getItem('token'));
+                const res = await adminFetch('/admin/players');
                 const data = await res.json();
                 window.adminPlayers = data;
                 
@@ -1478,7 +1481,7 @@
             const val = parseInt(input.value);
             if (isNaN(val)) return;
 
-            const res = await fetch(`/api/admin/province/${playerId}/set?token=${token}`, {
+            const res = await adminFetch(`/admin/province/${playerId}/set`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ [stat]: val })
@@ -1489,7 +1492,7 @@
         async function adminAddMips(playerId) {
             const val = parseFloat(document.getElementById(`tool-mips-${playerId}`).value);
             if (isNaN(val)) return;
-            const res = await fetch(`/api/admin/province/${playerId}/mips?token=${token}`, {
+            const res = await adminFetch(`/admin/province/${playerId}/mips`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ amount: val })
@@ -1499,7 +1502,7 @@
 
         async function adminBanPlayer(playerId) {
             if (!confirm('Soll dieser Spieler wirklich permanent gesperrt werden?')) return;
-            const res = await fetch(`/api/admin/player/${playerId}/ban?token=${token}`, { method: 'POST' });
+            const res = await adminFetch(`/admin/player/${playerId}/ban`, { method: 'POST' });
             if (res.ok) showSnackbar('🚫 Spieler gesperrt');
         }
 
@@ -1570,7 +1573,7 @@
             const body = document.getElementById('broadcast-body').value;
             const typ = document.querySelector('input[name="bc-type"]:checked').value;
 
-            const res = await fetch('/api/admin/broadcast?token=' + localStorage.getItem('token'), {
+            const res = await adminFetch('/admin/broadcast', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ recipient, subject, body, typ })
@@ -1584,7 +1587,7 @@
         }
 
         async function loadBroadcastHistory() {
-            const res = await fetch('/api/admin/broadcast/history?token=' + localStorage.getItem('token'));
+            const res = await adminFetch(`/admin/broadcast/history`);
             const data = await res.json();
             renderTable('broadcastHistoryTable', data, b => `
                 <tr>
@@ -1599,7 +1602,7 @@
         // --- Gamelog ---
         async function loadAdminGamelog() {
             const search = document.getElementById('gamelog-search').value;
-            const res = await fetch(`/api/admin/gamelog?token=${localStorage.getItem('token')}&search=${search}`);
+            const res = await adminFetch(`/admin/gamelog?search=${search}`);
             const data = await res.json();
             renderTable('adminGamelogTable', data, g => `
                 <tr>
@@ -1613,58 +1616,37 @@
         }
 
         // --- World Map Editor ---
-        async function loadAdminMapData() {
-            try {
-                // Load terrains for palette first if not loaded
-                if (Object.keys(adminTerrainTypes).length === 0) {
-                    const tRes = await fetch('/api/world/terrains');
-                    const tData = await tRes.json();
-                    const palette = document.getElementById('paletteItems');
-                    palette.innerHTML = tData.map(t => `
-                        <div class="admin-nav-item" style="padding:5px; border-bottom: 1px solid var(--border)" onclick="selectedTerrainId = ${t.id}; this.parentElement.querySelectorAll('div').forEach(d=>d.style.background=''); this.style.background='var(--accent)'">
-                            <span style="display:inline-block; width:12px; height:12px; background:${t.color}; border:1px solid #fff"></span>
-                            ${t.name}
-                        </div>
-                    `).join('');
-                    tData.forEach(t => adminTerrainTypes[t.id] = t);
-                }
+        let adminTerrainTypes = {};
+        let selectedTerrainId = null;
+        let adminWorldMap = [];
+        let mapHasChanges = false;
+        let mapEdits = {}; // {"x,y": {x, y, terrain_id}}
+        let isPainting = false;
+        let activeMapTool = 'paint';
 
-                const res = await fetch('/api/admin/world/map_data?token=' + token);
-                const data = await res.json();
-                const grid = document.getElementById('adminMapGrid');
-                grid.innerHTML = '';
-                data.cells.forEach(c => {
-                    const cell = document.createElement('div');
-                    cell.style.backgroundColor = c.color;
-                    cell.title = `(${c.x},${c.y}) ${c.terrain} - Owner: ${c.owner_id || 'None'}`;
-                    cell.onclick = () => selectMapCell(c.x, c.y);
-                    grid.appendChild(cell);
-                });
-            } catch (e) { console.error(e); }
-        }
+        // Consolidated world map functions are located below in the WORLD MAP EDITOR section.
 
-        async function selectMapCell(x, y) {
-            const terrainId = selectedTerrainId; // From palette
-            if (!terrainId) {
-                alert('Bitte erst ein Terrain aus der Palette wählen!');
-                return;
+        // Helper to fetch with token and /api prefix
+        async function adminFetch(url, options = {}) {
+            let finalUrl = url;
+            // Prepend /api if missing for internal paths
+            if (url.startsWith('/') && !url.startsWith('/api/') && url !== '/api') {
+                finalUrl = '/api' + url;
             }
-            const res = await fetch(`/api/admin/world/province/${x}/${y}?token=${token}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ terrain_id: terrainId })
-            });
-            if (res.ok) loadAdminMapData();
+            
+            // Standardize building/resource internal endpoint names if they appear in URL
+            finalUrl = finalUrl.replace('/admin/buildings', '/admin/gebaeude_typen');
+            finalUrl = finalUrl.replace('/admin/ressourcen', '/admin/rohstoffe');
+
+            const res = await AuthService.fetch(finalUrl, options);
+            if (res.status === 401 || res.status === 403) {
+                console.warn("Auth Error:", res.status, finalUrl);
+                // Only alert on 403 if it's not a background check
+            }
+            return res;
         }
 
-        // Auto-refresh for dashboard
-        setInterval(() => {
-            if (document.getElementById('tab-dashboard').classList.contains('active')) loadDashboard();
-        }, 60000);
-
-    </script>
-    <script>
-        const APIBASE = ""; // Relative calls
+        const APIBASE = ""; // Handled by adminFetch
 
         // Initial Auth Check
         const token = AuthService.getAccessToken();
@@ -1675,14 +1657,7 @@
         }
 
         // Helper for all admin calls
-        async function adminFetch(url, options = {}) {
-            const res = await AuthService.fetch(url, options);
-            if (res.status === 401 || res.status === 403) {
-                alert("Sitzung abgelaufen oder keine Rechte.");
-                AuthService.logout();
-            }
-            return res;
-        }
+        // (Removing redundant second definition of adminFetch)
 
         let RESOURCES = [];
         let TERRAINS = [];
@@ -1716,7 +1691,7 @@
         const entityConfig = {
             ressourcen: {
                 label: 'Rohstoff',
-                endpoint: 'ressourcen',
+                endpoint: 'rohstoffe',
                 fields: [
                     { name: 'name', label: 'Name', type: 'text', required: true },
                     { name: 'typ', label: 'Typ', type: 'select', options: ['Baurohstoff', 'Industriegut', 'Nahrung', 'Getränk', 'Verbrauchsgut', 'Genussgut', 'Tier', 'Waffentyp', 'Transport'] },
@@ -2086,7 +2061,7 @@
         // ── USERS ───────────────────────────────────────────────────
         async function loadUsers() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/users?token=${token}`);
+                const res = await adminFetch(`/admin/users`);
                 if (res.status === 401 || res.status === 403) { logout(); return; }
                 const users = await res.json();
                 document.getElementById('usersTable').innerHTML = users.map(u => `
@@ -2136,7 +2111,7 @@
         // ── BUILDINGS ───────────────────────────────────────────────
         async function loadBuildings() {
             try {
-                const res = await fetch(`/api/admin/gebaeude_typen?token=${token}`);
+                const res = await adminFetch(`/admin/gebaeude_typen`);
                 const buildings = await res.json();
                 document.getElementById('buildingsTable').innerHTML = buildings.map(b => {
                     const prod = JSON.parse(b.produktion || '[]');
@@ -2412,7 +2387,7 @@
         // ── Section loaders ─────────────────────────────────────────
         async function loadRessourcen() {
             try {
-                const res = await fetch(`/api/admin/rohstoffe?token=${token}`);
+                const res = await adminFetch(`/admin/rohstoffe`);
                 const data = await res.json();
                 document.getElementById('ressourcenTable').innerHTML = data.map(r => `
                     <tr>
@@ -2536,7 +2511,7 @@
 
         async function loadRegierungsformen() {
             try {
-                const res = await fetch(`/api/admin/regierungsformen?token=${token}`);
+                const res = await adminFetch(`/admin/regierungsformen`);
                 const data = await res.json();
                 document.getElementById('regierungsformenTable').innerHTML = data.map(r => `
                     <tr>
@@ -2555,13 +2530,7 @@
         }
 
         // ── WORLD MAP EDITOR ────────────────────────────────────────
-        let adminWorldMap = [];
-        let adminTerrainTypes = {};
-        let selectedTerrainId = null;
-        let mapHasChanges = false;
-        let mapEdits = {}; // {"x,y": {x, y, terrain_id}}
-        let isPainting = false;
-        let activeMapTool = 'paint';
+        // (Variables already declared above)
 
         function activateMapTool(toolName) {
             activeMapTool = toolName;
@@ -2579,7 +2548,7 @@
 
         async function loadWorldMapAdmin() {
             try {
-                const resT = await adminFetch(`${APIBASE}/admin/terrain?token=${token}`);
+                const resT = await adminFetch('/admin/terrain');
                 if (!resT.ok) throw new Error("Terrains konnten nicht geladen werden");
                 const terrains = await resT.json();
 
@@ -2597,7 +2566,7 @@
 
                 if (terrains.length > 0) selectAdminTerrain(terrains[0].id);
 
-                const resM = await adminFetch(`${APIBASE}/world/map/full?token=${token}`);
+                const resM = await adminFetch('/admin/world/map_data');
                 if (!resM.ok) throw new Error("Weltkarte konnte nicht geladen werden");
                 const mapData = await resM.json();
 
@@ -2620,11 +2589,16 @@
 
         function renderAdminMap() {
             const grid = document.getElementById('adminMapGrid');
+            if (!grid) return;
             grid.innerHTML = '';
+
+            // Create a lookup for faster rendering
+            const cellMap = {};
+            adminWorldMap.forEach(c => cellMap[`${c.x},${c.y}`] = c);
 
             for (let y = 0; y < 50; y++) {
                 for (let x = 0; x < 50; x++) {
-                    const cell = adminWorldMap.find(c => c.x === x && c.y === y);
+                    const cell = cellMap[`${x},${y}`];
                     const div = document.createElement('div');
                     div.style.width = '15px';
                     div.style.height = '15px';
@@ -2632,20 +2606,28 @@
                     div.dataset.y = y;
 
                     if (cell) {
-                        div.style.backgroundColor = cell.terrain_color || '#333';
+                        div.style.backgroundColor = cell.color || '#333';
                         if (cell.bild_url) {
-                            div.style.backgroundImage = `url('${cell.bild_url}')`;
+                            div.style.backgroundImage = `url("${cell.bild_url}")`;
                             div.style.backgroundSize = 'cover';
                         }
-                        div.title = `(${x},${y}) ${cell.terrain_name || cell.terrain_id}\nOwner: ${cell.owner_name || 'Niemand'}`;
-                        if (cell.owner_id) div.style.border = '1px solid red';
+                        div.title = `(${x},${y}) ${cell.terrain}\nOwner: ${cell.owner_id || 'Niemand'}`;
+                        if (cell.owner_id) {
+                            div.style.border = '1px solid red';
+                        }
                     } else {
                         div.style.backgroundColor = '#000';
                         div.title = `(${x},${y}) Leer`;
                     }
 
-                    div.addEventListener('mousedown', (e) => { isPainting = true; paintAdminCell(div, x, y); e.preventDefault(); });
-                    div.addEventListener('mouseenter', (e) => { if (isPainting) paintAdminCell(div, x, y); });
+                    div.addEventListener('mousedown', (e) => { 
+                        isPainting = true; 
+                        paintAdminCell(div, x, y); 
+                        e.preventDefault(); 
+                    });
+                    div.addEventListener('mouseenter', (e) => { 
+                        if (isPainting) paintAdminCell(div, x, y); 
+                    });
                     div.addEventListener('mouseup', () => { isPainting = false; });
                     grid.appendChild(div);
                 }

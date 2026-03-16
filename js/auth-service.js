@@ -5,16 +5,16 @@
 
 const AUTH_CONFIG = {
     apiBase: "", // Empty if same origin
-    loginPath: "/auth/login",
-    refreshPath: "/auth/refresh",
-    registerPath: "/auth/register"
+    loginPath: "/api/auth/login",
+    refreshPath: "/api/auth/refresh",
+    registerPath: "/api/auth/register"
 };
 
 const AuthService = {
     saveTokens({ access_token, refresh_token, player_id, role, username }) {
         if (access_token) localStorage.setItem('access_token', access_token);
         if (refresh_token) localStorage.setItem('refresh_token', refresh_token);
-        if (player_id) localStorage.setItem('player_id', player_id);
+        localStorage.setItem('player_id', player_id); // Set even if null/undefined
         if (role) localStorage.setItem('role', role);
         if (username) localStorage.setItem('username', username);
     },
@@ -24,7 +24,10 @@ const AuthService = {
         return (t === 'null' || t === 'undefined') ? null : t;
     },
     getRefreshToken() { return localStorage.getItem('refresh_token'); },
-    getPlayerId() { return localStorage.getItem('player_id'); },
+    getPlayerId() { 
+        const id = localStorage.getItem('player_id'); 
+        return (id === 'null' || id === 'undefined') ? null : id;
+    },
     getRole() { return localStorage.getItem('role'); },
     getUsername() { return localStorage.getItem('username'); },
     getUserId() { return localStorage.getItem('user_id'); }, // Optional, check main.py response

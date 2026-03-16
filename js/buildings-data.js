@@ -8,7 +8,7 @@ const BuildingsAPI = (() => {
 
   // Interner Cache – wird beim ersten Aufruf befüllt
   let _cache = null;
-  const API_URL = "/gebaeude";
+  const API_URL = "/api/world/buildings";
 
   // --------------------------------------------------------
   // Hauptfunktion: Datenbank laden (einmalig, dann gecacht)

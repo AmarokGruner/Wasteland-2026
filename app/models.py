@@ -32,18 +32,15 @@ class TerrainType(Base):
 
 class MapCell(Base):
     __tablename__ = 'world_map_cells'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    x = Column(Integer, nullable=False)
-    y = Column(Integer, nullable=False)
+    x = Column(Integer, primary_key=True, nullable=False)
+    y = Column(Integer, primary_key=True, nullable=False)
     terrain_id = Column(Integer, ForeignKey('terrain_typen.id'), nullable=False)
     owner_id = Column(Integer, ForeignKey('players.id'), nullable=True)
     is_ruin_province = Column(Integer, default=0)
     has_ocean_border = Column(Integer, default=0)
-    
+
     terrain = relationship("TerrainType")
     owner = relationship("Player")
-    
-    __table_args__ = (UniqueConstraint('x', 'y', name='_x_y_uc'),)
 
 class Player(Base):
     __tablename__ = 'players'
@@ -632,6 +629,23 @@ class CityExpansionConfig(Base):
     @unlocked_fields.setter
     def unlocked_fields(self, value):
         self.unlocked_fields_json = json.dumps(value)
+
+class Article(Base):
+    __tablename__ = 'artikel'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    spezies = Column(String)
+    einheittext = Column(String)
+    modultyp = Column(String)
+    zugehoerig = Column(String)
+    bautyp = Column(String)
+    produktionspunkte = Column(Integer)
+    rohstoffbedarf_json = Column(String, default="[]")
+    modulgroesse = Column(Integer)
+    auswirkung_einheitenwerte_json = Column(String, default="{}")
+    beschreibung = Column(String)
+    transportkapazitaet_json = Column(String, default="{}")
+    platzbedarf_json = Column(String, default="{}")
 
 # Aliases for compatibility
 BuildingTemplate = BuildingType

@@ -124,7 +124,7 @@ def login(req: LoginRequest):
     cur.execute("SELECT * FROM users WHERE username=?", (req.username,))
     row = cur.fetchone()
     
-    if not row or not verify_password(req.password, row["password"]):
+    if not row or not verify_password(req.password, row["password_hash"]):
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
