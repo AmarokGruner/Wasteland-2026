@@ -90,6 +90,12 @@ Query
 - b-gamelog-system ← Gamelog, Weltereignisse, Notification-Settings
 - b-player-messaging ← Direktnachrichten, Posteingang/Ausgang
 
+**Wirtschaft & Handel (NEU v3.4):**
+- b-finance-system ← 4-Konten-System, Steuern, PKV, Staatskonto
+- b-market-system ← Marktstände, Bedarfsberechnung, Auto-Buy
+- b-trade-logistics ← Handelsrouten, Handelskarren, Siedler (20-25 J.)
+- b-coastal-features ← Häfen, See-Zugang, Entsalzungsanlagen
+
 **Building System v3 (NEU v3.3):**
 - b-admin-city-grid ← 15x15 Grid Config, Level Unlocks
 - b-province-city-grid ← Player Grid View, Building/Demolish Rules
@@ -139,8 +145,12 @@ app/
 
 ### Für Agent-Relevante Dateien:
 - **Auth**: `app/api/auth.py` + `app/config.py`
+- **Bunker & Start**: `app/bunker_logic.py`, `app/api/world.py` (/claim)
 - **Buildings**: `app/building_logic.py`, `app/models.py`
 - **Roads/AP**: `app/road_logic.py` + `app/round_logic.py`
+- **Finance & Market**: `app/finance_logic.py` + `app/market_logic.py`
+- **Trade & Logistics**: `app/trade_route_logic.py`
+- **Help & FAQ (NEU v3.5)**: `app/api/help.py`, `help.html`
 - **DB**: `app/models.py`, `app/database.py`
 
 ---
@@ -148,4 +158,4 @@ app/
 ## Quellen
 - AGENTS.md (v2.3.0), README.md, app/main.py, app/config.py, main_old.py
 
-**Updated: 2026-03-16 | Version: v3.3 (City Grid System)**
+**Updated: 2026-03-16 | Version: v3.5 (Hilfe & FAQ)**

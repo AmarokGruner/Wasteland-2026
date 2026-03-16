@@ -11,6 +11,7 @@ from app.api.army import router as army_router
 from app.api.gamelog import router as gamelog_router
 from app.api.messages import router as messages_router
 from app.api.city_grid import router as city_grid_router
+from app.api.help import router as help_router
 
 # Create main API router
 api_router = APIRouter()
@@ -26,5 +27,6 @@ api_router.include_router(army_router)
 api_router.include_router(gamelog_router)
 api_router.include_router(messages_router)
 api_router.include_router(city_grid_router)
+api_router.include_router(help_router)
 
 __all__ = ["api_router"]
