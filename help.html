@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wasteland - Hilfe & FAQ</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #1a1a1a; color: #e0e0e0; }
+        .card { background-color: #2d2d2d; border-color: #444; color: #e0e0e0; margin-bottom: 1rem; }
+        .nav-tabs .nav-link { color: #aaa; }
+        .nav-tabs .nav-link.active { background-color: #2d2d2d; color: #fff; border-color: #444 #444 #2d2d2d; }
+        .accordion-button { background-color: #333; color: #fff; }
+        .accordion-button:not(.collapsed) { background-color: #444; color: #fff; }
+        .accordion-item { background-color: #2d2d2d; border-color: #444; }
+        .accordion-body { color: #ccc; }
+        .table { color: #e0e0e0; }
+        .badge-land { background-color: #28a745; }
+        .badge-stadt { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container">
+        <span class="navbar-brand">Wasteland Hilfe-Zentrum</span>
+        <a href="index.html" class="btn btn-outline-light btn-sm">Zurück zum Spiel</a>
+    </div>
+</nav>
+
+<div class="container">
+    <ul class="nav nav-tabs mb-4" id="helpTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="faq-tab" data-bs-toggle="tab" data-bs-target="#faq" type="button">FAQ</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="buildings-tab" data-bs-toggle="tab" data-bs-target="#buildings" type="button">Gebäude</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="resources-tab" data-bs-toggle="tab" data-bs-target="#resources" type="button">Ressourcen</button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- FAQ Tab -->
+        <div class="tab-pane fade show active" id="faq" role="tabpanel">
+            <div class="accordion" id="faqAccordion">
+                <!-- Will be filled by JS -->
+            </div>
+        </div>
+
+        <!-- Buildings Tab -->
+        <div class="tab-pane fade" id="buildings" role="tabpanel">
+            <div class="row" id="buildingsList">
+                <!-- Will be filled by JS -->
+            </div>
+        </div>
+
+        <!-- Resources Tab -->
+        <div class="tab-pane fade" id="resources" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Typ</th>
+                            <th>Basiswert</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resourcesTable">
+                        <!-- Will be filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    async function loadFAQ() {
+        const response = await fetch('/api/help/faq');
+        const data = await response.json();
+        const container = document.getElementById('faqAccordion');
+        container.innerHTML = data.map((item, index) => `
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                        ${item.question}
+                    </button>
+                </h2>
+                <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">${item.answer}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function loadBuildings() {
+        const response = await fetch('/api/help/buildings');
+        const data = await response.json();
+        const container = document.getElementById('buildingsList');
+        container.innerHTML = data.map(b => `
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-warning">${b.name}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <span class="badge ${b.bautyp === 'Stadt' ? 'badge-stadt' : 'badge-land'}">${b.bautyp}</span>
+                            ${b.kategorie || ''}
+                        </h6>
+                        <p class="card-text small text-secondary">${b.beschreibung || 'Keine Beschreibung verfügbar.'}</p>
+                        <div class="small">
+                            <strong>Produktion:</strong> ${formatJSON(b.produktion) || '-'}<br>
+                            <strong>Verbrauch:</strong> ${formatJSON(b.verbrauch) || '-'}<br>
+                            <strong>Arbeiter:</strong> ${b.arbeiter} | <strong>Wohnraum:</strong> ${b.wohnraum}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function loadResources() {
+        const response = await fetch('/api/help/resources');
+        const data = await response.json();
+        const container = document.getElementById('resourcesTable');
+        container.innerHTML = data.map(r => `
+            <tr>
+                <td>${r.name}</td>
+                <td><span class="badge bg-info text-dark">${r.typ}</span></td>
+                <td>${r.wert}</td>
+            </tr>
+        `).join('');
+    }
+
+    function formatJSON(jsonStr) {
+        if (!jsonStr || jsonStr === '[]') return '';
+        try {
+            const data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+            return data.map(item => `${item.amount}x ${item.resource || item.name}`).join(', ');
+        } catch(e) { return ''; }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadFAQ();
+        document.getElementById('buildings-tab').addEventListener('click', loadBuildings);
+        document.getElementById('resources-tab').addEventListener('click', loadResources);
+    });
+</script>
+</body>
+</html>

@@ -66,6 +66,10 @@ async def serve_admin():
 async def serve_login():
     return FileResponse("login.html")
 
+@app.get("/help.html")
+async def serve_help():
+    return FileResponse("help.html")
+
 @app.get("/index.html")
 async def serve_index():
     return FileResponse("index.html")
