@@ -3,8 +3,9 @@ import math
 from sqlalchemy.orm import Session
 from .models import (
     Province, ProvinceUnit, UnitType, SiedlerExpedition,
-    ProvinceLager, Player, PopulationCohort, GameLog, Resource
+    ProvinceLager, Player, PopulationCohort, GameLog, GameLogEntry, Resource
 )
+from .gamelog_logic import log_event
 from .trade_route_logic import get_eligible_settlers, deduct_eligible_settlers
 
 
@@ -44,6 +45,26 @@ def log_game_event(db: Session, province_id: int, event_type: str, message: str,
     )
     db.add(log_entry)
     db.commit()
+    
+    # Also log to new GamelogEntry
+    player_id = None
+    if province_id:
+        prov = db.query(Province).filter(Province.id == province_id).first()
+        if prov:
+            player_id = prov.player_id
+            
+    visibility = "player"
+    if event_type in ["PROVINCE_COLONIZED", "PROVINCE_TRANSFERRED"]:
+        visibility = "all"
+        
+    log_event(
+        db,
+        event_type=event_type,
+        message=message,
+        player_id=player_id,
+        province_id=province_id,
+        visibility=visibility
+    )
 
 
 def get_colonizable_provinces(db: Session, player_id: int):

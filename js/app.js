@@ -34,12 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
   loadResources();
   initWorldMap();
   loadResourceMap(); // Ressourcen-Namen laden
-  switchView('world');
+  loadMyProvincesDropdown(); // NEU: Dropdown befüllen
+  showView('world');
+
+  // Polling für Ressourcen & Notifications
+  setInterval(() => {
+    loadResources();
+    updateNotifications();
+  }, 60000);
 
   // Onboarding: Neuer Spieler → Welcome-Screen, bestehender → Tutorial prüfen
-  if (typeof window.checkOnboarding === 'function') {
-    checkOnboarding();
-  }
+    if (typeof window.checkOnboarding === 'function') {
+        checkOnboarding();
+    }
+    
+    updateNotifications();
 });
 
 // Logout function
@@ -49,23 +58,56 @@ function logout() {
 
 // ── Spieler-Ressourcen laden ─────────────────────────────────
 async function loadResources() {
-  const token = AuthService.getAccessToken();
   try {
     const response = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/resources/total`);
     if (response.ok) {
       const data = await response.json();
-      document.getElementById('iron-count').textContent = (data.iron || 0).toLocaleString('de-DE');
-      document.getElementById('steel-count').textContent = (data.steel || 0).toLocaleString('de-DE');
-      document.getElementById('fuel-count').textContent = (data.fuel || 0).toLocaleString('de-DE');
+      
+      // Topbar Ressourcen
+      updateCount('iron-count', data.iron);
+      updateCount('steel-count', data.steel);
+      updateCount('fuel-count', data.fuel);
+      updateCount('coins-count', data.coins);
+      updateCount('pop-count', data.pop_total);
+      
+      const moralEl = document.getElementById('moral-avg');
+      if (moralEl) {
+          moralEl.textContent = data.moral_avg !== undefined ? data.moral_avg : '–';
+          const resMoral = document.getElementById('res-moral');
+          if (resMoral) {
+              resMoral.classList.remove('warn', 'danger');
+              if (data.moral_avg < 30) resMoral.classList.add('danger');
+              else if (data.moral_avg < 50) resMoral.classList.add('warn');
+          }
+      }
+
+      // Zeitguthaben (an zwei Stellen möglich)
+      const creditHours = data.time_credit !== undefined ? data.time_credit : 0;
+      updateCount('credit-hours', creditHours);
+      
+      // Player Info (aus localStorage als Fallback falls API Feld nicht liefert)
+      const userDisplay = document.getElementById('user-display');
+      if (userDisplay) {
+          userDisplay.textContent = `👤 ${data.player_name || AuthService.getUsername() || 'Spieler'}`;
+      }
     }
   } catch (error) {
     console.error('Fehler beim Laden der Ressourcen', error);
   }
 }
 
-// ── Zwischen Weltkarte und Provinzansicht wechseln ───────────
-function switchView(viewId, x = null, y = null) {
-  // Wenn wir gerade eine Armee bewegen wollen:
+function updateCount(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = (val || 0).toLocaleString('de-DE');
+}
+
+// ── Haupt-View-System (NEU) ───────────────────────────────────
+const VIEWS = ['world', 'province', 'production', 'diplomacy', 'messages', 'gamelog'];
+
+function showView(viewId, params = {}) {
+  const { x = null, y = null } = params;
+
+  // Armee-Move-Logik beibehalten
   if (viewId === 'province' && window.movingArmyId) {
       executeArmyMove(window.movingArmyId, x, y);
       return;
@@ -74,48 +116,369 @@ function switchView(viewId, x = null, y = null) {
   window.currentView = viewId;
 
   // Alle Hauptansichten ausblenden
-  document.getElementById('worldmap-view').style.display = 'none';
-  document.getElementById('province-view').style.display = 'none';
-  document.getElementById('production-view').style.display = 'none';
-  document.getElementById('diplomacy-view').style.display = 'none';
+  VIEWS.forEach(v => {
+      const el = document.getElementById(`${v}-view`);
+      if (el) el.style.display = 'none';
+  });
 
   // Alle Sidebar-Inhalte ausblenden
-  document.getElementById('sidebar-world-content').style.display = 'none';
-  document.getElementById('sidebar-province-content').style.display = 'none';
+  const sidebarWorld = document.getElementById('sidebar-world-content');
+  const sidebarProv = document.getElementById('sidebar-province-content');
+  if (sidebarWorld) sidebarWorld.style.display = 'none';
+  if (sidebarProv) sidebarProv.style.display = 'none';
 
+  // Navigation Highlight
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const activeNav = document.getElementById(`nav-${viewId}`);
+  if (activeNav) activeNav.classList.add('active');
+
+  // View-spezifische Logik
   if (viewId === 'world') {
-    document.getElementById('worldmap-view').style.display = 'flex'; // Changed from block to flex to match original
-    document.getElementById('sidebar-world-content').style.display = 'block';
-    if (typeof window.loadWorldMap === 'function') loadWorldMap(); // Assuming loadWorldMap exists
+    const worldView = document.getElementById('worldmap-view');
+    if (worldView) worldView.style.display = 'flex';
+    if (sidebarWorld) sidebarWorld.style.display = 'block';
+    
+    if (typeof window.loadWorldMap === 'function') loadWorldMap();
     window.selectedProvinceCoords = null;
     window.currentProvinzId = null;
-    document.getElementById('selected-info').innerHTML =
-      '<p>Wähle eine Provinz aus, um sie zu verwalten.</p>';
+    const selectedInfo = document.getElementById('selected-info');
+    if (selectedInfo) selectedInfo.innerHTML = '<p>Wähle eine Provinz aus, um sie zu verwalten.</p>';
+
   } else if (viewId === 'province') {
-    document.getElementById('province-view').style.display = 'flex'; // Changed from block to flex to match original
-    document.getElementById('sidebar-province-content').style.display = 'block';
+    const provView = document.getElementById('province-view');
+    if (provView) provView.style.display = 'flex';
+    if (sidebarProv) sidebarProv.style.display = 'block';
+
     if (x !== null && y !== null) {
       window.selectedProvinceCoords = { x, y };
       window.currentProvinzId = null;
       if (typeof window.loadProvince === 'function') window.loadProvince(x, y);
-      showProvinceSubView('map');
+      
+      // Tab-Logik (letzten Tab oder 'karte')
+      const lastTab = localStorage.getItem('last_province_tab') || 'karte';
+      if (typeof showProvinceTab === 'function') showProvinceTab(lastTab);
+      else if (typeof showProvinceSubView === 'function') showProvinceSubView('map');
+      
       resolveProvinzId(x, y);
     }
-  } else if (viewId === 'production') {
-    document.getElementById('production-view').style.display = 'block';
-    document.getElementById('sidebar-world-content').style.display = 'block'; // Production view uses world sidebar
-    loadProductionOverview();
-  } else if (viewId === 'diplomacy') {
-    document.getElementById('diplomacy-view').style.display = 'block';
-    document.getElementById('sidebar-world-content').style.display = 'block';
-    loadDiplomacy();
+  } else {
+    const targetView = document.getElementById(`${viewId}-view`);
+    if (targetView) targetView.style.display = 'block';
+    if (sidebarWorld) sidebarWorld.style.display = 'block'; // Fallback sidebar
+    
+    // Loader aufrufen
+    if (viewId === 'production') loadProductionOverview();
+    else if (viewId === 'diplomacy') loadDiplomacy();
+    else if (viewId === 'messages') loadMessages();
+    else if (viewId === 'gamelog') loadGamelog();
   }
-
-  // Zeitguthaben immer aktualisieren wenn in einer Ansicht
+  
+  loadResources(); // Ressourcen bei jedem View-Wechsel aktualisieren
   updateCreditDisplay();
 }
 
-// ── Provinz-ID aus Backend holen und cachen ──────────────────
+// Kompatibilitätsschicht für alte Aufrufe
+function switchView(viewId, x = null, y = null) {
+    showView(viewId, { x, y });
+}
+
+// ── Dropdown für eigene Provinzen befüllen ───────────────────
+async function loadMyProvincesDropdown() {
+    try {
+        const response = await gameFetch(`${APIBASE}/player/${window.currentPlayerId}/provinzen`);
+        if (response.ok) {
+            const data = await response.json();
+            const list = document.getElementById('my-provinces-list');
+            if (!list) return;
+            
+            list.innerHTML = '';
+            if (data.provinzen && data.provinzen.length > 0) {
+                data.provinzen.forEach(p => {
+                    const a = document.createElement('a');
+                    a.href = '#';
+                    a.textContent = `${p.name || 'Provinz'} [${p.world_x}, ${p.world_y}]`;
+                    a.onclick = (e) => {
+                        e.preventDefault();
+                        showView('province', { x: p.world_x, y: p.world_y });
+                    };
+                    list.appendChild(a);
+                });
+            } else {
+                list.innerHTML = '<a href="#">Keine Provinzen</a>';
+            }
+        }
+    } catch (e) {
+        console.error("Fehler beim Laden der Provinzen fürs Dropdown", e);
+    }
+}
+
+// ── Notifications aktualisieren ──────────────────────────────
+async function updateNotifications() {
+    try {
+        const res = await gameFetch(`${APIBASE}/messages/unread-count/${window.currentPlayerId}`);
+        if (res.ok) {
+            const data = await res.json();
+            const badge = document.getElementById('unread-badge');
+            if (badge) {
+                badge.textContent = data.unread_count;
+                badge.style.display = data.unread_count > 0 ? 'inline-block' : 'none';
+            }
+        }
+    } catch (e) {
+        console.warn("Notification poll failed", e);
+    }
+}
+
+// ── Toast Notifications ──────────────────────────────────────
+function showToast(message, type = 'success') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    toast.innerHTML = `<span>${icons[type] || ''}</span> <span>${message}</span>`;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// ── Gamelog Logik ──────────────────────────────────────────
+async function loadGamelog() {
+    const list = document.getElementById('gamelog-list');
+    if (!list) return;
+    list.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;">Lade Gamelog...</td></tr>';
+    
+    try {
+        const res = await gameFetch(`${APIBASE}/gamelog/?player=${window.currentPlayerId}`);
+        if (res.ok) {
+            const data = await res.json();
+            renderGamelog(data);
+        }
+    } catch (e) {
+        console.error("Fehler beim Laden des Gamelogs", e);
+        list.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: #e74c3c;">Fehler beim Laden.</td></tr>';
+    }
+}
+
+async function searchGamelog() {
+    const query = document.getElementById('gamelog-search').value;
+    if (!query) return loadGamelog();
+    
+    const list = document.getElementById('gamelog-list');
+    list.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;">Suche...</td></tr>';
+    
+    try {
+        const res = await gameFetch(`${APIBASE}/gamelog/search?q=${encodeURIComponent(query)}&player=${window.currentPlayerId}`);
+        if (res.ok) {
+            const data = await res.json();
+            renderGamelog(data);
+        }
+    } catch (e) {
+        console.error("Fehler bei Gamelog-Suche", e);
+    }
+}
+
+function renderGamelog(entries) {
+    const list = document.getElementById('gamelog-list');
+    if (!entries || entries.length === 0) {
+        list.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: #aaa;">Keine Einträge gefunden.</td></tr>';
+        return;
+    }
+    
+    list.innerHTML = entries.map(entry => {
+        const date = new Date(entry.created_at).toLocaleString('de-DE');
+        let typeLabel = entry.event_type;
+        let rowStyle = "";
+        
+        if (entry.event_type === "WAR_DECLARED") rowStyle = "color: #ff5555; font-weight: bold;";
+        if (entry.event_type === "PROVINCE_COLONIZED") rowStyle = "color: #55ff55;";
+        
+        return `<tr style="${rowStyle} border-bottom: 1px solid #333;">
+            <td style="padding: 10px; font-size: 0.85rem; color: #888;">${date}</td>
+            <td style="padding: 10px; font-size: 0.85rem;"><code>${typeLabel}</code></td>
+            <td style="padding: 10px;">${entry.message}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ── Nachrichten Logik ────────────────────────────────────────
+window.currentMessageFolder = 'inbox';
+
+async function loadMessages() {
+    if (window.currentMessageFolder === 'inbox') showInbox();
+    else showOutbox();
+}
+
+async function showInbox() {
+    window.currentMessageFolder = 'inbox';
+    document.getElementById('msg-nav-inbox').classList.add('active');
+    document.getElementById('msg-nav-outbox').classList.remove('active');
+    
+    const list = document.getElementById('messages-list');
+    list.innerHTML = '<p style="text-align:center; padding: 20px;">Lade Posteingang...</p>';
+    
+    try {
+        const res = await gameFetch(`${APIBASE}/messages/inbox/${window.currentPlayerId}`);
+        if (res.ok) {
+            const data = await res.json();
+            renderMessagesList(data, 'inbox');
+        }
+    } catch (e) {
+        console.error("Fehler beim Laden des Posteingangs", e);
+    }
+}
+
+async function showOutbox() {
+    window.currentMessageFolder = 'outbox';
+    document.getElementById('msg-nav-outbox').classList.add('active');
+    document.getElementById('msg-nav-inbox').classList.remove('active');
+    
+    const list = document.getElementById('messages-list');
+    list.innerHTML = '<p style="text-align:center; padding: 20px;">Lade gesendete Nachrichten...</p>';
+    
+    try {
+        const res = await gameFetch(`${APIBASE}/messages/outbox/${window.currentPlayerId}`);
+        if (res.ok) {
+            const data = await res.json();
+            renderMessagesList(data, 'outbox');
+        }
+    } catch (e) {
+        console.error("Fehler beim Laden des Postausgangs", e);
+    }
+}
+
+function renderMessagesList(messages, folder) {
+    const list = document.getElementById('messages-list');
+    if (!messages || messages.length === 0) {
+        list.innerHTML = `<p style="text-align:center; padding: 20px; color: #aaa;">Keine Nachrichten in ${folder === 'inbox' ? 'deinem Posteingang' : 'deinem Postausgang'}.</p>`;
+        return;
+    }
+    
+    list.innerHTML = messages.map(msg => {
+        const date = new Date(msg.sent_at).toLocaleString('de-DE');
+        const unreadClass = (folder === 'inbox' && !msg.read) ? 'font-weight: bold; border-left: 3px solid #2e7d32;' : '';
+        const partner = folder === 'inbox' ? `Von: ${msg.sender_name || 'Unbekannt'}` : `An: ${msg.recipient_name || 'Unbekannt'}`;
+        
+        return `<div onclick="openMessageDetail(${msg.id})" style="padding: 15px; border-bottom: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; align-items: center; ${unreadClass}" class="msg-item-hover">
+            <div>
+                <div style="font-size: 1.05rem; margin-bottom: 3px;">${msg.subject}</div>
+                <div style="font-size: 0.85rem; color: #aaa;">${partner}</div>
+            </div>
+            <div style="font-size: 0.8rem; color: #666;">${date}</div>
+        </div>`;
+    }).join('');
+}
+
+function openNewMessageModal(recipientId = '', subject = '') {
+    document.getElementById('msg-recipient-id').value = recipientId;
+    document.getElementById('msg-subject').value = subject;
+    document.getElementById('msg-body').value = '';
+    document.getElementById('new-message-modal').style.display = 'flex';
+}
+
+function closeNewMessageModal() {
+    document.getElementById('new-message-modal').style.display = 'none';
+}
+
+async function sendMessage() {
+    const recipientId = parseInt(document.getElementById('msg-recipient-id').value);
+    const subject = document.getElementById('msg-subject').value;
+    const body = document.getElementById('msg-body').value;
+    
+    if (!recipientId || !subject || !body) {
+        alert("Bitte alle Felder ausfüllen.");
+        return;
+    }
+    
+    try {
+        const res = await gameFetch(`${APIBASE}/messages/send?sender_id=${window.currentPlayerId}`, {
+            method: 'POST',
+            body: JSON.stringify({ recipient_id: recipientId, subject, body })
+        });
+        
+        if (res.ok) {
+            showToast("Nachricht gesendet!");
+            closeNewMessageModal();
+            if (window.currentMessageFolder === 'outbox') showOutbox();
+        } else {
+            const err = await res.json();
+            alert("Fehler: " + (err.detail || "Unbekannt"));
+        }
+    } catch (e) {
+        console.error("Fehler beim Senden", e);
+    }
+}
+
+async function openMessageDetail(msgId) {
+    try {
+        const res = await gameFetch(`${APIBASE}/messages/${msgId}?player_id=${window.currentPlayerId}`);
+        if (res.ok) {
+            const msg = await res.json();
+            document.getElementById('detail-subject').textContent = msg.subject;
+            document.getElementById('detail-from-to').textContent = `Partner: ${msg.sender_name || msg.recipient_name} (ID: ${msg.sender_id === window.currentPlayerId ? msg.recipient_id : msg.sender_id})`;
+            document.getElementById('detail-date').textContent = new Date(msg.sent_at).toLocaleString('de-DE');
+            document.getElementById('detail-body').textContent = msg.body;
+            
+            // Buttons
+            const btnReply = document.getElementById('btn-reply');
+            btnReply.onclick = () => {
+                closeMessageDetail();
+                openNewMessageModal(msg.sender_id === window.currentPlayerId ? msg.recipient_id : msg.sender_id, "Re: " + msg.subject);
+            };
+            
+            const btnDelete = document.getElementById('btn-delete-msg');
+            btnDelete.onclick = () => deleteMessage(msg.id);
+            
+            document.getElementById('message-detail-modal').style.display = 'flex';
+            
+            if (window.currentMessageFolder === 'inbox') {
+                updateNotifications();
+                showInbox();
+            }
+        }
+    } catch (e) {
+        console.error("Fehler beim Laden der Nachrichtendetails", e);
+    }
+}
+
+function closeMessageDetail() {
+    document.getElementById('message-detail-modal').style.display = 'none';
+}
+
+async function deleteMessage(msgId) {
+    if (!confirm("Nachricht wirklich löschen?")) return;
+    
+    try {
+        const res = await gameFetch(`${APIBASE}/messages/${msgId}?player_id=${window.currentPlayerId}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            showToast("Nachricht gelöscht.");
+            closeMessageDetail();
+            loadMessages();
+        }
+    } catch (e) {
+        console.error("Fehler beim Löschen", e);
+    }
+}
+
+// Global verfügbar machen
+window.showToast = showToast;
+window.showView = showView;
+
+// Compatibility aliases
+window.switchView = switchView;
 // Backend: GET /player/{id}/provinzen
 // Response: { player_id, provinzen: [{id, world_x, world_y, name, ...}], anzahl }
 async function resolveProvinzId(x, y) {

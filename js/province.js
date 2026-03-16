@@ -29,7 +29,242 @@ const CROSSING_LEVELS = {
 let currentQuickSession = null;
 let provinceBackendData = null; // Global cache for current province buildings
 
-// Lädt und zeigt eine Provinz-Ansicht
+// ── Provinz Tab-Navigation ───────────────────────────────────
+const PROVINCE_TABS = ['karte','lager','produktion','transport','militaer','vorschau'];
+
+function showProvinceTab(tab) {
+  PROVINCE_TABS.forEach(t => {
+    const content = document.getElementById(`ptab-content-${t}`);
+    const btn = document.getElementById(`ptab-btn-${t}`);
+    if (content) content.style.display = 'none';
+    if (btn) btn.classList.remove('active');
+  });
+  
+  const targetContent = document.getElementById(`ptab-content-${tab}`);
+  const targetBtn = document.getElementById(`ptab-btn-${tab}`);
+  if (targetContent) targetContent.style.display = 'block';
+  if (targetBtn) targetBtn.classList.add('active');
+  
+  localStorage.setItem('last_province_tab', tab);
+  
+  // Tab-spezifische Loader
+  if (tab === 'lager') loadLager();
+  if (tab === 'produktion') loadProductionOverview(); // Shared with global production view
+  if (tab === 'transport') loadTransport();
+  if (tab === 'militaer') loadMilitary();
+  if (tab === 'vorschau') loadProvincePreview();
+}
+
+// Kompatibilität für alte Aufrufe
+function showProvinceSubView(sub) {
+    const map = { 'map': 'karte', 'vorschau': 'vorschau', 'lager': 'lager', 'militaer': 'militaer', 'transport': 'transport' };
+    showProvinceTab(map[sub] || 'karte');
+}
+
+window.showProvinceTab = showProvinceTab;
+window.showProvinceSubView = showProvinceSubView;
+
+// ── Sidebar-Komponenten Rendering (NEU) ──────────────────────
+function renderSidebarComponent(type, data) {
+  const panel = document.getElementById('selected-info');
+  if (!panel) return;
+  panel.innerHTML = ''; // clear
+
+  if (type === 'empty_building') {
+    panel.appendChild(createBuildMenu(data));
+  } else if (type === 'placed_building') {
+    panel.appendChild(createBuildingDetail(data));
+  } else if (type === 'road' || type === 'crossing') {
+    panel.appendChild(createRoadMenu(data));
+  } else {
+    panel.innerHTML = '<p>Wähle ein Feld aus, um Details zu sehen.</p>';
+  }
+}
+
+function createBuildMenu({ bX, bY, terrain }) {
+  const container = document.createElement('div');
+  container.className = 'build-menu';
+  container.innerHTML = `
+    <h4>🏗️ Bauen auf (${bX}, ${bY})</h4>
+    <p style="font-size: 11px; color: var(--text-muted)">Terrain: <strong>${terrain}</strong></p>
+    <div class="building-grid" id="available-buildings-grid">
+      <p>Lade Gebäude...</p>
+    </div>
+  `;
+  
+  loadAvailableBuildings(bX, bY, terrain);
+  return container;
+}
+
+async function loadAvailableBuildings(bX, bY, terrain) {
+  const grid = document.getElementById('available-buildings-grid');
+  if (!grid) return;
+  
+  try {
+    const res = await gameFetch(`${window.APIBASE}/player/${window.currentPlayerId}/buildings/available?terrain=${terrain}&province_id=${window.currentProvinzId}`);
+    if (res.ok) {
+      const buildings = await res.json();
+      grid.innerHTML = '';
+      
+      buildings.forEach(b => {
+        const card = document.createElement('div');
+        card.className = `building-card ${!b.baubar ? 'disabled' : ''}`;
+        
+        const effClass = b.terrain_effektivitaet >= 100 ? 'eff-100' : (b.terrain_effektivitaet >= 75 ? 'eff-75' : 'eff-50');
+        
+        card.innerHTML = `
+          <div style="font-size: 20px">${b.icon || '🏠'}</div>
+          <div style="font-size: 11px; font-weight: bold; margin-top: 4px">${b.name}</div>
+          <div class="eff-badge ${effClass}">${b.terrain_effektivitaet}%</div>
+          <div style="font-size: 10px; color: #aaa; margin-top: 4px">💰 ${b.baukosten}</div>
+        `;
+        
+        if (b.baubar) {
+          card.onclick = () => confirmBuild(b, bX, bY);
+        } else {
+          card.title = b.grund || "Nicht verfügbar";
+        }
+        grid.appendChild(card);
+      });
+    }
+  } catch (e) {
+    grid.innerHTML = '<p>Fehler beim Laden.</p>';
+  }
+}
+
+function confirmBuild(building, bX, bY) {
+    const panel = document.getElementById('selected-info');
+    const originalContent = panel.innerHTML;
+    
+    panel.innerHTML = `
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-success)">
+            <h4>${building.icon} ${building.name} bauen?</h4>
+            <p>Kosten: 💰 ${building.baukosten}</p>
+            <div style="display: flex; gap: 10px; margin-top: 15px">
+                <button class="btn-action success" onclick="executeBuild(${building.id}, ${bX}, ${bY})">✅ Ja, bauen</button>
+                <button class="btn-action" id="cancel-build">❌ Abbrechen</button>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('cancel-build').onclick = () => {
+        panel.innerHTML = originalContent;
+        // Re-attach event listeners if needed, or just re-render
+        renderSidebarComponent('empty_building', { bX, bY, terrain: window.currentProvinceTerrain });
+    };
+}
+
+async function executeBuild(buildingId, bX, bY) {
+    try {
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/build`, {
+            method: 'POST',
+            body: JSON.stringify({ building_id: buildingId, bX, bY })
+        });
+        
+        if (res.ok) {
+            window.showToast("Gebäude erfolgreich in Auftrag gegeben!", "success");
+            loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
+            renderSidebarComponent('none');
+        } else {
+            const err = await res.json();
+            window.showToast(err.detail || "Bau fehlgeschlagen", "error");
+        }
+    } catch (e) {
+        window.showToast("Verbindungsfehler", "error");
+    }
+}
+
+function createBuildingDetail({ building, bX, bY }) {
+  const container = document.createElement('div');
+  container.className = 'building-detail';
+  container.innerHTML = `
+    <h4>${building.icon || '🏠'} ${building.name}</h4>
+    <p>Position: (${bX}, ${bY}) | Level: ${building.level || 1}</p>
+    <hr style="border: 0; border-top: 1px solid #444; margin: 10px 0">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+        <button class="btn-action" onclick="upgradeBuilding(${building.instance_id})">⬆️ Aufstufen</button>
+        <button class="btn-action danger" onclick="confirmDemolish(${building.instance_id})">🗑️ Abreißen</button>
+    </div>
+  `;
+  return container;
+}
+
+function confirmDemolish(instanceId) {
+    const panel = document.getElementById('selected-info');
+    panel.innerHTML = `
+        <div style="background: rgba(155,44,44,0.2); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-danger)">
+            <h4>Wirklich abreißen?</h4>
+            <p>Das Gebäude geht unwiderruflich verloren.</p>
+            <div style="display: flex; gap: 10px; margin-top: 15px">
+                <button class="btn-action danger" onclick="executeDemolish(${instanceId})">✅ Ja, abreißen</button>
+                <button class="btn-action" onclick="renderSidebarComponent('none')">❌ Nein</button>
+            </div>
+        </div>
+    `;
+}
+
+async function executeDemolish(instanceId) {
+    try {
+        const res = await gameFetch(`${window.APIBASE}/province/${window.currentProvinzId}/demolish/${instanceId}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            window.showToast("Gebäude abgerissen.", "info");
+            loadProvince(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
+            renderSidebarComponent('none');
+        }
+    } catch (e) { window.showToast("Fehler beim Abriss", "error"); }
+}
+
+function createRoadMenu(data) {
+    const container = document.createElement('div');
+    container.innerHTML = `<h4>🛣️ Weg (${data.gridX}, ${data.gridY})</h4><p>Details folgen...</p>`;
+    return container;
+}
+
+// ── Minimap Logik ───────────────────────────────────────────
+function renderMinimap() {
+    let canvas = document.getElementById('minimap-canvas');
+    if (!canvas) {
+        const container = document.getElementById('province-map-container');
+        if (!container) return;
+        canvas = document.createElement('canvas');
+        canvas.id = 'minimap-canvas';
+        canvas.width = 100;
+        canvas.height = 100;
+        canvas.style.position = 'absolute';
+        canvas.style.bottom = '10px';
+        canvas.style.right = '10px';
+        canvas.style.border = '1px solid #666';
+        canvas.style.background = '#000';
+        canvas.style.borderRadius = '4px';
+        canvas.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+        container.style.position = 'relative';
+        container.appendChild(canvas);
+    }
+    
+    const ctx = canvas.getContext('2d');
+    const { x, y } = window.selectedProvinceCoords;
+    
+    // Draw grid points (50x50 world)
+    // Scale: 2px per cell
+    ctx.clearRect(0,0,100,100);
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0,0,100,100);
+    
+    // Blinking dot for current position
+    const blink = (Date.now() % 1000) < 500;
+    if (blink) {
+        ctx.fillStyle = '#ff4444';
+        ctx.beginPath();
+        ctx.arc(x * 2 + 1, y * 2 + 1, 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    requestAnimationFrame(renderMinimap);
+}
+
+// ── Bestehende Funktionen anpassen ──────────────────────────
 async function loadProvince(worldX, worldY) {
     console.log(`📍 Lade Provinz (${worldX}, ${worldY})`);
 
@@ -63,6 +298,12 @@ async function loadProvince(worldX, worldY) {
     const coordsDisplay = document.getElementById('province-coords-display');
     if (nameInput) nameInput.value = backendData.name || `Provinz ${worldX},${worldY}`;
     if (coordsDisplay) coordsDisplay.textContent = `[${worldX}, ${worldY}]`;
+
+    // Start Minimap
+    renderMinimap();
+    
+    // Start City Grid (15x15)
+    loadProvinceCityGrid(provId);
 
     const container = document.getElementById('province-grid');
     container.innerHTML = '';
@@ -103,6 +344,14 @@ async function loadProvince(worldX, worldY) {
             } else if (cellType === 'building') {
                 const terrain = cellData.terrain;
                 cell.style.backgroundColor = getTerrainColor(terrain);
+                
+                // GIF-Hintergrund setzen falls vorhanden
+                const terrainConfig = window.TERRAINS?.find(t => t.name === terrain);
+                if (terrainConfig && terrainConfig.gif_filename) {
+                    cell.style.backgroundImage = `url('terrains/${terrainConfig.gif_filename}')`;
+                    cell.style.backgroundSize = 'cover';
+                }
+
                 if (cellData.placedBuilding) {
                     cell.title = `${cellData.placedBuilding.name} (${cellData.buildingX}, ${cellData.buildingY})`;
                 } else {
@@ -231,76 +480,27 @@ function generateProvinceData(worldX, worldY, provinceTerrain, backendBuildings 
 }
 
 async function selectProvinceCell(cellData, backendData) {
-    let infoHTML = `<p><strong>Position:</strong> (${cellData.gridX}, ${cellData.gridY})</p>`;
     const cellType = cellData.cellType;
 
     if (cellType === 'building') {
         const bX = cellData.buildingX;
         const bY = cellData.buildingY;
-        infoHTML += `<p><strong>Typ:</strong> Gebäudefeld</p>`;
-        infoHTML += `<p><strong>Position:</strong> (${bX}, ${bY})</p>`;
 
         if (cellData.placedBuilding) {
-            const b = cellData.placedBuilding;
-            infoHTML += `<hr style="margin: 10px 0; border-color: var(--border);">`;
-            infoHTML += `<p style="font-size: 20px;">${b.icon} <strong>${b.name}</strong></p>`;
-            infoHTML += `<p>Stufe: ${b.level}</p>`;
-
-            // Upgrade Button
-            infoHTML += `<button class="btn-action" onclick="upgradeBuilding(${bX}, ${bY})">⬆️ Ausbauen (100 Eisen)</button>`;
-            infoHTML += `<button class="btn-action danger" onclick="removeBuilding(${bX}, ${bY})">🗑️ Abreißen</button>`;
-            infoHTML += `<button class="btn-action" onclick="activateQuickMode('demolish')" style="background: #444; border-color: #f44336; color: #f44336;">⚡ Schnellabriss-Sitzung</button>`;
-        } else {
-            infoHTML += `<p style="color: var(--accent-success);">✅ Bebaubar!</p>`;
-            infoHTML += `<hr style="margin: 10px 0; border-color: var(--border);">`;
-            infoHTML += `<p><strong>Gebäude errichten:</strong></p>`;
-
-            // Nur Gebäude (keine Wege) anzeigen
-            const buildingsOnly = BUILDINGS_FALLBACK.filter(t => t.baubar && t.kategorie !== 'Weg');
-            buildingsOnly.forEach(t => {
-                const cost = t.baukosten_mips || 0;
-                const costText = t.name === 'Bunker' ? 'KOSTENLOS' : (cost + ' Eisen');
-                infoHTML += `
-                    <div class="build-option">
-                        <div onclick="placeBuilding('${t.name}', ${bX}, ${bY})">
-                            <span>${t.symbol_emoji} ${t.name}</span>
-                            <span style="font-size: 10px; color: var(--text-muted)">${costText}</span>
-                        </div>
-                        <button class="btn-micro" onclick="activateQuickMode('build', '${t.name}')" title="Schnellbau-Modus">⚡</button>
-                    </div>`;
+            // Finde Instanz-Details aus dem Backend-Cache
+            const instance = provinceBackendData?.buildings?.find(b => b.building_x === bX && b.building_y === bY);
+            renderSidebarComponent('placed_building', { 
+                building: { ...cellData.placedBuilding, instance_id: instance?.id }, 
+                bX, bY 
             });
+        } else {
+            renderSidebarComponent('empty_building', { bX, bY, terrain: cellData.terrain });
         }
     } else if (cellType === 'road' || cellType === 'crossing') {
-        const isCrossing = cellType === 'crossing';
-        infoHTML += `<p><strong>Typ:</strong> ${isCrossing ? 'Kreuzung' : 'Weg'}</p>`;
-        infoHTML += `<p style="color: var(--accent-success);">✅ Bebaubar!</p>`;
-        infoHTML += `<hr style="margin: 10px 0; border-color: var(--border);">`;
-        infoHTML += `<p><strong>Weg bauen:</strong></p>`;
-
-        // Nur Wege anzeigen - nutze ROAD_LEVELS für die Kosten
-        const wayTypes = [
-            { name: 'Feldweg', symbol_emoji: '🛤️', cost: 50 },
-            { name: 'Feldwegkreuzung', symbol_emoji: '🛤️', cost: 80 },
-            { name: 'Kiesweg', symbol_emoji: '🛤️', cost: 100 },
-            { name: 'Kieskreuzung', symbol_emoji: '🛤️', cost: 150 }
-        ];
-        wayTypes.forEach(t => {
-            const isWay = !t.name.toLowerCase().includes('kreuzung');
-            // Bei Kreuzungen nur Kreuzungen anzeigen, bei Wegen nur Wege
-            if ((isCrossing && t.name.toLowerCase().includes('kreuzung')) ||
-                (!isCrossing && !t.name.toLowerCase().includes('kreuzung'))) {
-                infoHTML += `
-                    <div class="build-option" onclick="placeRoad('${t.name}', ${cellData.gridX}, ${cellData.gridY})">
-                        <span>${t.symbol_emoji} ${t.name}</span>
-                        <span style="font-size: 10px; color: var(--text-muted)">${t.cost} Eisen</span>
-                    </div>`;
-            }
-        });
+        renderSidebarComponent(cellType, { gridX: cellData.gridX, gridY: cellData.gridY });
     } else {
-        infoHTML += `<p>Keine Aktionen für ${cellType} verfügbar.</p>`;
+        renderSidebarComponent('none');
     }
-
-    document.getElementById('selected-info').innerHTML = infoHTML;
 }
 
 async function placeBuilding(type, x, y) {

@@ -73,6 +73,15 @@ verbrannte_zone_project/
 - **API**: Endpunkte unter `/player/{id}/diplomacy` in `app/api/player.py` verfügbar.
 - **Dokumentation**: Neuer Context-Block `b-diplomacy-system` erstellt.
 
+### 🖥️ Spieler-UI Überarbeitung (2026-03-16)
+- **Topbar**: Neue Architektur mit Ressourcenanzeige für Münzen, Moral und Bevölkerung.
+- **Navigation**: Globales View-System (`showView`) mit Highlight-Navigation und Notification-Badge.
+- **Provinz-Tabs**: Tab-Navigation (Karte, Lager, Produktion, Transport, Militär, Vorschau) direkt im Provinz-Header.
+- **Minimap**: Overlay in der Provinzansicht zur besseren Orientierung auf der Weltkarte.
+- **Feedback**: Toast-Notifications für direktes Feedback bei Aktionen (Bau, Fehler, etc.).
+- **Sidebar**: Komponenten-basiertes Rendering (`renderSidebarComponent`) mit API-Integration für Gebäude.
+- **Backend**: Endpoint `/player/{id}/resources/total` liefert nun aggregierte Daten für alle Ressourcen, Moral und Pop.
+
 ### ⚔️ Militär-System (2026-03-16)
 - **Modell**: `Unit` Tabelle hinzugefügt; `Province` um `min_soldiers` und `security_bonus` erweitert.
 - **Logik**: `app/military_logic.py` implementiert (Training, Fitness, Sicherheits-Checks, Moral-Boni/Malus).
@@ -96,6 +105,14 @@ verbrannte_zone_project/
 - **Verteidigung**: 30% Bonus auf defensive Kampfstärke in `app/combat_logic.py` aktiviert.
 - **API**: Neue Endpunkte `/world/claim` (Bunker öffnen) und `/province/{id}/bunker` (Status abrufen) hinzugefügt.
 - **Dokumentation**: Context-Block `b-bunker-system` erstellt und im Index registriert.
+
+### 📋 Gamelog & Nachrichtensystem (2026-03-16)
+- **Modell**: `GameLogEntry`, `PlayerMessage` und `PlayerNotificationSettings` in `app/models.py` hinzugefügt.
+- **Gamelog**: Zentrale `log_event` Funktion in `app/gamelog_logic.py` implementiert; Integration in Bauen, Militär und Siedler-Module.
+- **Nachrichten**: Vollständiges P2P-Nachrichtensystem mit Posteingang, Postausgang, Lesen/Löschen und ungelesenen-Badge.
+- **API**: Neue Endpunkte unter `/gamelog/` (Abfrage, Suche, Settings) und `/messages/` (Senden, Inbox, Detail, Delete).
+- **UI**: Neue Views `gamelog-view` und `messages-view` in `index.html` und `js/app.js` mit Live-Polling für Benachrichtigungen integriert.
+- **Dokumentation**: AGENTS.md auf v3.2 aktualisiert; neue Context-Blocks `b-gamelog-system` und `b-player-messaging` registriert.
 
 ### 🚀 Nächste Schritte
 

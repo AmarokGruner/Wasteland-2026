@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models import Province, BuildingType, BuildingInstance, ProvinceLager, Resource, Player
+from app.models import Province, BuildingType, BuildingInstance, ProvinceLager, Resource, Player, ProvinceField, CityExpansionConfig
+from app.gamelog_logic import log_event
 from fastapi import HTTPException
 import json
 from datetime import datetime
@@ -34,6 +35,32 @@ def can_build(db: Session, template_id: int, province_id: int, x: int, y: int):
     if not template or not province:
         return False, "Gebäude-Template oder Provinz nicht gefunden"
         
+    # 0. Grid Check (if fields exist)
+    field = db.query(ProvinceField).filter(
+        ProvinceField.province_id == province_id,
+        ProvinceField.x == x,
+        ProvinceField.y == y
+    ).first()
+    
+    if field:
+        # Check occupancy
+        if field.occupied_building_id:
+             return False, "Position bereits belegt (Feld)"
+        
+        # Check Unlock for city fields
+        if field.city_unlock_level > province.current_city_level and field.type != "land":
+             return False, "Dieses Feld ist noch nicht freigeschaltet"
+
+        # Check Bautyp vs field type
+        if template.bautyp == "Land" and field.city_unlock_level != 0:
+             return False, "Land-Gebäude benötigen Land-Felder"
+        if template.bautyp == "Stadt" and field.type != "city":
+             return False, "Stadt-Gebäude benötigen Stadt-Felder"
+        # Stadtausbau should only be built on city fields? 
+        # Actually, let's assume Stadtausbau (Central Buildings) go on city fields.
+        if template.bautyp == "Stadtausbau" and field.type != "city":
+             return False, "Stadtausbau-Gebäude benötigen Stadt-Felder"
+
     # 1. Tech Level Check
     if player.tech_level < template.tech_level:
         return False, f"Tech-Level zu niedrig ({player.tech_level}/{template.tech_level})"
@@ -55,15 +82,15 @@ def can_build(db: Session, template_id: int, province_id: int, x: int, y: int):
         if lager.get(resource.id, 0) < amount:
             return False, f"Nicht genügend {res_name} ({int(lager.get(resource.id, 0))}/{amount})"
 
-    # 4. Position/Bautyp Check
-    # Simplified for now: check if already building at this position?
-    existing = db.query(BuildingInstance).filter(
-        BuildingInstance.provinz_id == province_id,
-        BuildingInstance.x == x,
-        BuildingInstance.y == y
-    ).first()
-    if existing:
-        return False, "Position bereits belegt"
+    # 4. Position/Bautyp Check (Legacy or if no field system used)
+    if not field:
+        existing = db.query(BuildingInstance).filter(
+            BuildingInstance.provinz_id == province_id,
+            BuildingInstance.x == x,
+            BuildingInstance.y == y
+        ).first()
+        if existing:
+            return False, "Position bereits belegt"
         
     # 5. Unique Check
     if template.unique_gebaeude:
@@ -76,8 +103,10 @@ def can_build(db: Session, template_id: int, province_id: int, x: int, y: int):
 
     # 6. Stadtausbau Check
     if template.bautyp == "Stadtausbau":
-        # Only one Stadtausbau active? Actually, they replace each other.
-        pass
+        if province.next_required_building_id and template.id != province.next_required_building_id:
+             return False, "Dies ist nicht das erforderliche Gebäude für den nächsten Ausbau"
+        if province.current_city_level >= 8:
+             return False, "Maximale Ausbaustufe bereits erreicht"
 
     # 7. Küsten-Check (nur_kueste)
     if template.nur_kueste:
@@ -112,6 +141,16 @@ def build_building(db: Session, template_id: int, province_id: int, x: int, y: i
         built_at=datetime.now()
     )
     db.add(new_instance)
+    db.flush() # Get ID
+    
+    # Update ProvinceField occupancy
+    field = db.query(ProvinceField).filter(
+        ProvinceField.province_id == province_id,
+        ProvinceField.x == x,
+        ProvinceField.y == y
+    ).first()
+    if field:
+        field.occupied_building_id = new_instance.id
     
     # Special Logic: Stadtausbau
     if template.bautyp == "Stadtausbau":
@@ -126,9 +165,16 @@ def build_building(db: Session, template_id: int, province_id: int, x: int, y: i
     
     db.commit()
     
+    # Log Event
+    log_event(
+        db, 
+        event_type="BUILDING_BUILT", 
+        message=f"Gebäude {template.name} in {province.name} auf ({x}/{y}) errichtet.",
+        player_id=province.player_id,
+        province_id=province_id
+    )
+    
     return {
-        "success": True,
-        "new_instance": {
             "id": new_instance.id,
             "template_id": new_instance.gebaeude_typ_id,
             "level": new_instance.level,
@@ -140,28 +186,44 @@ def build_building(db: Session, template_id: int, province_id: int, x: int, y: i
     }
 
 def apply_city_expansion(db: Session, province: Province, template: BuildingType):
-    props = json.loads(template.spezial_eigenschaften)
+    # New Grid-based Leveling System
+    old_level = province.current_city_level
+    new_level = old_level + 1
+    province.current_city_level = new_level
     
-    # upgrade_province_size logic from spec
+    # Unlock fields for this level
+    config = db.query(CityExpansionConfig).filter(CityExpansionConfig.level == new_level).first()
+    if config:
+        unlocked_ids = config.unlocked_fields
+        db.query(ProvinceField).filter(
+            ProvinceField.province_id == province.id,
+            ProvinceField.id.in_(unlocked_ids)
+        ).update({"type": "city", "city_unlock_level": new_level}, synchronize_session=False)
+
+    # Legacy attributes update
+    props = json.loads(template.spezial_eigenschaften)
     kultur_delta = props.get("kulturpunkte", 0)
     size_delta = props.get("provinzgroesse", 0)
     
     province.kulturpunkte += kultur_delta
-    # spec says size_level (1-7), but provinzgroesse_delta affects fields
-    # Let's assume size_level increases by 1 if it's a Stadtausbau
-    province.size_level += 1
+    province.size_level = new_level # Sync legacy size_level with new current_city_level
     province.fields_city += size_delta
-    # also fields_total? spec says "upgrade size_level... each upgrade fields_city += delta"
     
-    # remove previous Stadtausbau instances? 
-    # Usually Stadtausbau represents the current level.
-    # We should probably delete old Stadtausbau instances to keep only one.
+    # Stadtausbau instances replace each other: remove previous ones
     old_expansions = db.query(BuildingInstance).join(BuildingType).filter(
         BuildingInstance.provinz_id == province.id,
         BuildingType.bautyp == "Stadtausbau",
         BuildingInstance.gebaeude_typ_id != template.id
     ).all()
+    
     for old in old_expansions:
+        # Also clear field occupancy for old expansion
+        old_field = db.query(ProvinceField).filter(
+            ProvinceField.province_id == province.id,
+            ProvinceField.occupied_building_id == old.id
+        ).first()
+        if old_field:
+            old_field.occupied_building_id = None
         db.delete(old)
 
 def upgrade_building(db: Session, instance_id: int):
@@ -286,14 +348,31 @@ def demolish_building(db: Session, instance_id: int):
     province.arbeitspunkte_current -= ap_cost
     
     # Remove Instance
-    field_id = instance.x # In citytiles_view, x is used as field_id/position
+    field = db.query(ProvinceField).filter(
+        ProvinceField.province_id == province.id,
+        ProvinceField.occupied_building_id == instance.id
+    ).first()
+    if field:
+        field.occupied_building_id = None
+        
+    field_pos_x = instance.x # In citytiles_view, x is used as field_id/position
+    building_name = instance.type.name
     db.delete(instance)
     db.commit()
+    
+    # Log Event
+    log_event(
+        db, 
+        event_type="BUILDING_DEMOLISHED", 
+        message=f"Gebäude {building_name} in {province.name} abgerissen.",
+        player_id=province.player_id,
+        province_id=province.id
+    )
     
     return {
         "success": True,
         "refunded_resources": refunded_resources,
         "ap_cost": ap_cost,
         "ap_remaining": province.arbeitspunkte_current,
-        "field_id": field_id
+        "field_id": field.id if field else field_pos_x
     }

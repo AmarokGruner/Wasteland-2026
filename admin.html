@@ -329,6 +329,169 @@
             color: var(--accent);
             font-weight: 500;
         }
+        /* Tab System & UI Enhancements */
+        .admin-nav {
+            background: var(--bg-card);
+            padding: 0 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .admin-nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .admin-nav-item:hover {
+            background: rgba(205, 133, 63, 0.1);
+            color: var(--text);
+        }
+
+        .admin-nav-item.active {
+            border-bottom-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--bg-card);
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            z-index: 100;
+            border: 1px solid var(--border);
+            border-radius: 0 0 4px 4px;
+        }
+
+        .dropdown-content .admin-nav-item {
+            display: block;
+            border-bottom: none;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Dashboard specific */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .kpi-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 10px 0;
+        }
+
+        .kpi-card .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .warning-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Player Management */
+        .expandable-row {
+            cursor: pointer;
+        }
+
+        .expanded-content {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Inline Editing */
+        [contenteditable="true"] {
+            background: rgba(205, 133, 63, 0.05);
+            padding: 2px 5px;
+            border-radius: 3px;
+            outline: 1px dashed var(--accent);
+        }
+
+        [contenteditable="true"]:focus {
+            background: rgba(205, 133, 63, 0.15);
+            outline: 1px solid var(--accent);
+        }
+
+        /* Snackbar */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* General layout */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .filter-bar input, .filter-bar select {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .row-count {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 
@@ -341,30 +504,168 @@
         </div>
     </header>
 
-    <nav>
-        <ul>
-            <li class="active" onclick="showSection('users')">Benutzer</li>
-            <li onclick="showSection('buildings')">Gebäude</li>
-            <li onclick="showSection('ressourcen')">Rohstoffe</li>
-            <li onclick="showSection('vorkommen')">Vorkommen</li>
-            <li onclick="showSection('terrain')">Terrain</li>
-            <li onclick="showSection('artikel')">Artikel</li>
-            <li onclick="showSection('einheiten')">Einheiten</li>
-            <li onclick="showSection('lebewesen')">Lebewesen</li>
-            <li onclick="showSection('regierungsformen')">Regierung</li>
-            <li onclick="showSection('gebaeude_felder')">Felder</li>
-            <li onclick="showSection('players')">Spieler</li>
-            <li onclick="showSection('worldmap')">Weltkarte</li>
-            <li onclick="showSection('ticks')">Tick-Engine</li>
-            <li onclick="showSection('armies')">Armeen</li>
-            <li onclick="showSection('auditlogs')">Logs</li>
-            <li onclick="AuthService.logout()" style="color: var(--danger); cursor: pointer;">Abmelden</li>
-        </ul>
+    <nav class="admin-nav">
+        <div class="admin-nav-item active" data-tab="dashboard">📊 Dashboard</div>
+        <div class="admin-nav-item" data-tab="players_list">👥 Spieler</div>
+        <div class="dropdown">
+            <div class="admin-nav-item">🏗️ Daten-Editoren ▾</div>
+            <div class="dropdown-content">
+                <div class="admin-nav-item" data-tab="users">Benutzer</div>
+                <div class="admin-nav-item" data-tab="buildings">Gebäude</div>
+                <div class="admin-nav-item" data-tab="ressourcen">Rohstoffe</div>
+                <div class="admin-nav-item" data-tab="vorkommen">Vorkommen</div>
+                <div class="admin-nav-item" data-tab="terrain">Terrain</div>
+                <div class="admin-nav-item" data-tab="einheiten">Einheiten</div>
+                <div class="admin-nav-item" data-tab="lebewesen">Lebewesen</div>
+                <div class="admin-nav-item" data-tab="regierungsformen">Regierungsformen</div>
+                <div class="admin-nav-item" data-tab="gebaeude_felder">Gebäude-Felder</div>
+                <div class="admin-nav-item" data-tab="city_grid">🏙️ Stadt-Grid Config</div>
+                <div class="admin-nav-item" data-tab="artikel">Artikel</div>
+            </div>
+        </div>
+        <div class="admin-nav-item" data-tab="worldmap">🗺️ Weltkarte</div>
+        <div class="admin-nav-item" data-tab="gamelog">📋 Gamelog</div>
+        <div class="admin-nav-item" data-tab="broadcast">📢 Broadcast</div>
+        <div class="admin-nav-item" data-tab="ticks">⚙️ Ticks</div>
     </nav>
 
+    <div id="snackbar"></div>
+
     <main>
+        <!-- Dashboard Tab -->
+        <section id="tab-dashboard" class="section active">
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="label">Aktive Spieler heute</div>
+                    <div class="value" id="kpi-active-players">-</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Provinzen gesamt</div>
+                    <div class="value" id="kpi-total-provinces">-</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Laufende Kämpfe</div>
+                    <div class="value" id="kpi-active-combats">-</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Offene Revolten</div>
+                    <div class="value" id="kpi-open-revolts">-</div>
+                </div>
+            </div>
+
+            <div class="warning-row">
+                <div class="card">
+                    <h2>⚠️ Revolten-Risiko</h2>
+                    <table id="table-revolt-risks">
+                        <thead><tr><th>Spieler</th><th>Provinz</th><th>Moral</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h2>🍖 Hunger-Alarm</h2>
+                    <table id="table-hunger-warnings">
+                        <thead><tr><th>Provinz</th><th>Zeit übrig</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h2>💤 Inaktiv > 7 Tage</h2>
+                    <table id="table-inactive-players">
+                        <thead><tr><th>Spieler</th><th>Zuletzt</th><th>Provinzen</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Players Tab (Refactored) -->
+        <section id="tab-players_list" class="section">
+            <div class="card">
+                <h2>Spieler-Management</h2>
+                <div class="filter-bar">
+                    <input type="text" id="filter-player-name" placeholder="Name suchen...">
+                    <select id="filter-player-status">
+                        <option value="all">Alle Status</option>
+                        <option value="active">Aktiv</option>
+                        <option value="inactive">Inaktiv</option>
+                    </select>
+                    <div class="row-count" id="player-count">0 Einträge</div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Letzter Login</th>
+                            <th>Provinzen</th>
+                            <th>Tech</th>
+                            <th>Regierung</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminPlayersTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Broadcast Tab -->
+        <section id="tab-broadcast" class="section">
+            <div class="card">
+                <h2>📢 Broadcast senden</h2>
+                <div class="form-group">
+                    <label>Empfänger</label>
+                    <select id="broadcast-recipient">
+                        <option value="all">Alle Spieler</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Typ</label>
+                    <div style="display: flex; gap: 20px;">
+                        <label><input type="radio" name="bc-type" value="info" checked> Info</label>
+                        <label><input type="radio" name="bc-type" value="warning"> Warnung</label>
+                        <label><input type="radio" name="bc-type" value="system"> System</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Betreff</label>
+                    <input type="text" id="broadcast-subject" placeholder="Wichtige Nachricht">
+                </div>
+                <div class="form-group">
+                    <label>Nachricht</label>
+                    <textarea id="broadcast-body" placeholder="Nachrichtentext hier eingeben..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="sendBroadcast()">📤 Senden</button>
+
+                <h2 style="margin-top: 40px;">Gesendete Broadcasts</h2>
+                <table id="broadcastHistoryTable">
+                    <thead><tr><th>Zeit</th><th>An</th><th>Betreff</th><th>Aktionen</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Gamelog Tab -->
+        <section id="tab-gamelog" class="section">
+            <div class="card">
+                <h2>📋 Gamelog</h2>
+                <div class="filter-bar">
+                    <input type="text" id="gamelog-search" placeholder="Suche...">
+                    <select id="gamelog-type">
+                        <option value="">Alle Typen</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="loadAdminGamelog()">🔍 Anwenden</button>
+                    <label><input type="checkbox" id="gamelog-autorefresh"> Auto-Refresh</label>
+                </div>
+                <table id="adminGamelogTable">
+                    <thead><tr><th>Zeit</th><th>Spieler</th><th>Typ</th><th>Provinz</th><th>Meldung</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Original sections below, renamed to tab-<id> -->
         <!-- Users Section -->
-        <section id="usersSection" class="section active">
+        <section id="tab-users" class="section">
             <div class="card">
                 <h2>Benutzer-Verwaltung</h2>
                 <button class="btn btn-primary" onclick="showCreateUserModal()">+ Neuer Benutzer</button>
@@ -391,7 +692,7 @@
         </section>
 
         <!-- Buildings Section -->
-        <section id="buildingsSection" class="section">
+        <section id="tab-buildings" class="section">
             <div class="card">
                 <h2>Gebäude-Typen</h2>
                 <button class="btn btn-primary" onclick="showCreateBuildingModal()">+ Neues Gebäude</button>
@@ -420,7 +721,7 @@
         </section>
 
         <!-- Ressourcen Section -->
-        <section id="ressourcenSection" class="section">
+        <section id="tab-ressourcen" class="section">
             <div class="card">
                 <h2>Rohstoffe</h2>
                 <button class="btn btn-primary" onclick="showCreateModal('ressourcen')">+ Neuer Rohstoff</button>
@@ -448,7 +749,7 @@
         </section>
 
         <!-- Vorkommen Section -->
-        <section id="vorkommenSection" class="section">
+        <section id="tab-vorkommen" class="section">
             <div class="card">
                 <h2>Vorkommen</h2>
                 <button class="btn btn-primary" onclick="showCreateModal('vorkommen')">+ Neues Vorkommen</button>
@@ -474,8 +775,43 @@
             </div>
         </section>
 
+        <!-- City Grid Config Tab -->
+        <section id="tab-city_grid" class="section">
+            <div class="card">
+                <h2>Stadt-Grid Konfiguration</h2>
+                <p>Wähle ein Level aus und markiere die Felder, die freigeschaltet werden sollen (15x15 Grid).</p>
+                
+                <div class="form-row" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label>Stadt-Level (1-8)</label>
+                        <select id="city-grid-level-select" onchange="loadCityGridLevel()">
+                            <option value="1">Level 1 (Camp)</option>
+                            <option value="2">Level 2 (Siedlung)</option>
+                            <option value="3">Level 3 (Dorf)</option>
+                            <option value="4">Level 4 (Kleinstadt)</option>
+                            <option value="5">Level 5 (Stadt)</option>
+                            <option value="6">Level 6 (Großstadt)</option>
+                            <option value="7">Level 7 (Metropole)</option>
+                            <option value="8">Level 8 (Megapolis)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="justify-content: flex-end;">
+                        <button class="btn btn-primary" onclick="saveCityGridLevel()">Konfiguration Speichern</button>
+                        <button class="btn" style="margin-left: 10px;" onclick="syncProvinceFields()">Fields initialisieren (DB)</button>
+                    </div>
+                </div>
+
+                <div id="city-grid-editor-container" style="display: flex; justify-content: center; background: #222; padding: 20px; border-radius: 8px;">
+                    <canvas id="cityGridCanvas" width="450" height="450" style="border: 1px solid #444; cursor: crosshair;"></canvas>
+                </div>
+                <div style="margin-top: 10px; text-align: center; font-size: 12px; color: var(--text-muted);">
+                    Klicken oder Ziehen zum Auswählen/Abwählen von Feldern.
+                </div>
+            </div>
+        </section>
+
         <!-- Gebäude-Felder Section -->
-        <section id="gebaeude_felderSection" class="section">
+        <section id="tab-gebaeude_felder" class="section">
             <div class="card">
                 <h2>Gebaeude-Felder</h2>
                 <button class="btn btn-primary" onclick="showCreateModal('gebaeude_felder')">+ Neues Feld</button>
@@ -502,7 +838,7 @@
         </section>
 
         <!-- Terrain Section (Welt-Terrain) -->
-        <section id="terrainSection" class="section">
+        <section id="tab-terrain" class="section">
             <div class="card">
                 <h2>Terrain</h2>
                 <button class="btn btn-primary" onclick="showCreateModal('terrain')">+ Neues Terrain</button>
@@ -528,7 +864,7 @@
         </section>
 
         <!-- Artikel Section -->
-        <section id="artikelSection" class="section">
+        <section id="tab-artikel" class="section">
             <div class="card">
                 <h2>Artikel</h2>
                 <button class="btn btn-primary" onclick="showCreateModal('artikel')">+ Neuer Artikel</button>
@@ -555,7 +891,7 @@
         </section>
 
         <!-- Einheiten Section -->
-        <section id="einheitenSection" class="section">
+        <section id="tab-einheiten" class="section">
             <div class="card">
                 <h2>Einheiten-Typen</h2>
                 <button class="btn btn-primary" onclick="showCreateModal('einheiten')">+ Neuer Einheiten-Typ</button>
@@ -582,7 +918,7 @@
         </section>
 
         <!-- Lebewesen Section -->
-        <section id="lebewesenSection" class="section">
+        <section id="tab-lebewesen" class="section">
             <div class="card">
                 <h2>Lebewesen</h2>
                 <button class="btn btn-primary" onclick="showCreateModal('lebewesen')">+ Neues Lebewesen</button>
@@ -609,7 +945,7 @@
         </section>
 
         <!-- Regierungsformen Section -->
-        <section id="regierungsformenSection" class="section">
+        <section id="tab-regierungsformen" class="section">
             <div class="card">
                 <h2>Regierungsformen</h2>
                 <button class="btn btn-primary" onclick="showCreateModal('regierungsformen')">+ Neue
@@ -712,7 +1048,7 @@
         </section>
 
         <!-- Worldmap Editor Section -->
-        <section id="worldmapSection" class="section">
+        <section id="tab-worldmap" class="section">
             <div class="card">
                 <h2>Weltkarten Editor</h2>
                 <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: 20px;">
@@ -799,7 +1135,7 @@
         </section>
         
         <!-- Tick Engine Section -->
-        <section id="ticksSection" class="section">
+        <section id="tab-ticks" class="section">
             <div class="card">
                 <h2>Tick-Engine Status</h2>
                 <div id="tickStatusDetail" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -1025,6 +1361,308 @@
     </div>
 
     <script src="js/auth-service.js"></script>
+    <script>
+        // --- Tab System ---
+        function showAdminTab(tabId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            // Show target section
+            const target = document.getElementById('tab-' + tabId);
+            if (target) {
+                target.classList.add('active');
+            } else {
+                console.error('Tab section not found:', 'tab-' + tabId);
+            }
+
+            // Update nav items
+            document.querySelectorAll('.admin-nav-item').forEach(item => {
+                if (item.getAttribute('data-tab') === tabId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Persist
+            localStorage.setItem('admin_active_tab', tabId);
+            window.location.hash = tabId;
+
+            // Trigger specific load if needed
+            if (tabId === 'dashboard') loadDashboard();
+            if (tabId === 'city_grid') loadCityGridConfigs();
+            if (tabId === 'players_list') loadAdminPlayers();
+            if (tabId === 'broadcast') loadBroadcastHistory();
+            if (tabId === 'gamelog') loadAdminGamelog();
+            if (tabId === 'buildings') loadBuildings();
+            if (tabId === 'ressourcen') loadRessourcen();
+            if (tabId === 'regierungsformen') loadRegierungsformen();
+            if (tabId === 'worldmap') loadAdminMapData();
+        }
+
+        // Init Tabs
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTab = localStorage.getItem('admin_active_tab') || window.location.hash.substring(1) || 'dashboard';
+            showAdminTab(savedTab);
+
+            document.querySelectorAll('.admin-nav-item[data-tab]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    showAdminTab(item.getAttribute('data-tab'));
+                    e.stopPropagation();
+                });
+            });
+        });
+
+        // --- Snackbar ---
+        function showSnackbar(message, type = 'success') {
+            const x = document.getElementById("snackbar");
+            x.textContent = message;
+            x.className = "show";
+            x.style.backgroundColor = type === 'success' ? 'var(--success)' : 'var(--danger)';
+            setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000);
+        }
+
+        // --- Dashboard ---
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/admin/dashboard?token=' + localStorage.getItem('token'));
+                const data = await res.json();
+                
+                document.getElementById('kpi-active-players').textContent = data.active_players_today;
+                document.getElementById('kpi-total-provinces').textContent = data.total_provinces;
+                document.getElementById('kpi-active-combats').textContent = data.active_combats;
+                document.getElementById('kpi-open-revolts').textContent = data.open_revolts;
+
+                // Lists
+                renderTable('table-revolt-risks', data.revolt_risks, r => `
+                    <tr><td>${r.player}</td><td>${r.province}</td><td style="color:${r.moral < 15 ? 'red' : 'orange'}">${r.moral}%</td></tr>
+                `);
+                
+                renderTable('table-hunger-warnings', data.hunger_warnings, h => `
+                    <tr><td>${h.province}</td><td>${h.hours_left}h</td></tr>
+                `);
+
+                renderTable('table-inactive-players', data.inactive_players, i => `
+                    <tr><td>${i.player}</td><td>${i.last_login || 'Nie'}</td><td>${i.province_count}</td></tr>
+                `);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderTable(id, data, rowFunc) {
+            const tbody = document.querySelector(`#${id} tbody`);
+            if (!tbody) return;
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted)">Keine Einträge</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(rowFunc).join('');
+        }
+
+        // --- Players ---
+        async function loadAdminPlayers() {
+            try {
+                const res = await fetch('/api/admin/players?token=' + localStorage.getItem('token'));
+                const data = await res.json();
+                window.adminPlayers = data;
+                
+                // Also update broadcast recipient list
+                const bcSel = document.getElementById('broadcast-recipient');
+                bcSel.innerHTML = '<option value="all">Alle Spieler</option>' + 
+                    data.map(p => `<option value="${p.id}">${p.name} (ID: ${p.id})</option>`).join('');
+                
+                filterPlayers();
+            } catch (e) { console.error(e); }
+        }
+
+        async function adminSetPlayerStat(playerId, stat) {
+            const input = document.getElementById(`tool-${stat}-${playerId}`);
+            const val = parseInt(input.value);
+            if (isNaN(val)) return;
+
+            const res = await fetch(`/api/admin/province/${playerId}/set?token=${token}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ [stat]: val })
+            });
+            if (res.ok) showSnackbar('✅ Wert gesetzt');
+        }
+
+        async function adminAddMips(playerId) {
+            const val = parseFloat(document.getElementById(`tool-mips-${playerId}`).value);
+            if (isNaN(val)) return;
+            const res = await fetch(`/api/admin/province/${playerId}/mips?token=${token}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ amount: val })
+            });
+            if (res.ok) showSnackbar('✅ MIPS hinzugefügt');
+        }
+
+        async function adminBanPlayer(playerId) {
+            if (!confirm('Soll dieser Spieler wirklich permanent gesperrt werden?')) return;
+            const res = await fetch(`/api/admin/player/${playerId}/ban?token=${token}`, { method: 'POST' });
+            if (res.ok) showSnackbar('🚫 Spieler gesperrt');
+        }
+
+        function filterPlayers() {
+            const name = document.getElementById('filter-player-name').value.toLowerCase();
+            const status = document.getElementById('filter-player-status').value;
+            
+            const filtered = window.adminPlayers.filter(p => {
+                const matchesName = p.name.toLowerCase().includes(name);
+                let matchesStatus = true;
+                if (status === 'active') matchesStatus = !!p.last_login;
+                if (status === 'inactive') matchesStatus = !p.last_login;
+                return matchesName && matchesStatus;
+            });
+
+            document.getElementById('player-count').textContent = `${filtered.length} Einträge`;
+            renderTable('adminPlayersTable', filtered, p => `
+                <tr class="expandable-row" onclick="togglePlayerRow(${p.id})">
+                    <td>${p.id}</td>
+                    <td><b>${p.name}</b></td>
+                    <td>${p.last_login || '<span style="color:var(--text-muted)">Nie</span>'}</td>
+                    <td>${p.provinces}</td>
+                    <td>${p.tech_level}</td>
+                    <td>${p.regierungsform}</td>
+                    <td>
+                        <button class="btn btn-small btn-primary">Verwalten</button>
+                    </td>
+                </tr>
+                <tr id="player-tools-${p.id}" style="display:none">
+                    <td colspan="7">
+                        <div class="expanded-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Moral (0-100)</label>
+                                    <input type="number" id="tool-moral-${p.id}" placeholder="Setzen...">
+                                    <button class="btn btn-small" onclick="adminSetPlayerStat(${p.id}, 'moral')">Setzen</button>
+                                </div>
+                                <div class="form-group">
+                                    <label>Gesundheit</label>
+                                    <input type="number" id="tool-health-${p.id}" placeholder="Setzen...">
+                                    <button class="btn btn-small" onclick="adminSetPlayerStat(${p.id}, 'health')">Setzen</button>
+                                </div>
+                                <div class="form-group">
+                                    <label>MIPS</label>
+                                    <input type="number" id="tool-mips-${p.id}" placeholder="+ Hinzufügen">
+                                    <button class="btn btn-small" onclick="adminAddMips(${p.id})">Add</button>
+                                </div>
+                            </div>
+                            <div class="actions" style="margin-top:20px;">
+                                <button class="btn btn-danger" onclick="adminBanPlayer(${p.id})">Spieler sperren</button>
+                                <button class="btn" onclick="adminResetPlayer(${p.id})">Account Reset</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `);
+        }
+
+        function togglePlayerRow(id) {
+            const row = document.getElementById('player-tools-' + id);
+            row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+        }
+
+        // --- Broadcast ---
+        async function sendBroadcast() {
+            const recipient = document.getElementById('broadcast-recipient').value;
+            const subject = document.getElementById('broadcast-subject').value;
+            const body = document.getElementById('broadcast-body').value;
+            const typ = document.querySelector('input[name="bc-type"]:checked').value;
+
+            const res = await fetch('/api/admin/broadcast?token=' + localStorage.getItem('token'), {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ recipient, subject, body, typ })
+            });
+            if (res.ok) {
+                showSnackbar('🚀 Broadcast versendet!');
+                loadBroadcastHistory();
+            } else {
+                showSnackbar('❌ Fehler beim Senden', 'error');
+            }
+        }
+
+        async function loadBroadcastHistory() {
+            const res = await fetch('/api/admin/broadcast/history?token=' + localStorage.getItem('token'));
+            const data = await res.json();
+            renderTable('broadcastHistoryTable', data, b => `
+                <tr>
+                    <td>${new Date(b.sent_at).toLocaleString()}</td>
+                    <td>${b.recipient}</td>
+                    <td>${b.subject}</td>
+                    <td><button class="btn btn-small" onclick="alert('${b.body.replace(/'/g, "\\'")}')">Anzeigen</button></td>
+                </tr>
+            `);
+        }
+
+        // --- Gamelog ---
+        async function loadAdminGamelog() {
+            const search = document.getElementById('gamelog-search').value;
+            const res = await fetch(`/api/admin/gamelog?token=${localStorage.getItem('token')}&search=${search}`);
+            const data = await res.json();
+            renderTable('adminGamelogTable', data, g => `
+                <tr>
+                    <td>${new Date(g.created_at).toLocaleTimeString()}</td>
+                    <td>${g.player_name || '-'}</td>
+                    <td><span class="badge" style="background:gray">${g.event_type}</span></td>
+                    <td>${g.province_name || '-'}</td>
+                    <td>${g.message}</td>
+                </tr>
+            `);
+        }
+
+        // --- World Map Editor ---
+        async function loadAdminMapData() {
+            try {
+                // Load terrains for palette first if not loaded
+                if (Object.keys(adminTerrainTypes).length === 0) {
+                    const tRes = await fetch('/api/world/terrains');
+                    const tData = await tRes.json();
+                    const palette = document.getElementById('paletteItems');
+                    palette.innerHTML = tData.map(t => `
+                        <div class="admin-nav-item" style="padding:5px; border-bottom: 1px solid var(--border)" onclick="selectedTerrainId = ${t.id}; this.parentElement.querySelectorAll('div').forEach(d=>d.style.background=''); this.style.background='var(--accent)'">
+                            <span style="display:inline-block; width:12px; height:12px; background:${t.color}; border:1px solid #fff"></span>
+                            ${t.name}
+                        </div>
+                    `).join('');
+                    tData.forEach(t => adminTerrainTypes[t.id] = t);
+                }
+
+                const res = await fetch('/api/admin/world/map_data?token=' + token);
+                const data = await res.json();
+                const grid = document.getElementById('adminMapGrid');
+                grid.innerHTML = '';
+                data.cells.forEach(c => {
+                    const cell = document.createElement('div');
+                    cell.style.backgroundColor = c.color;
+                    cell.title = `(${c.x},${c.y}) ${c.terrain} - Owner: ${c.owner_id || 'None'}`;
+                    cell.onclick = () => selectMapCell(c.x, c.y);
+                    grid.appendChild(cell);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function selectMapCell(x, y) {
+            const terrainId = selectedTerrainId; // From palette
+            if (!terrainId) {
+                alert('Bitte erst ein Terrain aus der Palette wählen!');
+                return;
+            }
+            const res = await fetch(`/api/admin/world/province/${x}/${y}?token=${token}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ terrain_id: terrainId })
+            });
+            if (res.ok) loadAdminMapData();
+        }
+
+        // Auto-refresh for dashboard
+        setInterval(() => {
+            if (document.getElementById('tab-dashboard').classList.contains('active')) loadDashboard();
+        }, 60000);
+
+    </script>
     <script>
         const APIBASE = ""; // Relative calls
 
@@ -1498,26 +2136,31 @@
         // ── BUILDINGS ───────────────────────────────────────────────
         async function loadBuildings() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/buildings?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await fetch(`/api/admin/gebaeude_typen?token=${token}`);
                 const buildings = await res.json();
-                document.getElementById('buildingsTable').innerHTML = buildings.map(b => `
-                    <tr>
-                        <td>${b.id}</td>
-                        <td>${b.name || '-'}</td>
-                        <td>${b.kategorie || '-'}</td>
-                        <td>${b.baukosten_mips || 0}</td>
-                        <td>${b.arbeiter || 0}</td>
-                        <td>${b.wohnraum || 0}</td>
-                        <td>${b.lagerkapazitaet || 0}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editBuilding(${b.id})">Bearbeiten</button>
-                            <button class="btn btn-danger" onclick="deleteBuilding(${b.id})">Löschen</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch {
-                document.getElementById('buildingsTable').innerHTML = '<tr><td colspan="8">Fehler</td></tr>';
+                document.getElementById('buildingsTable').innerHTML = buildings.map(b => {
+                    const prod = JSON.parse(b.produktion || '[]');
+                    const prodTags = prod.slice(0, 3).map(p => `<span class="badge" style="background:var(--success)">${p.ressource}</span>`).join(' ');
+                    const special = JSON.parse(b.spezialeigenschaften || '[]');
+                    const specTags = special.map(s => `<span class="badge" title="${s}">✨</span>`).join('');
+
+                    return `
+                        <tr>
+                            <td>${b.id}</td>
+                            <td contenteditable="true" onblur="patchEntity('gebaeude_typen', ${b.id}, 'name', this.textContent)">${b.name || '-'}</td>
+                            <td contenteditable="true" onblur="patchEntity('gebaeude_typen', ${b.id}, 'kategorie', this.textContent)">${b.kategorie || '-'}</td>
+                            <td contenteditable="true" onblur="patchEntity('gebaeude_typen', ${b.id}, 'baukosten_mips', this.textContent)">${b.baukosten_mips || 0}</td>
+                            <td>${prodTags}</td>
+                            <td>${specTags}</td>
+                            <td class="actions">
+                                <button class="btn btn-primary" onclick="editBuilding(${b.id})">Bearbeiten</button>
+                                <button class="btn btn-danger" onclick="deleteBuilding(${b.id})">Löschen</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                document.getElementById('buildingsTable').innerHTML = '<tr><td colspan="8">Fehler beim Laden</td></tr>';
             }
         }
 
@@ -1769,21 +2412,22 @@
         // ── Section loaders ─────────────────────────────────────────
         async function loadRessourcen() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/ressourcen?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await fetch(`/api/admin/rohstoffe?token=${token}`);
                 const data = await res.json();
                 document.getElementById('ressourcenTable').innerHTML = data.map(r => `
                     <tr>
-                        <td>${r.id}</td><td>${r.name || '-'}</td><td>${r.typ || '-'}</td>
-                        <td>${r.produktionswert || 0}</td>
+                        <td>${r.id}</td>
+                        <td contenteditable="true" onblur="patchEntity('rohstoffe', ${r.id}, 'name', this.textContent)"><b>${r.name}</b></td>
+                        <td>${r.typ || '-'}</td>
+                        <td contenteditable="true" onblur="patchEntity('rohstoffe', ${r.id}, 'produktionswert', this.textContent)">${r.produktionswert || 0}</td>
                         <td>${r.platz_land || 1}/${r.platz_wasser || 1}/${r.platz_luft || 1}</td>
-                        <td>${(r.beschreibung || '').substring(0, 30)}${(r.beschreibung || '').length > 30 ? '…' : ''}</td>
+                        <td>${(r.beschreibung || '').substring(0, 30)}...</td>
                         <td class="actions">
                             <button class="btn btn-primary" onclick="editItem('ressourcen',${r.id})">Bearbeiten</button>
                             <button class="btn btn-danger"  onclick="deleteItem('ressourcen',${r.id})">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch { document.getElementById('ressourcenTable').innerHTML = '<tr><td colspan="7">Fehler</td></tr>'; }
+            } catch (e) { console.error(e); }
         }
 
         async function loadVorkommen() {
@@ -1892,19 +2536,22 @@
 
         async function loadRegierungsformen() {
             try {
-                const res = await adminFetch(`${APIBASE}/admin/regierungsformen?token=${token}`);
-                if (res.status === 401 || res.status === 403) { logout(); return; }
+                const res = await fetch(`/api/admin/regierungsformen?token=${token}`);
                 const data = await res.json();
                 document.getElementById('regierungsformenTable').innerHTML = data.map(r => `
                     <tr>
-                        <td>${r.id}</td><td>${r.name || '-'}</td>
-                        <td>${(r.beschreibung || '').substring(0, 50)}</td>
+                        <td>${r.id}</td>
+                        <td contenteditable="true" onblur="patchEntity('regierungsformen', ${r.id}, 'name', this.textContent)"><b>${r.name}</b></td>
+                        <td contenteditable="true" onblur="patchEntity('regierungsformen', ${r.id}, 'moral_base', this.textContent)">${r.moral_base || 0}</td>
+                        <td contenteditable="true" onblur="patchEntity('regierungsformen', ${r.id}, 'produktions_mod', this.textContent)">${r.produktions_mod || 1}</td>
+                        <td contenteditable="true" onblur="patchEntity('regierungsformen', ${r.id}, 'provinz_max', this.textContent)">${r.provinz_max || 1}</td>
+                        <td>${(r.beschreibung || '').substring(0, 30)}...</td>
                         <td class="actions">
                             <button class="btn btn-primary" onclick="editItem('regierungsformen',${r.id})">Bearbeiten</button>
                             <button class="btn btn-danger"  onclick="deleteItem('regierungsformen',${r.id})">Löschen</button>
                         </td>
                     </tr>`).join('');
-            } catch { document.getElementById('regierungsformenTable').innerHTML = '<tr><td colspan="4">Fehler</td></tr>'; }
+            } catch (e) { console.error(e); }
         }
 
         // ── WORLD MAP EDITOR ────────────────────────────────────────
@@ -2316,6 +2963,7 @@
         loadUsers();
         loadTerrain();
     </script>
+    <script src="/js/admin_city_grid.js"></script>
 </body>
 
 </html>
