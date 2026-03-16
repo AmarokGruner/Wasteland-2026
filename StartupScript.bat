@@ -6,7 +6,7 @@ echo ==========================================
 echo.
 
 echo [1/3] Initialisiere Spieldaten (Gebaeude, Ressourcen, etc.)...
-python seed_main.py
+python seeds\seed_main.py
 
 echo [2/3] Erstelle Benutzerkonten...
 python setup_users.py
