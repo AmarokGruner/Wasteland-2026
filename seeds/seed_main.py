@@ -6,8 +6,8 @@ if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
-# Pfad zum "seeds" Ordner hinzufügen, damit die Module gefunden werden
-sys.path.append(os.path.join(os.path.dirname(__file__), 'seeds'))
+# Pfad zum aktuellen Ordner hinzufügen, damit die Module gefunden werden
+sys.path.append(os.path.dirname(__file__))
 
 from db_config import get_connection, init_tables
 import seed_terrains
