@@ -594,7 +594,7 @@
                     </select>
                     <div class="row-count" id="player-count">0 Einträge</div>
                 </div>
-                <table>
+                <table id="adminPlayersTable">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -1373,6 +1373,7 @@
 
     <script src="js/auth-service.js?v=2"></script>
     <script>
+        let RESOURCES = ['holz', 'stein', 'eisen', 'nahrung', 'mips', 'muenzen', 'waffen'];
         // --- Tab System ---
         function showAdminTab(tabId) {
             // Hide all sections
@@ -1408,6 +1409,12 @@
             if (tabId === 'ressourcen') loadRessourcen();
             if (tabId === 'regierungsformen') loadRegierungsformen();
             if (tabId === 'worldmap') loadWorldMapAdmin();
+            if (tabId === 'terrain') loadTerrain();
+            if (tabId === 'vorkommen') loadVorkommen();
+            if (tabId === 'einheiten') loadEinheiten();
+            if (tabId === 'lebewesen') loadLebewesen();
+            if (tabId === 'gebaeude_felder') loadGebaeudeFelder();
+            if (tabId === 'artikel') loadArtikel();
         }
 
         // Init Tabs
@@ -1473,12 +1480,14 @@
             try {
                 const res = await adminFetch('/admin/players');
                 const data = await res.json();
-                window.adminPlayers = data;
+                window.adminPlayers = Array.isArray(data) ? data : [];
                 
                 // Also update broadcast recipient list
                 const bcSel = document.getElementById('broadcast-recipient');
-                bcSel.innerHTML = '<option value="all">Alle Spieler</option>' + 
-                    data.map(p => `<option value="${p.id}">${p.name} (ID: ${p.id})</option>`).join('');
+                if (bcSel) {
+                    bcSel.innerHTML = '<option value="all">Alle Spieler</option>' + 
+                        window.adminPlayers.map(p => `<option value="${p.id}">${p.name} (ID: ${p.id})</option>`).join('');
+                }
                 
                 filterPlayers();
             } catch (e) { console.error(e); }
@@ -1667,7 +1676,7 @@
         // Helper for all admin calls
         // (Removing redundant second definition of adminFetch)
 
-        let RESOURCES = [];
+        // Removed redeclaration of RESOURCES
         let TERRAINS = [];
         let BUILDINGS = [];
 
@@ -1745,11 +1754,11 @@
                     { name: 'color', label: 'Farbe (Hex)', type: 'color' },
                     { name: 'icon', label: 'Icon (Emoji)', type: 'text' },
                     { name: 'regen_pct', label: 'Regen %', type: 'number' },
-                    { name: 'aufwertungen', label: 'Aufwertungen', type: 'dynamic-list', listType: 'terrain-list' },
-                    { name: 'abwertungen', label: 'Abwertungen', type: 'dynamic-list', listType: 'terrain-list' },
+                    { name: 'aufwertungen_json', label: 'Aufwertungen', type: 'dynamic-list', listType: 'terrain-list' },
+                    { name: 'abwertungen_json', label: 'Abwertungen', type: 'dynamic-list', listType: 'terrain-list' },
                     { name: 'beschreibung', label: 'Beschreibung', type: 'textarea' },
                     { name: 'bild_url', label: 'Bild URL', type: 'text' },
-                    { name: 'gebaeude_effektivitaet', label: 'Gebäude-Eff.', type: 'dynamic-list', listType: 'building-percent' },
+                    { name: 'gebaeude_effektivitaet_json', label: 'Gebäude-Eff.', type: 'dynamic-list', listType: 'building-percent' },
                 ]
             },
             artikel: {
@@ -1993,7 +2002,7 @@
                 const url = mode === 'edit'
                     ? `${APIBASE}/admin/${endpoint}/${id}?token=${token}`
                     : `${APIBASE}/admin/${endpoint}?token=${token}`;
-                const method = mode === 'edit' ? 'PUT' : 'POST';
+                const method = mode === 'edit' ? 'PATCH' : 'POST';
                 const res = await adminFetch(url, {
                     method,
                     headers: { 'Content-Type': 'application/json' },
@@ -2166,7 +2175,7 @@
 
         async function editBuilding(id) {
             try {
-                const res = await adminFetch(`/admin/buildings/${id}`);
+                const res = await adminFetch(`/admin/gebaeude_typen/${id}`);
                 const building = await res.json();
                 if (!building) return;
                 const form = document.getElementById('editBuildingForm');
@@ -2175,26 +2184,43 @@
                 form.querySelector('[name="kategorie"]').value = building.kategorie || '';
                 form.querySelector('[name="baukosten_mips"]').value = building.baukosten_mips || 0;
                 form.querySelector('[name="arbeiter"]').value = building.arbeiter || 0;
-                form.querySelector('[name="spezial_eigenschaften"]').value = Array.isArray(building.spezial_eigenschaften) ? building.spezial_eigenschaften.join(', ') : (typeof building.spezial_eigenschaften === 'string' ? JSON.parse(building.spezial_eigenschaften || '[]').join(', ') : '');
+                
+                let spData = building.spezial_eigenschaften;
+                if (typeof spData === 'string') { try { spData = JSON.parse(spData || '[]'); } catch (e) { spData = []; } }
+                form.querySelector('[name="spezial_eigenschaften"]').value = Array.isArray(spData) ? spData.join(', ') : (typeof spData === 'object' ? JSON.stringify(spData) : spData);
                 
                 // Production
-                const production = typeof building.produktion === 'string' ? JSON.parse(building.produktion || '[]') : (building.produktion || []);
+                let production = [];
+                if (typeof building.produktion === 'string') { try { production = JSON.parse(building.produktion || '[]'); } catch (e) {} } else if (building.produktion) { production = building.produktion; }
+                if(!Array.isArray(production)) production = [];
                 const prodContainer = document.getElementById('productionContainer');
                 prodContainer.innerHTML = '';
                 production.forEach(p => addProductionRow(p.ressource, p.menge));
                 if (production.length === 0) addProductionRow();
+
                 // Consumption
-                const consumption = typeof building.rohstoffverbrauch === 'string' ? JSON.parse(building.rohstoffverbrauch || '[]') : (building.rohstoffverbrauch || []);
+                let consumption = [];
+                if (typeof building.rohstoffverbrauch === 'string') { try { consumption = JSON.parse(building.rohstoffverbrauch || '[]'); } catch (e) {} } else if (building.rohstoffverbrauch) { consumption = building.rohstoffverbrauch; }
+                if(!Array.isArray(consumption)) consumption = [];
                 const consContainer = document.getElementById('consumptionContainer');
                 consContainer.innerHTML = '';
                 consumption.forEach(c => addConsumptionRow(c.ressource, c.menge));
                 if (consumption.length === 0) addConsumptionRow();
+
                 // Terrain
-                const terrain = typeof building.terrain_effektivitaet === 'string' ? JSON.parse(building.terrain_effektivitaet || '{}') : (building.terrain_effektivitaet || {});
+                let terrain = {};
+                if (typeof building.terrain_effektivitaet === 'string') { try { terrain = JSON.parse(building.terrain_effektivitaet || '{}'); } catch (e) {} } else if (building.terrain_effektivitaet) { terrain = building.terrain_effektivitaet; }
+                if(typeof terrain !== 'object' || terrain === null || Array.isArray(terrain)) terrain = {};
                 const terrainContainer = document.getElementById('terrainContainer');
                 terrainContainer.innerHTML = '';
-                Object.entries(terrain).forEach(([bonus, terrains]) => addTerrainRow(bonus, Array.isArray(terrains) ? terrains.join(', ') : terrains));
+                Object.entries(terrain).forEach(([bonus, terrains]) => {
+                    let ts = terrains;
+                    if(Array.isArray(ts)) ts = ts.join(', ');
+                    else if(typeof ts === 'object') ts = JSON.stringify(ts);
+                    addTerrainRow(bonus, ts);
+                });
                 if (Object.keys(terrain).length === 0) addTerrainRow();
+
                 document.getElementById('editBuildingModal').classList.add('active');
             } catch (err) {
                 alert('Fehler beim Laden: ' + err.message);
@@ -2345,8 +2371,8 @@
             const formData = new FormData(e.target);
             const buildingId = formData.get('building_id');
             try {
-                const res = await adminFetch(`/admin/buildings/${buildingId}`, {
-                    method: 'PUT',
+                const res = await adminFetch(`/admin/gebaeude_typen/${buildingId}`, {
+                    method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         name: formData.get('name'),
@@ -2355,10 +2381,10 @@
                         arbeiter: parseInt(formData.get('arbeiter')) || 0,
                         wohnraum: parseInt(formData.get('wohnraum')) || 0,
                         lagerkapazitaet: parseInt(formData.get('lagerkapazitaet')) || 0,
-                        spezial_eigenschaften: formData.get('spezial_eigenschaften').split(',').map(s => s.trim()).filter(s => s),
+                        spezial_eigenschaften: JSON.stringify(formData.get('spezial_eigenschaften').split(',').map(s => s.trim()).filter(s => s)),
                         produktion: getRowsData('#productionContainer', 'prod-resource', 'prod-menge'),
                         rohstoffverbrauch: getRowsData('#consumptionContainer', 'cons-resource', 'cons-menge'),
-                        terrain_effektivitaet: getTerrainRowsData('#terrainContainer')
+                        terrain_effektivitaet: JSON.stringify(getTerrainRowsData('#terrainContainer'))
                     })
                 });
                 if (res.ok) { closeModal('editBuildingModal'); loadBuildings(); }
@@ -2381,7 +2407,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             try {
-                const res = await adminFetch(`/admin/buildings`, {
+                const res = await adminFetch(`/admin/gebaeude_typen`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2391,10 +2417,10 @@
                         arbeiter: parseInt(formData.get('arbeiter')) || 0,
                         wohnraum: parseInt(formData.get('wohnraum')) || 0,
                         lagerkapazitaet: parseInt(formData.get('lagerkapazitaet')) || 0,
-                        spezial_eigenschaften: formData.get('spezial_eigenschaften').split(',').map(s => s.trim()).filter(s => s),
+                        spezial_eigenschaften: JSON.stringify(formData.get('spezial_eigenschaften').split(',').map(s => s.trim()).filter(s => s)),
                         produktion: getRowsData('#createProductionContainer', 'prod-resource', 'prod-menge'),
                         rohstoffverbrauch: getRowsData('#createConsumptionContainer', 'cons-resource', 'cons-menge'),
-                        terrain_effektivitaet: getTerrainRowsData('#createTerrainContainer')
+                        terrain_effektivitaet: JSON.stringify(getTerrainRowsData('#createTerrainContainer'))
                     })
                 });
                 if (res.ok) { closeModal('createBuildingModal'); loadBuildings(); e.target.reset(); }
@@ -2405,7 +2431,7 @@
         async function deleteBuilding(id) {
             if (!confirm('Gebäude wirklich löschen?')) return;
             try {
-                const res = await adminFetch(`/admin/buildings/${id}`, { method: 'DELETE' });
+                const res = await adminFetch(`/admin/gebaeude_typen/${id}`, { method: 'DELETE' });
                 if (res.ok) { loadBuildings(); }
                 else { alert('Fehler beim Löschen'); }
             } catch { alert('Verbindungsfehler'); }

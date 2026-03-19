@@ -13,9 +13,15 @@ class TerrainType(Base):
     playable = Column(Integer, default=1)
     color = Column(String)
     icon = Column(String)
-    beschreibung = Column(String)
-    bild_url = Column(String)
+    beschreibung = Column(String, default='')
+    bild_url = Column(String, default='')
     gif_filename = Column(String)
+    
+    startgebiet = Column(Integer, default=0)
+    regen_pct = Column(Integer, default=0)
+    aufwertungen_json = Column('aufwertungen', String, default='[]')
+    abwertungen_json = Column('abwertungen', String, default='[]')
+    gebaeude_effektivitaet_json = Column('gebaeude_effektivitaet', String, default='{}')
     
     # Costs
     mips_kosten = Column(Integer, default=0)
@@ -603,6 +609,8 @@ class Regierungsform(Base):
     krieg_moeglich = Column(Integer, default=0)
     provinzanzahl_bis_malus = Column(Integer, default=2)
     malus_beschreibung = Column(String, default='')
+    boni = Column(String, default='{}')
+    voraussetzungen = Column(String, default='{}')
 
 class ProvinceField(Base):
     __tablename__ = 'province_fields'

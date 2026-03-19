@@ -109,12 +109,35 @@ def generic_patch_entity(entity: str, id: int, data: Dict[str, Any], token: str,
         
     for key, value in data.items():
         if hasattr(item, key):
-            # Special handling for JSON fields if needed, but usually we just set it
-            setattr(item, key, value)
+            import json
+            if isinstance(value, (dict, list)):
+                setattr(item, key, json.dumps(value))
+            else:
+                setattr(item, key, value)
             
     db.commit()
     log_admin_action(0, f"patch_{entity}", entity, str(id), data)
     return {"success": True}
+
+@router.post("/{entity}")
+def generic_create_entity(entity: str, data: Dict[str, Any], token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    if entity not in MODEL_MAP:
+        raise HTTPException(status_code=400, detail=f"Entity {entity} not supported for POST")
+    model = MODEL_MAP[entity]
+    import json
+    item = model()
+    for key, value in data.items():
+        if hasattr(item, key):
+            if isinstance(value, (dict, list)):
+                setattr(item, key, json.dumps(value))
+            else:
+                setattr(item, key, value)
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    log_admin_action(0, f"create_{entity}", entity, str(item.id), data)
+    return {"success": True, "id": item.id}
 
 @router.delete("/{entity}/{id}")
 def generic_delete_entity(entity: str, id: int, token: str, db: Session = Depends(get_db)):

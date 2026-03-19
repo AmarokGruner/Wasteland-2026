@@ -14,7 +14,7 @@ class AdminProvinceUpdate(BaseModel):
     owner_id: Optional[int] = None
     reset_province: Optional[bool] = False
 
-@router.post("/admin/world/province/{x}/{y}")
+@router.post("/world/province/{x}/{y}")
 def admin_update_province(x: int, y: int, req: AdminProvinceUpdate, token: str, db: Session = Depends(get_db)):
     require_admin(token)
     
@@ -52,7 +52,7 @@ class MapGenerate(BaseModel):
     height: int
     seed: Optional[int] = None
 
-@router.post("/admin/world/import-static")
+@router.post("/world/import-static")
 def import_static_map(req: MapImport, token: str, db: Session = Depends(get_db)):
     require_admin(token)
     
@@ -73,7 +73,7 @@ def import_static_map(req: MapImport, token: str, db: Session = Depends(get_db))
     log_admin_action(0, "import_static_map", "world", None, {"cells": imported})
     return {"success": True, "imported": imported}
 
-@router.post("/admin/world/generate")
+@router.post("/world/generate")
 def generate_world(req: MapGenerate, token: str, db: Session = Depends(get_db)):
     require_admin(token)
     
@@ -94,7 +94,7 @@ def generate_world(req: MapGenerate, token: str, db: Session = Depends(get_db)):
     log_admin_action(0, "generate_world", "world", None, req.dict())
     return {"success": True, "total": total}
 
-@router.get("/admin/world/map_data")
+@router.get("/world/map_data")
 def get_admin_map_data(token: str, db: Session = Depends(get_db)):
     require_admin(token)
     cells = db.query(MapCell).options(joinedload(MapCell.terrain)).all()

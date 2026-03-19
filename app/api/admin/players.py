@@ -15,7 +15,7 @@ class PlayerStats(BaseModel):
     tech_level: int
     regierungsform: str
 
-@router.get("/dashboard", response_model=List[PlayerStats])
+@router.get("/players", response_model=List[PlayerStats])
 def get_admin_players(token: str, db: Session = Depends(get_db)):
     require_admin(token)
     
@@ -51,7 +51,7 @@ class SetStatsRequest(BaseModel):
     moral: Optional[int] = None
     gesundheit: Optional[int] = None
 
-@router.post("/world/province/{x}/{y}")
+@router.post("/province/{id}/set")
 def admin_set_province_stats(id: int, req: SetStatsRequest, token: str, db: Session = Depends(get_db)):
     admin = require_admin(token)
     prov = db.query(Province).filter(Province.id == id).first()
@@ -70,7 +70,7 @@ def admin_set_province_stats(id: int, req: SetStatsRequest, token: str, db: Sess
 class AddMipsRequest(BaseModel):
     amount: float
 
-@router.get("/world/map_data")
+@router.post("/province/{id}/mips")
 def admin_add_mips(id: int, req: AddMipsRequest, token: str, db: Session = Depends(get_db)):
     admin = require_admin(token)
     prov = db.query(Province).filter(Province.id == id).first()
