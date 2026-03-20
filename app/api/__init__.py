@@ -14,7 +14,7 @@ from app.api.city_grid import router as city_grid_router
 from app.api.help import router as help_router
 
 # Create main API router
-api_router = APIRouter()
+api_router = APIRouter(prefix="/api")
 
 # Include all sub-routers
 api_router.include_router(auth_router)

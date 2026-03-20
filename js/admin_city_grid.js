@@ -6,7 +6,8 @@ let cityConfigs = {}; // Cached configs per level
 
 async function loadCityGridConfigs() {
     try {
-        const res = await fetch('/api/admin/city-config?token=' + localStorage.getItem('token'));
+        const token = AuthService.getAccessToken();
+        const res = await fetch('/api/admin/city-config?token=' + token);
         if (!res.ok) throw new Error("Could not load city configs");
         cityConfigs = await res.json();
         loadCityGridLevel(); // Initial draw
@@ -59,7 +60,8 @@ async function saveCityGridLevel() {
     });
     
     try {
-        const res = await fetch('/api/admin/city-config?token=' + localStorage.getItem('token'), {
+        const token = AuthService.getAccessToken();
+        const res = await fetch('/api/admin/city-config?token=' + token, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ level, unlocked_fields })
@@ -77,7 +79,8 @@ async function syncProvinceFields() {
     if (!confirm("Dies initialisiert die Grid-Felder für alle Provinzen in der DB, falls noch nicht vorhanden. Fortfahren?")) return;
     
     try {
-        const res = await fetch('/api/admin/city-config/sync-provinces?token=' + localStorage.getItem('token'), {
+        const token = AuthService.getAccessToken();
+        const res = await fetch('/api/admin/city-config/sync-provinces?token=' + token, {
             method: 'POST'
         });
         const data = await res.json();

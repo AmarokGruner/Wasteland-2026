@@ -13,9 +13,15 @@ class TerrainType(Base):
     playable = Column(Integer, default=1)
     color = Column(String)
     icon = Column(String)
-    beschreibung = Column(String)
-    bild_url = Column(String)
+    beschreibung = Column(String, default='')
+    bild_url = Column(String, default='')
     gif_filename = Column(String)
+    
+    startgebiet = Column(Integer, default=0)
+    regen_pct = Column(Integer, default=0)
+    aufwertungen_json = Column('aufwertungen', String, default='[]')
+    abwertungen_json = Column('abwertungen', String, default='[]')
+    gebaeude_effektivitaet_json = Column('gebaeude_effektivitaet', String, default='{}')
     
     # Costs
     mips_kosten = Column(Integer, default=0)
@@ -32,18 +38,15 @@ class TerrainType(Base):
 
 class MapCell(Base):
     __tablename__ = 'world_map_cells'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    x = Column(Integer, nullable=False)
-    y = Column(Integer, nullable=False)
+    x = Column(Integer, primary_key=True, nullable=False)
+    y = Column(Integer, primary_key=True, nullable=False)
     terrain_id = Column(Integer, ForeignKey('terrain_typen.id'), nullable=False)
     owner_id = Column(Integer, ForeignKey('players.id'), nullable=True)
     is_ruin_province = Column(Integer, default=0)
     has_ocean_border = Column(Integer, default=0)
-    
+
     terrain = relationship("TerrainType")
     owner = relationship("Player")
-    
-    __table_args__ = (UniqueConstraint('x', 'y', name='_x_y_uc'),)
 
 class Player(Base):
     __tablename__ = 'players'
@@ -606,6 +609,8 @@ class Regierungsform(Base):
     krieg_moeglich = Column(Integer, default=0)
     provinzanzahl_bis_malus = Column(Integer, default=2)
     malus_beschreibung = Column(String, default='')
+    boni = Column(String, default='{}')
+    voraussetzungen = Column(String, default='{}')
 
 class ProvinceField(Base):
     __tablename__ = 'province_fields'
@@ -632,6 +637,23 @@ class CityExpansionConfig(Base):
     @unlocked_fields.setter
     def unlocked_fields(self, value):
         self.unlocked_fields_json = json.dumps(value)
+
+class Article(Base):
+    __tablename__ = 'artikel'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    spezies = Column(String)
+    einheittext = Column(String)
+    modultyp = Column(String)
+    zugehoerig = Column(String)
+    bautyp = Column(String)
+    produktionspunkte = Column(Integer)
+    rohstoffbedarf_json = Column(String, default="[]")
+    modulgroesse = Column(Integer)
+    auswirkung_einheitenwerte_json = Column(String, default="{}")
+    beschreibung = Column(String)
+    transportkapazitaet_json = Column(String, default="{}")
+    platzbedarf_json = Column(String, default="{}")
 
 # Aliases for compatibility
 BuildingTemplate = BuildingType

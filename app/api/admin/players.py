@@ -5,7 +5,7 @@ from app.api.admin.users import require_admin, log_admin_action
 from pydantic import BaseModel
 from typing import List, Optional
 
-router = APIRouter(prefix="/admin", tags=["Admin-Players"])
+router = APIRouter(tags=["Admin-Players"])
 
 class PlayerStats(BaseModel):
     id: int

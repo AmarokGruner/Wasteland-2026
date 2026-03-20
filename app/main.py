@@ -60,7 +60,11 @@ async def read_root():
 
 @app.get("/admin.html")
 async def serve_admin():
-    return FileResponse("admin.html")
+    response = FileResponse("admin.html")
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 @app.get("/login.html")
 async def serve_login():

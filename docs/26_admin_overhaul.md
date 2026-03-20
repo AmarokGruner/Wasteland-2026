@@ -176,15 +176,16 @@ Endpoint: POST /admin/broadcast {"recipient":"all"/"player_id", "subject", "body
 
 ---
 
-## 7. Weltkarte Tab (NEU - visuell)
+## 7. Weltkarte Tab (Editor)
 
 ```
-Mini-Canvas der Weltkarte (read-only mit Klick-Interaktion):
-- Farben: Spieler-Farbe = Diplomatie-Farbe (wie in FAQ 2.2)
-- Hover: zeigt Provinzname + Besitzer + Terrain
-- Klick → Sidebar: Provinz-Detail + Admin-Aktionen:
-    [Terrain ändern ▾] [Ruinen platzieren] [Besitzer ändern] [Provinz zurücksetzen]
-- Legende: Terrain-Typen + Spieler-Farben
+Interaktives Grid der Weltkarte (50x50):
+- Visuell: Zeigt echte Terrain-GIF-Grafiken (`bild_url`) statt nur Farben.
+- Palette: Rechts/Links-Sidebar mit Bild-Vorschauen für alle Geländearten.
+- Resilienz: Frontend-Lookup (Palette -> Grid) garantiert Anzeige auch bei verzögerten Backend-Updates.
+- Hover: Zeigt Provinzname + Besitzer + Terrain-Details.
+- Klick → Werkzeug-Anwendung: Terrain pinseln, Ruinen setzen oder Besitzer zuweisen.
+- Legende: Automatisch generiert aus den verfügbaren Terrain-Typen.
 ```
 
 ---

@@ -1,19 +1,20 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models import get_db, MapCell, Province, Player, TerrainType
 from app.api.admin.users import require_admin, log_admin_action
 from pydantic import BaseModel
 from typing import List, Optional
 
-router = APIRouter(prefix="/admin/world", tags=["Admin-World"])
+router = APIRouter(tags=["Admin-World"])
 
+# Request model for updating a province/map cell via admin endpoint
 class AdminProvinceUpdate(BaseModel):
     terrain_id: Optional[int] = None
     is_ruin: Optional[bool] = None
     owner_id: Optional[int] = None
     reset_province: Optional[bool] = False
 
-@router.post("/province/{x}/{y}")
+@router.post("/world/province/{x}/{y}")
 def admin_update_province(x: int, y: int, req: AdminProvinceUpdate, token: str, db: Session = Depends(get_db)):
     require_admin(token)
     
@@ -43,11 +44,60 @@ def admin_update_province(x: int, y: int, req: AdminProvinceUpdate, token: str, 
     log_admin_action(0, "admin_update_province", "map_cell", f"{x},{y}", req.dict())
     return {"success": True}
 
-@router.get("/map_data")
+class MapImport(BaseModel):
+    map_data: List[List[str]]
+
+class MapGenerate(BaseModel):
+    width: int
+    height: int
+    seed: Optional[int] = None
+
+@router.post("/world/import-static")
+def import_static_map(req: MapImport, token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    
+    # Delete old map
+    db.query(MapCell).delete()
+    
+    terrain_map = {t.name: t.id for t in db.query(TerrainType).all()}
+    
+    imported = 0
+    for y, row in enumerate(req.map_data):
+        for x, tname in enumerate(row):
+            tid = terrain_map.get(tname)
+            cell = MapCell(x=x, y=y, terrain_id=tid)
+            db.add(cell)
+            imported += 1
+            
+    db.commit()
+    log_admin_action(0, "import_static_map", "world", None, {"cells": imported})
+    return {"success": True, "imported": imported}
+
+@router.post("/world/generate")
+def generate_world(req: MapGenerate, token: str, db: Session = Depends(get_db)):
+    require_admin(token)
+    
+    db.query(MapCell).delete()
+    
+    # Simple generation: mostly ocean (id 1 usually) or first terrain
+    first_terrain = db.query(TerrainType).first()
+    tid = first_terrain.id if first_terrain else None
+    
+    total = 0
+    for y in range(req.height):
+        for x in range(req.width):
+            cell = MapCell(x=x, y=y, terrain_id=tid)
+            db.add(cell)
+            total += 1
+    
+    db.commit()
+    log_admin_action(0, "generate_world", "world", None, req.dict())
+    return {"success": True, "total": total}
+
+@router.get("/world/map_data")
 def get_admin_map_data(token: str, db: Session = Depends(get_db)):
     require_admin(token)
-    # Similar to public map but maybe with more info
-    cells = db.query(MapCell).all()
+    cells = db.query(MapCell).options(joinedload(MapCell.terrain)).all()
     players = db.query(Player).all()
     player_colors = {p.id: getattr(p, 'color', '#cccccc') for p in players}
     
@@ -57,6 +107,7 @@ def get_admin_map_data(token: str, db: Session = Depends(get_db)):
                 "x": c.x, "y": c.y, 
                 "terrain": c.terrain.name if c.terrain else "Ozean",
                 "owner_id": c.owner_id,
+                "bild_url": c.terrain.bild_url if c.terrain else "/terrains/ozean.gif",
                 "color": player_colors.get(c.owner_id, "#ffffff") if c.owner_id else (c.terrain.color if c.terrain else "#0000ff")
             } for c in cells
         ]

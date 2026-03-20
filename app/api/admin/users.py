@@ -6,7 +6,7 @@ import json
 from app.database import get_connection
 from app.api.auth import get_token_user, create_access_token
 
-router = APIRouter(prefix="/admin", tags=["Admin"])
+router = APIRouter(tags=["Admin-Data-Editors"])
 
 # --- Helper Functions ---
 def require_admin(token: str):
@@ -39,7 +39,11 @@ def get_users(token: str):
     
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, username, role, player_id FROM users")
+    cur.execute("""
+        SELECT u.id, u.username, u.role, u.player_id, p.name as player_name 
+        FROM users u
+        LEFT JOIN players p ON u.player_id = p.id
+    """)
     rows = cur.fetchall()
     conn.close()
     

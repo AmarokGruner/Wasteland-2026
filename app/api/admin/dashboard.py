@@ -5,9 +5,9 @@ from app.models import get_db, Player, Province, Army, GameLogEntry
 from app.api.admin.users import require_admin
 import datetime
 
-router = APIRouter(prefix="/admin/dashboard", tags=["Admin-Dashboard"])
+router = APIRouter(tags=["Admin-Dashboard"])
 
-@router.get("")
+@router.get("/dashboard")
 def get_dashboard_stats(token: str, db: Session = Depends(get_db)):
     require_admin(token)
     

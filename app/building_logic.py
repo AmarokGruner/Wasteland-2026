@@ -175,12 +175,11 @@ def build_building(db: Session, template_id: int, province_id: int, x: int, y: i
     )
     
     return {
-            "id": new_instance.id,
-            "template_id": new_instance.gebaeude_typ_id,
-            "level": new_instance.level,
-            "x": new_instance.x,
-            "y": new_instance.y
-        },
+        "id": new_instance.id,
+        "template_id": new_instance.gebaeude_typ_id,
+        "level": new_instance.level,
+        "x": new_instance.x,
+        "y": new_instance.y,
         "ap_remaining": province.arbeitspunkte_current,
         "mips_remaining": province.mips
     }

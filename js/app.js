@@ -2,9 +2,7 @@
 // Hauptlogik – Verbrannte Zone
 // ============================================================
 
-const APIBASE = window.location.protocol === 'https:'
-  ? `https://${window.location.host}`
-  : 'http://localhost:8000';
+const APIBASE = ""; // gameFetch in index.html handles /api prefix now
 window.APIBASE = APIBASE;
 
 // Auth check on load

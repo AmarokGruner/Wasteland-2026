@@ -40,6 +40,32 @@ def get_world_map(db: Session = Depends(get_db)):
         "province_ids": grid_prov_ids
     }
 
+@router.get("/buildings")
+def get_buildings(db: Session = Depends(get_db)):
+    """Get all building types and their properties for the client"""
+    from app.models import BuildingType
+    buildings = db.query(BuildingType).all()
+    result = []
+    for b in buildings:
+        # Map to expected frontend format if necessary, or just return all
+        import json
+        res = {
+            "id": b.id,
+            "name": b.name,
+            "kategorie": b.kategorie,
+            "baubar": bool(b.baubar),
+            "arbeiter": b.arbeiter,
+            "wohnraum": b.wohnraum,
+            "lagerkapazitaet": b.lagerkapazitaet,
+            "tech_level": b.tech_level,
+            "baukosten_mips": b.baukosten_mips,
+            "symbol_emoji": b.symbol_emoji,
+            "produktion": json.loads(b.produktion_json) if b.produktion_json else [],
+            "terrain_effektivitaet": json.loads(b.terrain_effektivitaet_json) if b.terrain_effektivitaet_json else {}
+        }
+        result.append(res)
+    return result
+
 @router.get("/terrains")
 def get_terrains(db: Session = Depends(get_db)):
     """Get all terrain types and their properties"""
