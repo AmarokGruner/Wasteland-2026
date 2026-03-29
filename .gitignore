@@ -35,5 +35,5 @@ build/
 Thumbs.db
 
 # Local data / DBs
-*.db
+#*.db
 *.sqlite3
