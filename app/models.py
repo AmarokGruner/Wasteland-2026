@@ -1,10 +1,7 @@
+from .database import Base
 from sqlalchemy import Column, Integer, Float, String, ForeignKey, JSON, DateTime, func, UniqueConstraint, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy.orm import relationship
 import json
-
-Base = declarative_base()
 
 class TerrainType(Base):
     __tablename__ = 'terrain_typen'
@@ -542,10 +539,15 @@ class UnitType(Base):
     __tablename__ = 'einheiten_typen'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    geschwindigkeit = Column(Float, default=1.0)
-    transport_land = Column(Integer, default=1)
+    spezies = Column(String, default='Menschen')
+    einheitenklasse = Column(String, default='Infanterie')
+    kategorie = Column(String, default='Infanterie')
+    kosten_mips = Column(Integer, default=0)
+    kosten_muenzen = Column(Integer, default=0)
+    zugsgeschwindigkeit = Column(Float, default=1.0)
+    transport_kapazitaet = Column(Integer, default=1)
     einheitengroesse = Column(Integer, default=1)
-    module_json = Column(String, default="[]")  # JSON array of modules
+    module = Column(String, default="[]")  # Changed from module_json
 
 class ProvinceUnit(Base):
     __tablename__ = 'provinz_einheiten'
@@ -642,27 +644,29 @@ class Article(Base):
     __tablename__ = 'artikel'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    kategorie = Column(String, default='Allgemein')
+    preis_mips = Column(Integer, default=0)
+    preis_muenzen = Column(Integer, default=0)
     spezies = Column(String)
     einheittext = Column(String)
     modultyp = Column(String)
     zugehoerig = Column(String)
     bautyp = Column(String)
     produktionspunkte = Column(Integer)
-    rohstoffbedarf_json = Column(String, default="[]")
+    rohstoffbedarf = Column(String, default="[]")
     modulgroesse = Column(Integer)
-    auswirkung_einheitenwerte_json = Column(String, default="{}")
+    auswirkung_einheitenwerte = Column(String, default="{}")
     beschreibung = Column(String)
-    transportkapazitaet_json = Column(String, default="{}")
-    platzbedarf_json = Column(String, default="{}")
+    transportkapazitaet = Column(String, default="{}")
+    platzbedarf = Column(String, default="{}")
 
 # Aliases for compatibility
 BuildingTemplate = BuildingType
 
-# Engine setup
-engine = create_engine('sqlite:///verbrannte_zone.db')
-Base.metadata.create_all(engine)
+from .database import engine, SessionLocal
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Ensure tables are created at startup
+Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()

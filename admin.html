@@ -360,6 +360,60 @@
             color: var(--accent);
         }
 
+        .terrain-item.active {
+            border: 2px solid var(--accent);
+            background: rgba(205, 133, 63, 0.2);
+        }
+
+        /* Generation Filter styles */
+        .gen-filter-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .gen-filter-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            padding: 10px;
+            width: 250px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .gen-filter-dropdown.active {
+            display: block;
+        }
+
+        .gen-filter-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+        }
+
+        .gen-filter-item:hover {
+            background: #252525;
+        }
+
+        .gen-filter-item input {
+            cursor: pointer;
+        }
+
+        .palette-checkbox {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
         .dropdown {
             position: relative;
             display: inline-block;
@@ -376,11 +430,6 @@
             border-radius: 0 0 4px 4px;
             top: 100%;
             left: 0;
-        }
-
-        .dropdown-content .admin-nav-item {
-            display: block;
-            border-bottom: none;
         }
 
         .dropdown:hover .dropdown-content {
@@ -1415,6 +1464,7 @@
             if (tabId === 'lebewesen') loadLebewesen();
             if (tabId === 'gebaeude_felder') loadGebaeudeFelder();
             if (tabId === 'artikel') loadArtikel();
+            if (tabId === 'ticks') loadTickEngine();
         }
 
         // Init Tabs
@@ -1460,7 +1510,7 @@
                 `);
 
                 renderTable('table-inactive-players', data.inactive_players, i => `
-                    <tr><td>${i.player}</td><td>${i.last_login || 'Nie'}</td><td>${i.province_count}</td></tr>
+                    <tr><td>${i.player}</td><td>${i.last_login || '<span style="color:var(--text-muted)">Nie</span>'}</td><td>${i.province_count}</td></tr>
                 `);
             } catch (e) { console.error(e); }
         }
@@ -2642,6 +2692,8 @@
                 palette.innerHTML = terrains.map(t => `
                     <div style="padding: 5px; margin-bottom: 5px; border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 8px;" 
                          onclick="selectAdminTerrain(${t.id})" id="palette_btn_${t.id}">
+                        <input type="checkbox" class="palette-checkbox" data-id="${t.id}" checked 
+                               onclick="event.stopPropagation()" style="cursor: pointer; width: 16px; height: 16px;">
                         <div style="width: 25px; height: 25px; background: ${t.color || '#333'} url(${t.bild_url}) center/cover; border: 1px solid #000;"></div>
                         <span>${t.icon || ''} ${t.name}</span>
                     </div>
@@ -2850,12 +2902,24 @@
             const w = document.getElementById('genMapW').value || 50;
             const h = document.getElementById('genMapH').value || 50;
             const seed = document.getElementById('genMapSeed').value || null;
+
+            // Collect excluded IDs (those NOT checked in palette)
+            const excludedIds = [];
+            document.querySelectorAll('#paletteItems .palette-checkbox').forEach(cb => {
+                if (!cb.checked) excludedIds.push(parseInt(cb.getAttribute('data-id')));
+            });
+
             document.getElementById('mapStatus').textContent = "Generiere...";
             try {
                 const res = await adminFetch(`${APIBASE}/admin/world/generate?token=${token}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ width: parseInt(w), height: parseInt(h), seed: seed ? parseInt(seed) : null })
+                    body: JSON.stringify({
+                        width: parseInt(w),
+                        height: parseInt(h),
+                        seed: seed ? parseInt(seed) : null,
+                        excluded_terrain_ids: excludedIds
+                    })
                 });
                 if (res.ok) {
                     alert("Karte erfolgreich generiert!");

@@ -29,6 +29,7 @@ def run_tick(db: Session):
     lock.last_run = datetime.datetime.now()
     db.commit()
     
+    now = datetime.datetime.now()
     provinces_total = 0
     errors = []
     
@@ -67,7 +68,6 @@ def run_tick(db: Session):
                             continue
                     
                     # Sammeln/Jagen logic (once per day at midnight)
-                    now = datetime.datetime.now()
                     if now.hour == 0:
                         from app.sammler_jaeger_logic import get_sammeln_loot, get_jagd_loot
                         from app.models import ProvinceSettings
