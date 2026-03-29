@@ -1,0 +1,20 @@
+# Environment files (credentials)
+.env
+
+# Cache files (raw HTML)
+cache/*
+!cache/.gitkeep
+
+# Log files
+logs/*
+!logs/.gitkeep
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDE
+.vscode/
+.idea/

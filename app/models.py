@@ -20,6 +20,10 @@ class TerrainType(Base):
     abwertungen_json = Column('abwertungen', String, default='[]')
     gebaeude_effektivitaet_json = Column('gebaeude_effektivitaet', String, default='{}')
     
+    # Additional terrain data from webcrawler
+    grundwasserspiegel = Column(Float, default=50.0)
+    durchschnittliche_feuchtigkeit = Column(Float, default=50.0)
+    
     # Costs
     mips_kosten = Column(Integer, default=0)
     
@@ -257,9 +261,13 @@ class BuildingType(Base):
     lagerkapazitaet = Column(Integer, default=0)
     terrain_effektivitaet = Column(String, default='{}') # JSON string
     
+    # Image/Logo URLs (from webcrawler)
+    icon_url = Column(String, default='')  # Gebäudesymbol
+    bild_url = Column(String, default='')   # Gebäudebild
+    
     # New columns for building system
     kategorie = Column(String)
-    bautyp = Column(String) # Land/Stadt/Stadtausbau/Weg/Wegkreuzung
+    Bautyp = Column(String) # Land/Stadt/Stadtausbau/Weg/Wegkreuzung
     baubar = Column(Integer, default=1)
     ausbaubar = Column(Integer, default=0)
     unique_gebaeude = Column(Integer, default=0)
@@ -383,6 +391,7 @@ class Vorkommen(Base):
     tech = Column(Integer, default=0)
     suchkosten = Column(Integer, default=100)
     findwahrscheinlichkeit = Column(String, default='{}') # JSON {terrain: probability}
+    bild_url = Column(String, default='')  # Vorkommen image from webcrawler
     
     def get_probability(self, terrain_name: str) -> float:
         import json
@@ -460,6 +469,7 @@ class AnimalTemplate(Base):
     breed_output_resource_id = Column(Integer, ForeignKey('ressourcen.id'), nullable=True) # e.g. Eier from Hühner
     breed_rate = Column(Float, default=0.1) # 10% growth per day
     is_pflanzenfresser = Column(Integer, default=1)
+    bild_url = Column(String, default='')  # Animal image from webcrawler
     
     resource = relationship("Resource", foreign_keys=[resource_id])
     feed_resource = relationship("Resource", foreign_keys=[feed_resource_id])
@@ -548,6 +558,7 @@ class UnitType(Base):
     transport_kapazitaet = Column(Integer, default=1)
     einheitengroesse = Column(Integer, default=1)
     module = Column(String, default="[]")  # Changed from module_json
+    bild_url = Column(String, default='')  # Unit image from webcrawler
 
 class ProvinceUnit(Base):
     __tablename__ = 'provinz_einheiten'
@@ -613,6 +624,7 @@ class Regierungsform(Base):
     malus_beschreibung = Column(String, default='')
     boni = Column(String, default='{}')
     voraussetzungen = Column(String, default='{}')
+    bild_url = Column(String, default='')  # Government form image from webcrawler
 
 class ProvinceField(Base):
     __tablename__ = 'province_fields'
@@ -659,6 +671,7 @@ class Article(Base):
     beschreibung = Column(String)
     transportkapazitaet = Column(String, default="{}")
     platzbedarf = Column(String, default="{}")
+    bild_url = Column(String, default='')  # Article image from webcrawler
 
 # Aliases for compatibility
 BuildingTemplate = BuildingType
