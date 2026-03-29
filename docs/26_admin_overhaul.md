@@ -225,3 +225,34 @@ searchInput.addEventListener('input', () => {
 - Account Reset: max 1x per 24h per player (timestamp check)
 - Broadcast body: max 2000 Zeichen
 - Ban: Bestätigungs-Dialog mit Spielername eintippen (Sicherheit)
+
+---
+
+## 8. Fehlerbehebung & Stabilisierung (März 2026)
+
+Im Rahmen der Qualitätssicherung wurden mehrere kritische Fehler im Admin-Backend behoben, die durch Architektur-Inkonsistenzen entstanden waren.
+
+### 8a. SQLAlchemy Model Mismatch (Einheiten & Artikel)
+**Fehler:** `/api/admin/einheiten` und `/api/admin/artikel` gaben einen `500 Internal Server Error` zurück.
+**Ursache:** Die Attribute in `app/models.py` (z.B. `rohstoffbedarf_json`) stimmten nicht mit den tatsächlichen Spaltennamen in der SQLite-Datenbank überein (z.B. `rohstoffbedarf`). SQLAlchemy generierte dadurch SQL-Statements für nicht existente Spalten.
+**Lösung:** 
+- Anpassung der Attributnamen in `models.py` an das reale DB-Schema.
+- Durchführung einer Migration, um fehlende Spalten (wie `zugsgeschwindigkeit`) in `einheiten_typen` zu ergänzen.
+
+### 8b. API Router Shadowing (Ticks)
+**Fehler:** `/api/admin/ticks/status` gab einen `422 Unprocessable Entity` Fehler zurück.
+**Ursache:** Im `admin/__init__.py` wurde der generische `data_editors`-Router *vor* dem `ticks`-Router eingebunden. Da der `data_editors`-Router eine generische Route `/{entity}/{id}` besitzt, wurde `/admin/ticks/status` fälschlicherweise als `entity='ticks'` und `id='status'` (Integer-Parsing Fehler) interpretiert.
+**Lösung:** Umstellen der Router-Inclusion-Reihenfolge. Generische Catch-All oder CRUD-Router müssen immer *nach* spezifischen Routen eingebunden werden.
+
+### 8c. Frontend Lifecycle & Aktivierung
+**Fehler:** Der Ticks-Tab blieb beim ersten Aufruf im Ladezustand ("Laden...").
+**Ursache:** Die Funktion `showAdminTab()` in `admin.html` enthielt keinen Trigger für `loadTickEngine()`, sodass die Daten beim Tab-Wechsel nicht angefordert wurden.
+**Lösung:** Ergänzung des Triggers `if (tabId === 'ticks') loadTickEngine();` in der zentralen Navigationslogik.
+
+---
+
+## Best Practices für zukünftige Erweiterungen
+
+1.  **Schema-Validierung**: Vor der Definition neuer SQLAlchemy-Modelle immer das reale Schema per `PRAGMA table_info` prüfen.
+2.  **Router-Priorität**: Neue Router in `app/api/admin/__init__.py` immer *vor* dem `data_editors_router` einbinden, um Shadowing zu vermeiden.
+3.  **Frontend-Trigger**: Bei neuen Tabs sicherstellen, dass die entsprechende `loadX()` Funktion in `showAdminTab()` registriert ist.

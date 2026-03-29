@@ -68,7 +68,7 @@ def process_climate_tick(db: Session, province_id: int) -> dict:
     else:
         climate.is_raining_now = 0
     
-    climate.bodenfeuchtigkeit = max(0, min(100, climate.bodenfechtigkeit * 0.9958))
+    climate.bodenfeuchtigkeit = max(0, min(100, climate.bodenfeuchtigkeit * 0.9958))
     climate.grundwasserspiegel = max(0, min(100, climate.grundwasserspiegel))
     
     db.commit()
@@ -153,6 +153,7 @@ def get_climate_data(db: Session, province_id: int) -> dict:
         "rain_probability": terrain_config.rain_probability,
         "average_moisture": terrain_config.average_moisture
     }
+
 
 def irrigate_province(db: Session, province_id: int, water_amount: float):
     """Raises bodenfeuchtigkeit by irrigation."""

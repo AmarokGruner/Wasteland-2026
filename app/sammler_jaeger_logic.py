@@ -80,6 +80,22 @@ def apply_feiertag(db: Session, province_id: int):
         "feiertag_expires_at": settings.feiertag_expires_at.isoformat()
     }
 
+def check_and_process_feiertag(db: Session, province_id: int):
+    """
+    Checks if a feiertag is active and has expired.
+    Resets the flag if necessary.
+    """
+    settings = db.query(ProvinceSettings).filter(
+        ProvinceSettings.province_id == province_id
+    ).first()
+    
+    if settings and settings.feiertag_active:
+        if settings.feiertag_expires_at and settings.feiertag_expires_at <= datetime.now():
+            settings.feiertag_active = 0
+            db.commit()
+            return True
+    return False
+
 def get_sammeln_loot(db: Session, province_id: int):
     province = db.query(Province).filter(Province.id == province_id).first()
     if not province:
