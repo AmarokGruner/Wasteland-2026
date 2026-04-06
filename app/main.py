@@ -82,6 +82,7 @@ async def serve_index():
 app.mount("/js", StaticFiles(directory="js"), name="js")
 app.mount("/css", StaticFiles(directory="css"), name="css")
 app.mount("/terrains", StaticFiles(directory="terrains"), name="terrains")
+app.mount("/admin", StaticFiles(directory="admin"), name="admin")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

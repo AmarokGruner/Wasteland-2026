@@ -12,9 +12,10 @@ from app.api.gamelog import router as gamelog_router
 from app.api.messages import router as messages_router
 from app.api.city_grid import router as city_grid_router
 from app.api.help import router as help_router
+from app.api.crawler import router as crawler_router
 
-# Create main API router
-api_router = APIRouter(prefix="/api")
+# Create main API router (without /api prefix, since sub-routers have their own prefixes)
+api_router = APIRouter()
 
 # Include all sub-routers
 api_router.include_router(auth_router)
@@ -28,5 +29,6 @@ api_router.include_router(gamelog_router)
 api_router.include_router(messages_router)
 api_router.include_router(city_grid_router)
 api_router.include_router(help_router)
+api_router.include_router(crawler_router)
 
 __all__ = ["api_router"]

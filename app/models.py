@@ -1,4 +1,4 @@
-from .database import Base
+from .database import Base, engine
 from sqlalchemy import Column, Integer, Float, String, ForeignKey, JSON, DateTime, func, UniqueConstraint, Boolean
 from sqlalchemy.orm import relationship
 import json
@@ -676,12 +676,81 @@ class Article(Base):
 # Aliases for compatibility
 BuildingTemplate = BuildingType
 
-from .database import engine, SessionLocal
+
+# ─── Webcrawler Models ────────────────────────────────────────────────
+
+class CrawlSession(Base):
+    """Tracks crawl runs (started, completed, approved)"""
+    __tablename__ = 'crawl_sessions'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    started_at = Column(DateTime, server_default=func.now())
+    completed_at = Column(DateTime, nullable=True)
+    status = Column(String, default='pending')  # pending, running, completed, failed
+    categories = Column(String, default='[]')  # JSON list of categories
+    dry_run = Column(Boolean, default=False)
+    total_changes = Column(Integer, default=0)
+    approved_changes = Column(Integer, default=0)
+    error_message = Column(String, nullable=True)
+    
+    changes = relationship("CrawlChange", back_populates="session", cascade="all, delete-orphan")
+
+
+class CrawlChange(Base):
+    """Individual pending changes from a crawl session"""
+    __tablename__ = 'crawl_changes'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    session_id = Column(Integer, ForeignKey('crawl_sessions.id'), nullable=False)
+    category = Column(String, nullable=False)  # gebaeude, rohstoffe, etc.
+    action = Column(String, nullable=False)  # INSERT, UPDATE, REJECT
+    record_id = Column(Integer, nullable=False)  # ID of the record in source
+    table_name = Column(String, nullable=False)  # Target table name
+    
+    # Old data (for UPDATE actions)
+    old_data_json = Column(String, nullable=True)
+    # New data (proposed changes)
+    new_data_json = Column(String, nullable=False)
+    # Fields that changed
+    changed_fields = Column(String, default='[]')
+    
+    # Approval status
+    approved = Column(Boolean, default=False)
+    rejected = Column(Boolean, default=False)
+    
+    # Timestamps
+    detected_at = Column(DateTime, server_default=func.now())
+    approved_at = Column(DateTime, nullable=True)
+    
+    session = relationship("CrawlSession", back_populates="changes")
+    
+    @property
+    def old_data(self):
+        if self.old_data_json:
+            import json as stdlib_json
+            return stdlib_json.loads(self.old_data_json)
+        return {}
+    
+    @property
+    def new_data(self):
+        import json as stdlib_json
+        return stdlib_json.loads(self.new_data_json)
+    
+    @property
+    def changed_fields_list(self):
+        if self.changed_fields:
+            import json as stdlib_json
+            return stdlib_json.loads(self.changed_fields)
+        return []
+
 
 # Ensure tables are created at startup
 Base.metadata.create_all(bind=engine)
 
+from .database import SessionLocal
+
 def get_db():
+    """Dependency injection für Datenbank-Session"""
     db = SessionLocal()
     try:
         yield db

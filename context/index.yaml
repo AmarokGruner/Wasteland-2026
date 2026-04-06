@@ -1,47 +1,65 @@
-version: "v2.3.0"
-updated_at: "2026-03-16T18:00:00Z"
+# Agent Context Index v2.3.0
+# Block-Index für KI-Agent Onboarding
+
+version: "2.3.0"
+updated_at: "2026-04-05T00:00:00Z"
+
 blocks:
-- id: "b-backend-health"
-  path: "blocks/b-backend-health.yaml"
-- id: "b-backend-architecture"
-  path: "blocks/b-backend-architecture.yaml"
-- id: "b-backend-readme-summary"
-  path: "blocks/b-backend-readme-summary.yaml"
-- id: "b-backend-endpoints"
-  path: "blocks/b-backend-endpoints.yaml"
-- id: "b-world-endpoints"
-  path: "blocks/b-world-endpoints.yaml"
-- id: "b-openapi-spec"
-  path: "blocks/b-openapi-spec.yaml"
-- id: "b-siedler-kolonisierung"
-  path: "blocks/b-siedler-kolonisierung.yaml"
-- id: "b-ui-interactions"
-  path: "blocks/b-ui-interactions.yaml"
-- id: "b-ui-component-library"
-  path: "blocks/b-ui-component-library.yaml"
-- id: "b-frontend-endpoints"
-  path: "blocks/b-frontend-endpoints.yaml"
-- id: "b-frontend-flow"
-  path: "blocks/b-frontend-flow.yaml"
-- id: "b-frontend-ux-guidelines"
-  path: "blocks/b-frontend-ux-guidelines.yaml"
-- id: "b-frontend-performance"
-  path: "blocks/b-frontend-performance.yaml"
-- id: "b-merged-master"
-  path: "blocks/b-merged-master.yaml"
-- id: "b-data-seeds"
-  path: "blocks/b-data-seeds.yaml"
-- id: "b-diplomacy-system"
-  path: "blocks/b-diplomacy-system.yaml"
-- id: "b-military-system"
-  path: "blocks/b-military-system.yaml"
-- id: "b-combat-system"
-  path: "blocks/b-combat-system.yaml"
-- id: "b-bunker-system"
-  path: "blocks/b-bunker-system.yaml"
-- id: "b-admin-overhaul"
-  path: "blocks/b-admin-overhaul.yaml"
-- id: "b-admin-endpoints"
-  path: "blocks/b-admin-endpoints.yaml"
-- id: "b-admin-panel"
-  path: "blocks/b-admin-panel.yaml"
+  # Core Overview
+  - id: "b-core-overview"
+    file: "blocks/b-core-overview.yaml"
+    domain: "backend"
+    tokens: 250
+
+  # API Endpoints
+  - id: "b-api-endpoints"
+    file: "blocks/b-api-endpoints.yaml"
+    domain: "backend"
+    tokens: 300
+
+  # Auth System
+  - id: "b-auth-system"
+    file: "blocks/b-auth-system.yaml"
+    domain: "security"
+    tokens: 250
+
+  # Webcrawler Integration
+  - id: "b-crawler-integration"
+    file: "blocks/b-crawler-integration.yaml"
+    domain: "backend"
+    tokens: 350
+
+  # Admin UI
+  - id: "b-admin-ui"
+    file: "blocks/b-admin-ui.yaml"
+    domain: "frontend"
+    tokens: 300
+
+  # Building System
+  - id: "b-building-system"
+    file: "blocks/b-building-system.yaml"
+    domain: "backend"
+    tokens: 350
+
+  # Data Models
+  - id: "b-data-models"
+    file: "blocks/b-data-models.yaml"
+    domain: "data"
+    tokens: 300
+
+  # Finance System
+  - id: "b-finance-system"
+    file: "blocks/b-finance-system.yaml"
+    domain: "backend"
+    tokens: 250
+
+seed_blocks:
+  startup: ["b-core-overview", "b-api-endpoints", "b-auth-system"]
+  backend: ["b-api-endpoints", "b-crawler-integration", "b-data-models"]
+  frontend: ["b-admin-ui", "b-building-system"]
+  full_context: ["b-core-overview", "b-api-endpoints", "b-auth-system", "b-crawler-integration", "b-admin-ui", "b-building-system", "b-data-models", "b-finance-system"]
+
+# KI-Agent Hinweise:
+# - Niemals alle Blocks gleichzeitig laden (max 5)
+# - seed_blocks.sturtup immer zuerst laden
+# - Nach Änderungen: updated_at in Block aktualisieren

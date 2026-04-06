@@ -545,6 +545,8 @@
             color: var(--text-muted);
         }
     </style>
+    <!-- Admin Core Styles -->
+    <link rel="stylesheet" href="/admin/styles/core.css">
 </head>
 
 <body>
@@ -579,6 +581,7 @@
         <div class="admin-nav-item" data-tab="gamelog">📋 Gamelog</div>
         <div class="admin-nav-item" data-tab="broadcast">📢 Broadcast</div>
         <div class="admin-nav-item" data-tab="ticks">⚙️ Ticks</div>
+        <div class="admin-nav-item" data-tab="crawler">🤖 Webcrawler</div>
     </nav>
 
     <div id="snackbar"></div>
@@ -655,7 +658,9 @@
                             <th>Aktionen</th>
                         </tr>
                     </thead>
-                    <tbody id="adminPlayersTable"></tbody>
+                    <tbody>
+                        <tr><td colspan="7" class="loading">Laden...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </section>
@@ -1225,6 +1230,93 @@
                     </table>
                 </div>
             </div>
+
+        <!-- Webcrawler Tab -->
+        <section id="tab-crawler" class="section">
+            <div class="card">
+                <h2>🤖 Webcrawler - Daten synchronisieren</h2>
+                <div class="crawler-setup">
+                    <div class="crawler-info">
+                        <h3>Webcrawler verwenden</h3>
+                        <p>Mit dem Webcrawler können Sie automatisch Daten von der Website (v3.verbranntezone.ch) abrufen und mit der lokalen Datenbank abgleichen.</p>
+                        <div class="crawler-categories">
+                            <h4>Zu prüfende Kategorien:</h4>
+                            <label><input type="checkbox" name="crawl-category" value="all" checked> Alle Kategorien</label>
+                            <label><input type="checkbox" name="crawl-category" value="gebaeude"> Gebäude</label>
+                            <label><input type="checkbox" name="crawl-category" value="rohstoffe"> Rohstoffe</label>
+                            <label><input type="checkbox" name="crawl-category" value="vorkommen"> Vorkommen</label>
+                            <label><input type="checkbox" name="crawl-category" value="terrains"> Terrains</label>
+                            <label><input type="checkbox" name="crawl-category" value="lebewesen"> Lebewesen</label>
+                            <label><input type="checkbox" name="crawl-category" value="artikel"> Artikel</label>
+                            <label><input type="checkbox" name="crawl-category" value="einheiten"> Einheiten</label>
+                            <label><input type="checkbox" name="crawl-category" value="regierungen"> Regierungsformen</label>
+                        </div>
+                        <div class="crawler-options">
+                            <label><input type="checkbox" id="dry-run"> Testmodus (Dry-Run) - Änderungen anzeigen, nicht speichern</label>
+                            <label><input type="checkbox" id="verbose"> Detaillierte Logs</label>
+                        </div>
+                    </div>
+                    <div class="crawler-actions">
+                        <button class="btn btn-primary btn-large" id="startCrawl">▶️ Starten</button>
+                        <button class="btn btn-secondary" id="stopCrawl">⏹️ Stoppen</button>
+                    </div>
+                </div>
+
+                <div id="crawlerStatus" class="crawler-status" style="display: none;">
+                    <div class="status-indicator">
+                        <span class="status-running">🔄 Crawler läuft...</span>
+                    </div>
+                    <div id="crawlerProgress"></div>
+                    <div id="crawlerError" class="status-error" style="display: none;"></div>
+                </div>
+
+                <div id="crawlerResults" class="crawler-results" style="display: none;">
+                    <h3>📊 Ergebnisse</h3>
+                    <p id="resultsSummary"></p>
+                    <div class="results-actions">
+                        <button class="btn btn-success" id="approveAll">✅ Alle freigeben & speichern</button>
+                        <button class="btn btn-danger" id="rejectAll">❌ Alle ablehnen</button>
+                    </div>
+
+                    <div class="pending-changes">
+                        <h4>Ausstehende Änderungen</h4>
+                        
+                        <div class="filter-controls" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                            <label>Filter nach Kategorie:</label>
+                            <select id="categoryFilter" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #555; background: var(--bg-dark); color: #fff;">
+                                <option value="all">Alle Kategorien</option>
+                                <option value="gebaeude">Gebäude</option>
+                                <option value="rohstoffe">Rohstoffe</option>
+                                <option value="vorkommen">Vorkommen</option>
+                                <option value="terrains">Terrains</option>
+                                <option value="lebewesen">Lebewesen</option>
+                                <option value="artikel">Artikel</option>
+                                <option value="einheiten">Einheiten</option>
+                                <option value="regierungen">Regierungsformen</option>
+                            </select>
+                            <button class="btn btn-small" onclick="applyCategoryFilter()">Anwenden</button>
+                            <button class="btn btn-small" onclick="exportPendingCSV()">📥 CSV</button>
+                            <button class="btn btn-small" onclick="exportPendingJSON()">📥 JSON</button>
+                        </div>
+                        
+                        <table id="crawlerChangesTable">
+                            <thead>
+                                <tr>
+                                    <th>Aktion</th>
+                                    <th>Kategorie</th>
+                                    <th>ID</th>
+                                    <th>Geänderte Felder</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5">Lade...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
         </section>
     </main>
 
@@ -1465,6 +1557,8 @@
             if (tabId === 'gebaeude_felder') loadGebaeudeFelder();
             if (tabId === 'artikel') loadArtikel();
             if (tabId === 'ticks') loadTickEngine();
+            if (tabId === 'crawler') loadCrawlerStatus();
+            if (tabId === 'crawler') loadCrawlerStatus();
         }
 
         // Init Tabs
@@ -3092,7 +3186,347 @@
         loadUsers();
         loadTerrain();
     </script>
+    
+    <!-- Admin Modular Scripts -->
+    <script type="module">
+        import { ENTITY_CONFIG } from '/admin/js/entities/config.js';
+        import { AdminRouter } from '/admin/js/core/router.js';
+        
+        window.ENTITY_CONFIG = ENTITY_CONFIG;
+        window.ENTITY_CONFIG = entityConfig;
+    </script>
+    <script src="/admin/js/services/utils.js"></script>
+    <script src="/admin/js/services/users.js"></script>
+    <script src="/admin/js/services/gamelog.js"></script>
+    <script src="/admin/js/services/broadcast.js"></script>
+    <script src="/admin/js/services/buildings.js"></script>
+    <script src="/admin/js/services/terrain.js"></script>
+    <script src="/admin/js/services/tick.js"></script>
+    <script src="/admin/js/services/crawler.js"></script>
+    <script src="/admin/js/components/dynamic-list.js"></script>
     <script src="/js/admin_city_grid.js"></script>
 </body>
 
 </html>
+
+<!-- Webcrawler CSS -->
+<style>
+.crawler-setup {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--bg-card);
+    border-radius: 8px;
+}
+.crawler-info h3, .crawler-info h4 {
+    margin-bottom: 10px;
+}
+.crawler-info p {
+    margin-bottom: 15px;
+    color: #aaa;
+}
+.crawler-categories label,
+.crawler-options label {
+    display: block;
+    margin-bottom: 5px;
+}
+.crawler-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+.crawler-status .status-indicator {
+    padding: 15px;
+    background: var(--bg-dark);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+.crawler-status .status-running {
+    color: var(--accent);
+    font-weight: bold;
+}
+.crawler-status .status-error {
+    color: var(--danger);
+    padding: 10px;
+    background: rgba(211, 47, 47, 0.1);
+    border-radius: 4px;
+}
+.pending-changes table {
+    width: 100%;
+    margin-top: 10px;
+}
+.pending-changes .action-btn {
+    margin: 0 2px;
+}
+.results-actions {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+    <!-- Crawler Change Detail Modal -->
+    <div id="crawlerDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Änderungsdetails</h3>
+                <button class="close" onclick="closeCrawlerDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="crawlerDetailContent">
+                    <div class="diff-container">
+                        <div class="diff-section old-data">
+                            <h4>Alte Werte</h4>
+                            <pre id="oldDataDisplay">-</pre>
+                        </div>
+                        <div class="diff-section new-data">
+                            <h4>Neue/Vorgeschlagene Werte</h4>
+                            <pre id="newDataDisplay">-</pre>
+                        </div>
+                    </div>
+                    <div class="diff-changes">
+                        <h4>Geänderte Felder</h4>
+                        <ul id="changedFieldsList"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeCrawlerDetailModal()">Schließen</button>
+                <button class="btn btn-danger" onclick="rejectCurrentCrawlChange()">❌ Ablehnen</button>
+                <button class="btn btn-success" onclick="approveCurrentCrawlChange()">✅ Freigeben</button>
+            </div>
+        </div>
+    </div>
+
+<style>
+/* Crawler Diff Modal Styles */
+.diff-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.diff-section {
+    padding: 15px;
+    border-radius: 8px;
+    background: var(--bg-dark);
+}
+.diff-section h4 {
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+.diff-section.old-data h4 {
+    color: #ff9800;
+}
+.diff-section.new-data h4 {
+    color: #4caf50;
+}
+.diff-section pre {
+    margin: 0;
+    padding: 10px;
+    background: var(--bg-darker);
+    border-radius: 4px;
+    font-size: 12px;
+    overflow-x: auto;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.diff-changes {
+    margin-top: 20px;
+}
+.diff-changes h4 {
+    margin-bottom: 10px;
+}
+.diff-changes ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.diff-changes li {
+    padding: 4px 12px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: 15px;
+    font-size: 13px;
+}
+
+<script>
+/** Crawler Modal Functions */
+let currentCrawlChangeId = null;
+
+function showCrawlerDetailModal(itemId, change) {
+    currentCrawlChangeId = itemId;
+    
+    // Fill data
+    const oldData = change.old_data || {};
+    const newData = change.new_data || {};
+    
+    document.getElementById('oldDataDisplay').textContent = 
+        oldData ? JSON.stringify(oldData, null, 2) : 'Keine alten Daten (NEUER Record)';
+    document.getElementById('newDataDisplay').textContent = 
+        JSON.stringify(newData, null, 2);
+    
+    // Changed fields
+    const fields = change.changed_fields_list || [];
+    const fieldsList = document.getElementById('changedFieldsList');
+    fieldsList.innerHTML = fields.length ? 
+        fields.map(f => `<li>${f}</li>`).join('') : 
+        '<li>Keine Feldänderungen dokumentiert</li>';
+    
+    // Show modal
+    document.getElementById('crawlerDetailModal').style.display = 'block';
+}
+
+function closeCrawlerDetailModal() {
+    document.getElementById('crawlerDetailModal').style.display = 'none';
+    currentCrawlChangeId = null;
+}
+
+async function approveCurrentCrawlChange() {
+    if (!currentCrawlChangeId) return;
+    
+    try {
+        const res = await adminFetch(`/api/admin/crawler/approve/${currentCrawlChangeId}`, {
+            method: 'POST'
+        });
+        
+        if (res.ok) {
+            if (window.showSnackbar) {
+                showSnackbar('✅ Änderung freigegeben');
+            }
+            closeCrawlerDetailModal();
+            loadCrawlerResults();
+        } else {
+            showSnackbar('❌ Fehler beim Freigeben');
+        }
+    } catch (e) {
+        console.error('Error approving:', e);
+        showSnackbar('❌ Verbindungsfehler');
+    }
+}
+
+async function rejectCurrentCrawlChange() {
+    if (!currentCrawlChangeId) return;
+    
+    try {
+        const res = await adminFetch(`/api/admin/crawler/reject/${currentCrawlChangeId}`, {
+            method: 'POST'
+        });
+        
+        if (res.ok) {
+            if (window.showSnackbar) {
+                showSnackbar('❌ Änderung abgelehnt');
+            }
+            closeCrawlerDetailModal();
+            loadCrawlerResults();
+        } else {
+            showSnackbar('❌ Fehler beim Ablehnen');
+        }
+    } catch (e) {
+        console.error('Error rejecting:', e);
+        showSnackbar('❌ Verbindungsfehler');
+    }
+}
+
+// Update viewCrawlChange to use modal
+window.viewCrawlChange = function(itemId) {
+    // Simulate fetching full change data
+    // In production, this would call /api/admin/crawler/{id}
+    const mockChange = {
+        old_data: null,
+        new_data: {
+            id: itemId,
+            category: 'gebaeude',
+            name: 'Beispiel-Gebäude',
+            kosten_mips: 100,
+            produktion: { resource: 'holz', amount: 10 },
+            scraped_from: 'webcrawler',
+            timestamp: new Date().toISOString()
+        },
+        changed_fields_list: ['name', 'kosten_mips', 'produktion']
+    };
+    
+    showCrawlerDetailModal(itemId, mockChange);
+};
+</script>
+</body></html>
+
+<script>
+/** Export & Filter Functions */
+
+function applyCategoryFilter() {
+    const filter = document.getElementById('categoryFilter')?.value;
+    const rows = document.querySelectorAll('#crawlerChangesTable tbody tr');
+    
+    rows.forEach(row => {
+        const categoryCell = row.cells[1];
+        if (categoryCell) {
+            const category = categoryCell.textContent.toLowerCase();
+            if (filter === 'all' || category.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+}
+
+async function exportPendingCSV() {
+    try {
+        const res = await fetch('/api/admin/crawler/export/csv');
+        const data = await res.json();
+        
+        if (data.csv) {
+            // Download CSV
+            const blob = new Blob([data.csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `crawler_changes_${nowFormat}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            if (window.showSnackbar) {
+                showSnackbar(`✅ ${data.count} Änderungen exportiert`);
+            }
+        } else {
+            showSnackbar('⚠️ ' + (data.message || 'Keine Daten zum exportieren'));
+        }
+    } catch (e) {
+        console.error('Export CSV error:', e);
+        showSnackbar('❌ Export fehlgeschlagen');
+    }
+}
+
+async function exportPendingJSON() {
+    try {
+        const res = await fetch('/api/admin/crawler/export/json');
+        const data = await res.json();
+        
+        // Download JSON
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `crawler_changes_${nowFormat}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        if (window.showSnackbar) {
+            showSnackbar(`✅ ${data.count || 0} Änderungen exportiert`);
+        }
+    } catch (e) {
+        console.error('Export JSON error:', e);
+        showSnackbar('❌ Export fehlgeschlagen');
+    }
+}
+
+// Date formatter for downloads
+const nowFormat = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+</script>
