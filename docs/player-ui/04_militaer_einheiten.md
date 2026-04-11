@@ -512,10 +512,10 @@ INSERT INTO armies VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 ### 4.7.2 Offene Fragen (für später)
 
-1. **Rekrutierungskosten**: Exakte Formel aus DB beschreibung JSON?
-2. **Reisezeit**: Wie viele Tage pro Feld? Abhängig von Wegenetz?
-3. **Verlustformel**: Wie wirken sich Training & Fitness aus?
-4. **Besonderheiten**: Gibt es Spezial-Einheiten?
+- [ ] Rekrutierungskosten: Exakte Formel aus DB beschreibung JSON?
+- [ ] Reisezeit: Wie viele Tage pro Feld? Abhängig von Wegenetz?
+- [ ] Verlustformel: Wie wirken sich Training & Fitness aus?
+- [ ] Besonderheiten: Gibt es Spezial‑Einheiten?
 
 ---
 

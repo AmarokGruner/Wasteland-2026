@@ -452,9 +452,9 @@ INSERT INTO handelsrouten VALUES (?, ?, ?, ?, ?, ?, ?);
 
 ### 3.8.2 Offene Fragen (für später)
 
-1. **Karren-Rekrutierung**: Kosten für neue Karren?
-2. **Routen-Geschwindigkeit**: Tage pro Feld? Abhängig von Wegenetz?
-3. **Kontor-Gebühr**: Gibt es MwSt. oder Gebühren für Handel?
+- [ ] Karren‑Rekrutierung: Kosten für neue Karren?
+- [ ] Routen‑Geschwindigkeit: Tage pro Feld? Abhängig von Wegenetz?
+- [ ] Kontor‑Gebühr: Gibt es MwSt. oder Gebühren für Handel?
 
 ---
 
