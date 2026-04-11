@@ -452,9 +452,9 @@ INSERT INTO handelsrouten VALUES (?, ?, ?, ?, ?, ?, ?);
 
 ### 3.8.2 Offene Fragen (für später)
 
-- [ ] Karren‑Rekrutierung: Kosten für neue Karren?
-- [ ] Routen‑Geschwindigkeit: Tage pro Feld? Abhängig von Wegenetz?
-- [ ] Kontor‑Gebühr: Gibt es MwSt. oder Gebühren für Handel?
+- [x] Karren‑Rekrutierung: Neue Karren können über Karrenbauer‑Gebäude gebaut oder via Handel mit anderen Spielern erworben werden
+- [x] Routen‑Geschwindigkeit: Basis 1 Feld pro Stunde (fix), unabhängig vom Wegenetz
+- [x] Kontor‑Gebühr: Der Spieler kann für die betreffende Provinz den Steuersatz frei festlegen und erhält dann den Prozentsatz des Warenwertes der an der Bevölkerung verkaufter Güter
 
 ---
 
