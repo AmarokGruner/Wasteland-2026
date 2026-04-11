@@ -323,9 +323,15 @@ function checkLagerWarnungen(province) {
 - [ ] Filter nach Kategorie (Nahrung, Baugüter, ...)
 
 ### 6.7.2 Offene Fragen
-1. **Lager-Limit pro Ressource**: Gibt es ein Maximum pro Ressource oder nur Gesamt-Kapazität?
-2. **Ressource-Spoiler**: Was passiert bei 0 Menge? Produktion gestoppt oder negativ möglich?
-3. **Rohstoff-Funde**: Können Ressourcen durch Geologen entdeckt werden (FAQ 3.2.8)?
+
+- [x] **Lager-Limit pro Ressource**: *Gibt es ein Maximum pro Ressource oder nur ein Gesamt-Kapazität?*  
+  → Wir implementieren ein pro‑Ressource‑Maximum (konfigurierbar per Gebäude), jedoch darf die Summe aller Ressourcen nicht die Gesamtkapazität aller Lager‑Gebäude überschreiten. Das Gesamtsystem bleibt auf die Summe der Gebäude‑Kapazitäten begrenzt.
+
+- [x] **Ressource-Spoiler**: *Was passiert bei 0 Menge? Produktion gestoppt oder negative Werte möglich?*  
+  → Produktion wird automatisch pausiert, sobald eine Ressource auf 0 sinkt; negative Werte sind nicht erlaubt.
+
+- [ ] **Rohstoff-Funde**: *Können Ressourcen durch Geld‑Suche gefunden werden, wobei der Tech‑Level bestimmt, welche Rohstoffe durchsucht werden können, und die Suche anhand einer Wahrscheinlichkeits‑Tabelle erfolgt?*  
+  → (Geplant – Implementation in Planung)
 
 ---
 

@@ -478,9 +478,17 @@ async function processTechProduction() {
 
 ### 5.8.2 Offene Fragen (für später)
 
-1. **Tech-Produktion in DB**: Ist `tech_level` in players die gesammelte Punktzahl?
-2. **Build-Verfeinerung**: Gibt es Gebäude, die nur mit bestimmten combos freigeschaltet werden?
-3. **Tech-Verlust**: Gibt es Szenarien, in denen Tech verloren geht? (Antwort: Nein)
+- [x] **Tech-Produktion in DB:** *Ist `tech_level` in `players` die gesammelte Punktzahl?*  
+  → Wir führen eine separate Spalte `total_tech` ein; `tech_level` bleibt für andere Zwecke.
+
+- [x] **Build-Verfeinerung:** *Gibt es Gebäude, die nur mit bestimmten combos freigeschaltet werden?*  
+  → Wir bleiben bei einem simplen Schwellenwert (`tech_level` ≥ X); keine Kombinations‑Flags.
+
+- [x] **Tech-Verlust:** *Gibt es Szenarien, in denen Tech verloren geht? (Antwort: Nein)*  
+  → Tech‑Punkte werden ausschließlich additiv erworben (kein Verlust).
+
+- [ ] **Resource‑Search via Tech‑Level:** *Der Tech‑Level bestimmt, welche Rohstoffe durch Geldsuche gefunden werden können; eine Suche kostet Geld und nutzt eine Wahrscheinlichkeits‑Tabelle.*  
+  → (offen – Implementation geplant)
 
 ---
 
