@@ -21,6 +21,44 @@ def get_market_demand(db: Session, province_id: int):
         "Getränk": total_demand
     }
 
+def autoBuyForMarketStand(db: Session, province: Province, stand: MarketStand, demand_per_stand: float) -> float:
+    """
+    Handles auto-buy for a market stand.
+    If the stand's auto_buy flag is set, purchases up to demand_per_stand * 5 units
+    from the province's lager at a price of res.wert * 1.5 per unit,
+    updating lager stock and the 4‑account system accordingly.
+    Returns the total price paid, or 0 if no purchase was made.
+    """
+    if not stand.auto_buy:
+        return 0.0
+
+    res = stand.resource
+    lager_item = db.query(ProvinceLager).filter(
+        ProvinceLager.provinz_id == province.id,
+        ProvinceLager.ressource_id == res.id
+    ).first()
+
+    if not lager_item or lager_item.menge <= 0:
+        return 0.0
+
+    # Buy up to 5 days of demand, limited by available lager
+    buy_amount = min(demand_per_stand * 5, lager_item.menge)
+    if buy_amount <= 0:
+        return 0.0
+
+    # Purchase price is 150% of the base value
+    price_per_unit = res.wert * 1.5
+    total_price = buy_amount * price_per_unit
+
+    # Update lager stock
+    lager_item.menge -= buy_amount
+
+    # Adjust the 4‑account system
+    province.provinzkonto += total_price
+    province.volkskonto -= total_price
+
+    return total_price
+
 def process_market_tick(db: Session, province_id: int):
     """
     Processes the daily market logic:
@@ -39,7 +77,7 @@ def process_market_tick(db: Session, province_id: int):
     # 2. STAND SPLIT & 3. MARKET BUY
     # Get all active stands for this province
     stands = db.query(MarketStand).filter(MarketStand.province_id == province_id).all()
-    
+
     # Group stands by category
     stands_by_category = {}
     for stand in stands:
@@ -54,49 +92,15 @@ def process_market_tick(db: Session, province_id: int):
         cat_stands = stands_by_category.get(category, [])
         if not cat_stands:
             continue
-        
+
         total_stands_count = len(cat_stands)
-        # per_resource_sold = demand * (stands[resource] / total_stands)
         demand_per_stand = cat_demand / total_stands_count
 
         for stand in cat_stands:
-            if not stand.auto_buy:
-                continue
-            
-            res = stand.resource
-            # MARKET BUY (pre-purchase):
-            # market_stock[resource] += min(demand*5, lager[resource]) 
-            # (Note: We don't have a market_stock in DB yet, but the logic says it's sold to population from there)
-            # The purchase happens from Lager -> "Market"
-            
-            lager_item = db.query(ProvinceLager).filter(
-                ProvinceLager.provinz_id == province_id,
-                ProvinceLager.ressource_id == res.id
-            ).first()
-            
-            if not lager_item or lager_item.menge <= 0:
-                continue
-            
-            # Buy 5-day supply upfront
-            buy_amount = min(demand_per_stand * 5, lager_item.menge)
-            
-            if buy_amount > 0:
-                # staatswert * 1.5
-                price_per_unit = res.wert * 1.5
-                total_price = buy_amount * price_per_unit
-                
-                # Update Lager
-                lager_item.menge -= buy_amount
-                
-                # Update Accounts
-                # provinzkonto += purchased * staatswert * 1.5
-                # volkskonto -= purchased * staatswert * 1.5
-                province.provinzkonto += total_price
-                province.volkskonto -= total_price
-                
-                total_purchased_value += total_price
+            purchased = autoBuyForMarketStand(db, province, stand, demand_per_stand)
+            total_purchased_value += purchased
 
-    # 4. STAATSWERT FLOOR (Currently not globally implemented, 
+    # 4. STAATSWERT FLOOR (Currently not globally implemented,
     # but we can adjust the resource 'wert' if we want it to be global or just for this calc.
     # The doc says: "if supply_ratio >= 1.0: staatswert = base_value * 0.5 (minimum)"
     # This usually implies a global price calculation based on total supply/demand.
@@ -111,7 +115,7 @@ def get_market_preview(db: Session, province_id: int):
     """
     demand = get_market_demand(db, province_id)
     stands = db.query(MarketStand).filter(MarketStand.province_id == province_id).all()
-    
+
     current_stands = []
     for s in stands:
         current_stands.append({
@@ -120,7 +124,7 @@ def get_market_preview(db: Session, province_id: int):
             "category": s.resource.typ,
             "auto_buy": bool(s.auto_buy)
         })
-        
+
     return {
         "demand": demand,
         "current_stands": current_stands,
