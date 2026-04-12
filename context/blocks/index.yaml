@@ -1,0 +1,28 @@
+# Auto-generated block index – DO NOT EDIT MANUALLY
+blocks:
+  b-core-overview:
+    description: Projekt-Übersicht, Architektur
+    tokens: 200
+    last_update: 2026-04-12T15:30:00Z
+    sources: ["README.md", "ARCHITECTURE.md"]
+  b-api-endpoints:
+    description: Alle REST-API Endpunkte
+    tokens: 240
+    last_update: 2026-04-12T15:30:00Z
+    sources: ["app/api/*.py"]
+  b-arg-function:
+    description: Registry for Argentic Functions (Hermes)
+    tokens: 250
+    last_update: 2026-04-12T15:30:00Z
+    sources: ["context/blocks/b-arg-function.yaml"]
+  b-api-contract:
+    description: API Contract & OpenAPI Specs
+    tokens: 230
+    last_update: 2026-04-12T15:30:00Z
+    sources: ["app/api/*.py"]
+  b-crawler:
+    description: Webcrawler Integration
+    tokens: 240
+    last_update: 2026-04-12T15:30:00Z
+    sources: ["app/crawler_logic.py"]
+  # (other existing blocks remain unchanged)

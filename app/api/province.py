@@ -82,7 +82,31 @@ def train_military(province_id: int, request: MilitaryTrainRequest, db: Session 
     from app.military_logic import train_units
     try:
         unit = train_units(db, province_id, request.unit_type, request.count)
-        return {"success": True, "unit_count": unit.count, "type": unit.type}
+        return {"success": True, "unit_id": unit.id, "unit_count": unit.count, "type": unit.type}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{province_id}/military/recruit")
+def recruit_military(province_id: int, request: MilitaryTrainRequest, db: Session = Depends(get_db)):
+    """
+    Recruit new military units in a province.
+
+    This endpoint accepts the same payload as the train endpoint and uses the
+    same underlying logic to create new units. It returns a success message
+    along with details about the recruited units.
+
+    Args:
+        province_id: The ID of the province where recruitment takes place.
+        request: The request payload containing unit_type and count.
+        db: Database session dependency.
+
+    Returns:
+        A JSON response indicating success and providing details about the recruited units.
+    """
+    from app.military_logic import train_units
+    try:
+        unit = train_units(db, province_id, request.unit_type, request.count)
+        return {\"success\": True, \"unit_id\": unit.id, \"unit_count\": unit.count, \"type\": unit.type}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

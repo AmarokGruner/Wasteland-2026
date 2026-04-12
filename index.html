@@ -594,6 +594,193 @@
   </div>
 
   <!-- Scripts – REIHENFOLGE WICHTIG! -->
+  <!-- ==== Trade Route Modal ==== -->
+  <div id="tradeRouteModal" class="modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: #222; padding: 20px; border-radius: 12px; width: 500px; border: 1px solid #444;">
+      <h3>Handelsroute erstellen</h3>
+      <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+        <div>
+          <label style="display: block; margin-bottom: 5px; color: #aaa;">Ziel-Provincial (x,y):</label>
+          <input type="text" id="tradeTargetProvince" style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 5px; color: #aaa;">Einheiten:</label>
+          <input type="number" id="tradeUnitCount" min="1" style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 5px; color: #aaa;">Waren (cargo, kommagetrennt):</label>
+          <input type="text" id="tradeCargo" style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
+        </div>
+        <button class="btn-action" onclick="createTradeRouteFromModal()" style="background: #2e7d32; width: auto;">Route starten</button>
+        <button class="btn-action" onclick="closeCreateTradeRouteModal()" style="background: #444; width: auto;">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==== Rekrutierungs-Modul ==== -->
+  <div id="recruitUnitModal" class="modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: #222; padding: 20px; border-radius: 12px; width: 400px; border: 1px solid #444;">
+      <h3>Einheiten rekrutieren</h3>
+      <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+        <div>
+          <label style="display: block; margin-bottom: 5px; color: #aaa;">Einheitentyp:</label>
+          <select id="recruitUnitType" style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
+            <!-- options will be filled dynamically -->
+          </select>
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 5px; color: #aaa;">Anzahl:</label>
+          <input type="number" id="recruitCount" min="1" style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
+        </div>
+        <button class="btn-action" onclick="recruitFromModal()" style="background: #2e7d32; width: auto;">Rekrutieren</button>
+        <button class="btn-action" onclick="closeRecruitmentModal()" style="background: #444; width: auto;">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==== UI Scripts ==== -->
+  <script>
+    // ==== Trade Route Modal ====
+    function openCreateTradeRouteModal() {
+      const modal = document.getElementById('tradeRouteModal');
+      if (modal) modal.style.display = 'flex';
+    }
+    function closeCreateTradeRouteModal() {
+      const modal = document.getElementById('tradeRouteModal');
+      if (modal) modal.style.display = 'none';
+    }
+async function createTradeRouteFromModal() {
+      const target = document.getElementById('tradeTargetProvince').value.trim();
+      const count = parseInt(document.getElementById('tradeUnitCount').value, 10);
+      let cargoStr = document.getElementById('tradeCargo').value.trim();
+      // Parse cargo string into {resource_id: amount} dict
+      const cargo = {};
+      if (cargoStr) {
+        cargoStr.split(',').forEach(part => {
+          const pair = part.split(':');
+          if (pair.length === 2) {
+            const resourceId = parseInt(pair[0], 10);
+            const amount = parseInt(pair[1], 10);
+            if (!isNaN(resourceId) && !isNaN(amount) && resourceId > 0 && amount > 0) {
+              cargo[resourceId] = amount;
+            }
+          }
+        });
+      }
+      if (!target || !count || Object.keys(cargo).length === 0) {
+        showToast('Bitte gültige Ziel-Province, Einheitenzahl und Fracht eingeben');
+        return;
+      }
+      // Prepare request payload matching CreateTradeRouteRequest
+      const payload = {
+        destination_id: parseInt(target, 10),
+        cargo_outbound: cargo,
+        settler_count: 0,   // no settlers for now
+        karren_count: count // use the provided unit count for wagons
+      };
+
+      try {
+        const res = await AuthService.fetch('/api/province/' + payload.destination_id + '/trade-route/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('Handelsroute erfolgreich gestartet! Route‑ID: ' + data.route_id);
+          // Optionally refresh route list or clear form
+          document.getElementById('tradeTargetProvince').value = '';
+          document.getElementById('tradeUnitCount').value = '';
+          document.getElementById('tradeCargo').value = '';
+        } else {
+          const errMsg = data.detail || 'Unbekannter Fehler beim Erstellen der Route';
+          showToast('Fehler: ' + errMsg);
+        }
+      } catch (e) {
+        console.error('createTradeRoute error', e);
+        showToast('Netzwerkfehler – bitte prüfen Sie die Verbindung');
+      }
+}
+
+    // ==== Rekrutierungs-Modul ====
+    function openRecruitmentModal() {
+      const modal = document.getElementById('recruitUnitModal');
+      if (modal) modal.style.display = 'flex';
+    }
+    function closeRecruitmentModal() {
+      const modal = document.getElementById('recruitUnitModal');
+      if (modal) modal.style.display = 'none';
+    }
+    async function recruitFromModal() {
+      const unitType = document.getElementById('recruitUnitType').value.trim();
+      const countInput = document.getElementById('recruitCount').value.trim();
+      const count = parseInt(countInput, 10);
+
+      // Validate inputs
+      if (!unitType || !countInput || isNaN(count) || count <= 0) {
+        showToast('Bitte ein gültiges Einheitentyp und eine Zahl größer als 0 eingeben');
+        return;
+      }
+
+      const payload = {
+        unit_type: unitType,
+        count: count
+      };
+
+      // Retry logic for network errors (up to 3 attempts)
+      const maxAttempts = 3;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          const res = await AuthService.fetch(
+            `/api/province/${window.currentProvinzId}/military/recruit`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            }
+          );
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            showToast(`Rekrutierung erfolgreich! Einheit-ID: ${data.unit_id || data.id || 'unbekannt'}`);
+            // Clear form fields
+            document.getElementById('recruitUnitType').value = '';
+            document.getElementById('recruitCount').value = '';
+            return;
+          } else {
+            const errMsg = data.detail || 'Rekrutierung fehlgeschlagen';
+            showToast('Fehler: ' + errMsg);
+            return;
+          }
+        } catch (e) {
+          if (attempt === maxAttempts) {
+            console.error('recruitFromModal error', e);
+            showToast('Netzwerkfehler – bitte prüfen Sie die Verbindung');
+            return;
+          }
+          // Wait before retry with exponential backoff
+          await new Promise(r => setTimeout(r, 1000 * attempt));
+        }
+      }
+    }
+
+    // Populate unit type dropdown with available unit types
+    async function populateUnitTypeDropdown() {
+      const select = document.getElementById('recruitUnitType');
+      if (!select) return;
+      // If a global list exists, use it; otherwise fallback to static options
+      const defaultOptions = ['Rekrut', 'Bogenschütze', 'Axtkämpfer', 'Handelskarren'];
+      defaultOptions.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+      });
+    }
+    window.addEventListener('load', populateUnitTypeDropdown);
+  </script>
+
   <script src="js/auth-service.js?v=2"></script>
   <script>
     // Initial Auth Check

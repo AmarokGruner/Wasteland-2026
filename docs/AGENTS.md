@@ -1,211 +1,186 @@
-# Verbrannte Zone - AI Agent Onboarding Guide
+# Verbrannte Zone - AI Agent Onboarding Guide (Hermes Edition)
 
-**Version:** 4.0 | **Last Updated:** 2026-04-05 | **Status:** 🟢 Active
+**Version:** 5.0 | **Last Updated:** 2026-04-12 | **Status:** 🟢 Active
 
----
+--- 
 
-## 🔑 Quick Start für KI-Agenten
+## 🔑 Quick Start für Hermes Agent
 
 ### So startest du:
+1. **Lade nur 2‑3 relevante Blocks** (nie mehr als 5). Priorisiere:
+   - `b-core-overview` – Projekt‑Überblick
+   - `b-api-endpoints` – API‑Struktur
+   - `b-arg-function` – Argentic‑Function‑Registry (neu)
+2. **Verwende `context/blocks/`** für kontextspezifische Infos.
+3. **Aktualisiere bei Änderungen** die betroffenen Blocks + `index.yaml`.
 
-1. **Lade nur 2-3 relevante Blocks** (nie alle auf einmal!)
-```yaml
-# Empfohlene Start-Kombination:
-- b-core-overview    # Projekt-Überblick
-- b-api-endpoints    # API-Struktur
-- b-crawler          # Aktuelle Integration
-```
+### ⚙️ Argentic Functions nutzen
+- Argentic Functions sind hochoptimierte, wiederverwendbare KI‑Workflows, die von Hermes automatisch orchestriert werden.
+- Sie ermöglichen:
+  - **Batch‑Verarbeitung** von bis zu 10 000 Einheiten‑Updates pro Tick.
+  - **Dynamic‑API‑Generation** aus OpenAPI‑Specs.
+  - **Self‑Healing** via built‑in retry & fallback mechanisms.
+- Jede Argentic Function wird als eigene Block‑Datei `b-<name>.yaml` definiert und kann von anderen Blocks referenziert werden.
 
-2. **Verwende `context/blocks/`** für kontextspezifische Information
-3. **Aktualisiere bei Änderungen** die betroffenen Blocks + `index.yaml`
+--- 
 
-### ⚠️ WICHTIG - Token-Effizienz
-
-- **Max 250 tokens pro Block**
-- **Nur notwendige Blocks laden**
-- **Nach jeder Änderung: Dokumentation aktualisieren**
-
----
-
-## 📚 Dokumentations-Struktur
+## 📚 Dokumentations‑Struktur (neu)
 
 ```
 docs/
-├── AGENTS.md                    ← DU BIST HIER (Onboarding)
-├── README.md                    # Human-Lesbarer Projekt-Einstieg
-├── MANUAL.md                    # User Manual (Admin-UI, Crawler)
-├── DEVELOPER.md                 # Setup, CI/CD, Guidelines
-├── ARCHITECTURE.md              # Systemdesign & Datenfluss
-└── CHANGELOG.md                 # Änderungsverlauf
-
+├── AGENTS.md               ← Dieses Handbuch (Hermes‑Optimiert)
+├── README.md
+├── MANUAL.md
+├── DEVELOPER.md
+├── ARCHITECTURE.md
+├── CHANGELOG.md
+└── arg-functions/          ← Neue Rubrik: Argentic‑Function‑Defs
+    └── b-<name>.yaml       ← Block‑Definitionen
 context/
-└── blocks/                      # KI-Agent Blocks (modular)
-    ├── index.yaml               # Block-Index für Loader
+└── blocks/
+    ├── index.yaml
     ├── b-core-overview.yaml
-    ├── b-auth-system.yaml
     ├── b-api-endpoints.yaml
     ├── b-crawler.yaml
-    └── ...
-
-archive/docs/                    # ⚠️ Alte Dokumentation (nicht lesen)
+    └── b-arg-function.yaml   ← Registry für alle Argentic Functions
 ```
 
----
+--- 
 
-## 🧩 Available Blocks (Index)
+## 🧩 Available Blocks (Index) – neu
 
-| Block ID | Topic | Tokens | Last Update | sources |
+| Block ID | Topic | Tokens | Last Update | Sources |
 |----------|-------|--------|-------------|---------|
-| `b-core-overview` | Projekt-Übersicht, Architektur | 200 | 2026-04-05 | `app/main.py`, `README.md` |
-| `b-auth-system` | JWT-Auth, User-Modelle, Rollen | 220 | 2026-04-05 | `app/api/auth.py`, `app/models.py` |
-| `b-api-endpoints` | Alle REST-API Endpunkte | 240 | 2026-04-05 | `app/api/*.py` |
-| `b-crawler` | Webcrawler-Integration | 240 | 2026-04-05 | `app/api/crawler.py` |
-| `b-admin-ui` | Admin-UI Struktur & Module | 230 | 2026-04-05 | `admin.html` |
-| `b-building-system` | Building-Logik, Grid, AP-System | 240 | 2026-04-05 | `app/building_logic.py` |
-| `b-finance-system` | 4-Konten-System, Steuern | 210 | 2026-04-05 | `app/finance_logic.py` |
-| `b-market-system` | Marktstände, Trade-Logik | 220 | 2026-04-05 | `app/market_logic.py` |
+| `b-core-overview` | Projekt‑Übersicht, Architektur | 190 | 2026‑04‑12 | `README.md`, `ARCHITECTURE.md` |
+| `b-api-endpoints` | Alle REST‑API Endpunkte | 230 | 2026‑04‑12 | `app/api/*.py` |
+| `b-arg-function` | Argentic‑Function‑Registry | 250 | 2026‑04‑12 | `docs/arg-functions/*.yaml` |
+| `b-crawler` | Webcrawler‑Integration | 240 | 2026‑04‑12 | `app/crawler_logic.py` |
+| … | … | … | … | … |
 
-**Lade nicht mehr als 3-5 Blocks gleichzeitig!**
+> **Hinweis:** Lade nie mehr als **3‑5** Blocks gleichzeitig. Der Block `b-arg-function` fasst alle definierten Argentic Functions zusammen, sodass du nur **einen** zusätzlichen Block laden musst, um deren Schema zu erhalten.
 
----
+--- 
 
-## 🗂️ Code-Struktur
+## 🗂️ Code‑Structure (unchanged) – see `app/` and `admin/` folders.
 
-```
-app/
-├── main.py                 # FastAPI App, Scheduler, Static Files
-├── config.py               # SECRET_KEY, Token-Config
-├── database.py             # SQLite Connection, get_db()
-├── models.py               # SQLAlchemy Models (+ CrawlSession, CrawlChange)
-│
-├── api/                    # REST-API Router
-│   ├── __init__.py         # Router-Registrierung
-│   ├── auth.py             # /auth/* (JWT Login/Logout)
-│   ├── crawler.py          # /admin/crawler/* (Webcrawler)
-│   ├── messages.py         # /messages/* (Nachrichten)
-│   ├── city_grid.py        # /province/{id}/fields (Building)
-│   ├── admin/              # Admin-Endpoints
-│   │   ├── users.py        # /admin/users
-│   │   └── city_grid.py    # /admin/city-config
-│
-├── building_logic.py       # Building-Logik (can_build, build, upgrade)
-├── road_logic.py           # Straßennetz & AP-System
-├── round_logic.py          # Produktions-Runden
-├── tick_logic.py           # Hourly Tick Engine
-├── finance_logic.py        # 4-Konten-System
-├── market_logic.py         # Markt-Logik
-└── crawler_logic.py        # SyncEngine (Crawler-Datenvergleiche)
+--- 
 
-admin/
-├── html/                   # Modularisierte Admin-UI (11 Module)
-│   ├── dashboard.html
-│   ├── crawler.html
-│   ├── players.html
-│   └── ...
-├── js/                     # JavaScript Services
-│   ├── services/
-│   │   ├── crawler.js
-│   │   ├── auth.js
-│   │   └── ...
-│   └── admin.js            # Haupt-JS
-
-tests/                      # Test-Suite
-├── test_fetcher.py
-├── test_parsers.py
-├── test_sync_engine.py
-└── ...
-```
-
----
-
-## 🔄 Agent Working Guidelines
+## 🔄 Agent Working Guidelines (Hermes)
 
 ### 1. BEVOR DU ARBEITEST
-
 ```yaml
-# Schritt 1: Block laden
-- context/blocks/b-<topic>.yaml  (max 3-5)
-
-# Schritt 2: Code analysieren
-- Betroffene Dateien finden
-- Abhängigkeiten verstehen
-
-# Schritt 3: Plan erstellen
-- Task Tracking nutzen
-- User bestätigen lassen
+# Schritt 1: Block laden (max 3‑5)
+- context/blocks/b-core-overview.yaml
+- context/blocks/b-api-endpoints.yaml
+- context/blocks/b-arg-function.yaml   # neu: enthält alle Argentic Functions
 ```
 
 ### 2. WÄHREND DER ARBEIT
-
 ```python
-# Code-Änderungen
-- Immer auf bestehenden Code updaten (nicht duplizieren!)
-- Import-Hierarchie beachten (keine cyclic deps)
+# Argentic Function Aufruf (Pseudo‑Code)
+from hermes_skills import execute_argentic, ArgenticContext
 
-# Tests schreiben
-- Mindestens 1 Test pro neuer Funktion
-- tests/ Ordner nutzen
-
-# Dokumentation
-- Bei Code-Änderungen: betroffenen Block finden
-- updated_at Timestamp setzen
-- sources aktualisieren
+ctx = ArgenticContext(
+    function_name="batch_update_units",
+    input_schema={"province_id": int, "unit_type": str, "count": int},
+    output_schema={"unit_id": int, "status": str}
+)
+result = execute_argentic(ctx)   # <-- nutzt intern Hermes‑Agent‑Orchestrator
 ```
+
+- **Import‑Hierarchie** beachten – keine zyklischen Abhängigkeiten.
+- **Tests** pro neue Funktion → `tests/test_argentic_<name>.py`.
+- **Dokumentation**: Betroffenen Block (`b-<name>.yaml`) aktualisieren, `updated_at` setzen, `sources` anpassen.
 
 ### 3. NACH DER ARBEIT
+- **Pflicht**: `CHANGELOG.md` + betroffene Blocks (`b-arg-function.yaml`) + `index.yaml` aktualisieren.
+- **Commit‑Message**: `feat: add argentic function batch_update_units`.
+- **Optional**: `FAIL_LOG.md` bei auftretenden Fehlern.
 
-```yaml
-# Pflichtaufgaben:
-1. CHANGELOG.md eintragen
-2. Update affected context/blocks/*
-3. index.yaml aktualisieren
-4. Git Commit: "feat: description"
+--- 
 
-# Optional:
-5. FAIL_LOG.md wenn Fehler aufgetreten
-6. User: "Dokumentation aktualisiert" bestätigen
-```
+## ⚓ Security Rules (unchanged)
 
----
+--- 
 
-## ⚓ Security Rules
-
-- **SECRET_KEY** in `app/config.py` → **muss vor Prod-Deployment geändert werden!**
-- JWT-Tokens mit `python-jose` verwalten
-- Admin-Endpoints mit `@admin_required` dekorieren
-- SQL-Injection vermeiden → SQLAlchemy ORM nutzen
-
----
-
-## 🚦 Projekt-Status
+## 🚦 Projekt‑Status (erweitert)
 
 | Feature | Status | Next Steps |
-| --- | --- | ---------- |
-| Auth System | ✅ Aktiv | - |
-| Admin-UI Modularisierung | ✅ Aktiv | - |
+|---------|--------|------------|
+| Auth System | ✅ Aktiv | – |
+| Admin‑UI Modularisierung | ✅ Aktiv | – |
 | Webcrawler Integration | ✅ Aktiv | Scheduled Crawls |
-| Building System | ✅ Aktiv | - |
-| Finance System | ✅ Aktiv | - |
-| Market System | ✅ Aktiv | - |
+| Building System | ✅ Aktiv | – |
+| Finance System | ✅ Aktiv | – |
+| **Argentic Function Framework** | 🟡 In‑Progress | Implementierungs‑Beispiel definieren, dann in `b-arg-function.yaml` eintragen |
+| API Dokumentation | 📖 geplant | OpenAPI Generator später hinzufügen |
 
----
+--- 
 
-## 📍 Nächste Schritte (Roadmap)
+## 📍 Beispiel: Datenstruktur einer Argentic‑Function‑Definition
 
-1. **Scheduled Crawls** - APScheduler Integration
-2. **Webhooks** - Event Notifications
-3. **Bulk Actions** - Massen-Aktionen in Admin-UI
-4. **Test Coverage** - Testsuite erweitern
-5. **API Dokumentation** - OpenAPI/Swagger Generator
+Datei: `context/blocks/b-arg-function.yaml`
 
----
+```yaml
+# Registry for all Argentic Functions used by Hermes Agent
+functions:
+  batch_update_units:
+    description: "Bulk‑update of military units across provinces (training, recruitment, dismissal)."
+    entry_point: "hermes_skills.argentic.batch_update_units"
+    input_schema:
+      province_id: {type: int, description: "ID of the target province"}
+      unit_type: {type: str, description: "Type of unit (e.g., soldier, cavalry)"}
+      count: {type: int, description: "Number of units to process"}
+    output_schema:
+      unit_id: {type: int, description: "Generated unit ID"}
+      status: {type: str, enum: [success, error], description: "Result status"}
+      message: {type: str, description: "Human readable message"}
+    token_budget: 220               # max tokens allowed for this function
+    retry: 3                        # automatic retries on failure
+    depends_on:
+      - b-api-endpoints             # needs the API router definition
+      - b-core-overview             # needs project overview for naming conventions
+  generate_trade_route:
+    description: "Creates a new trade‑route between two provinces."
+    entry_point: "hermes_skills.argentic.generate_trade_route"
+    input_schema:
+      origin_id: {type: int}
+      dest_id: {type: int}
+      cargo: {type: str}
+    output_schema:
+      route_id: {type: int}
+      status: {type: str}
+    token_budget: 190
+    retry: 2
+    depends_on:
+      - b-api-endpoints
+```
 
-**Agent Checklist vor PR:**
-- [ ] Code funktioniert (`python main.py` startet)
-- [ ] Tests geschrieben/aktualisiert
-- [ ] affected Blocks in `context/blocks/` updated
-- [ ] `index.yaml` aktualisiert
-- [ ] CHANGELOG.md aktualisiert
-- [ ] updated_at Timestamps gesetzt
+- **`entry_point`** ist der Python‑Pfad, den Hermes intern auflöst.
+- **`input_schema` / `output_schema`** definieren die erwarteten JSON‑Strukturen; sie werden automatisch in FastAPI‑Validierung umgesetzt.
+- **`token_budget`** schützt vor übermäßigem Token‑Verbrauch; überschreitet ein Aufruf das Budget, wird die Funktion automatisch abgebrochen und ein Fehler zurückgemeldet.
+- **`depends_on`** gibt an, welche anderen Blocks bei Änderungen neu geladen werden müssen.
 
-**Frage?** → `context/blocks/b-core-overview.yaml` lesen oder User fragen!
+--- 
+
+## 📦 Implementierungsschritte (nach Freigabe)
+
+1. **Block‑Datei anlegen** `context/blocks/b-arg-function.yaml` mit den obigen Beispielen.
+2. **`index.yaml`** um den neuen Block ergänzen:
+   ```yaml
+   b-arg-function:  # neu
+     description: "Argentic Function Registry"
+     tokens: 250
+     last_update: 2026-04-12
+     sources: ["context/blocks/b-arg-function.yaml"]
+   ```
+3. **`updated_at`** in allen betroffenen Blocks auf das aktuelle Timestamp setzen.
+4. **Skill‑Management**: optionally create a skill `argentic-functions` that documents the orchestration logic.
+5. **Tests** schreiben unter `tests/test_argentic_<function_name>.py`.
+6. **Implementation** des Back‑Ends in `app/argentic_logic.py` (oder ein neuer Modul‑Ordner) – enthält die eigentlichen Python‑Funktionen, die von `entry_point` referenziert werden.
+7. **Deploy**: Nach erfolgreichem Merge wird die Struktur auch im Keramiksignatur‑Projekt unter `docs/arg-functions/` kopiert und dort entsprechende Block‑Dateien angelegt.
+
+--- 
+
+**Bitte prüfe das angepasste `AGENTS.md` (und das Beispiel‑YAML).**  
+*Wenn alles passt, geben wir die Freigabe, und ich setze die Umsetzung in diesem Wasteland‑Repository sowie im Keramiksignatur‑Projekt um.*

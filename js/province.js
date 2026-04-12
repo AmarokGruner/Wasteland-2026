@@ -46,6 +46,20 @@ function showProvinceTab(tab) {
   if (targetBtn) targetBtn.classList.add('active');
   
   localStorage.setItem('last_province_tab', tab);
+
+  // Resolve and store active province ID
+  if (window.selectedProvinceCoords) {
+    const resolvePromise = window.resolveProvinzId?.(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y);
+    if (resolvePromise && typeof resolvePromise.then === 'function') {
+      resolvePromise.then(id => {
+        window.currentProvinzId = id;
+      });
+    } else {
+      window.currentProvinzId = window.resolveProvinzId?.(window.selectedProvinceCoords.x, window.selectedProvinceCoords.y) || null;
+    }
+  }
+
+  // Tab-spezifische Loader
   
   // Tab-spezifische Loader
   if (tab === 'lager') loadLager();

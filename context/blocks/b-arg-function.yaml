@@ -1,0 +1,32 @@
+# Registry for all Argentic Functions used by Hermes Agent
+functions:
+  batch_update_units:
+    description: "Bulk‑update of military units across provinces (training, recruitment, dismissal)."
+    entry_point: "hermes_skills.argentic.batch_update_units"
+    input_schema:
+      province_id: {type: int, description: "ID of the target province"}
+      unit_type: {type: str, description: "Type of unit (e.g., soldier, cavalry)"}
+      count: {type: int, description: "Number of units to process"}
+    output_schema:
+      unit_id: {type: int, description: "Generated unit ID"}
+      status: {type: str, enum: [success, error], description: "Result status"}
+      message: {type: str, description: "Human readable message"}
+    token_budget: 220               # max tokens allowed for this function
+    retry: 3                        # automatic retries on failure
+    depends_on:
+      - b-api-endpoints             # needs the API router definition
+      - b-core-overview             # needs project overview for naming conventions
+  generate_trade_route:
+    description: "Creates a new trade‑route between two provinces."
+    entry_point: "hermes_skills.argentic.generate_trade_route"
+    input_schema:
+      origin_id: {type: int}
+      dest_id: {type: int}
+      cargo: {type: str}
+    output_schema:
+      route_id: {type: int}
+      status: {type: str}
+    token_budget: 190
+    retry: 2
+    depends_on:
+      - b-api-endpoints
