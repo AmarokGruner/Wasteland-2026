@@ -106,7 +106,7 @@ def recruit_military(province_id: int, request: MilitaryTrainRequest, db: Sessio
     from app.military_logic import train_units
     try:
         unit = train_units(db, province_id, request.unit_type, request.count)
-        return {\"success\": True, \"unit_id\": unit.id, \"unit_count\": unit.count, \"type\": unit.type}
+        return {"success": True, "unit_id": unit.id, "unit_count": unit.count, "type": unit.type}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

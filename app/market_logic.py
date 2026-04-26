@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
-from .models import Province, MarketStand, Resource, ProvinceLager, ProvinceSettings
+from .models import Province, MarketStand, Resource, ProvinceLager, ProvinceSettings, KontorPrice
+import logging
+logger = logging.getLogger(__name__)
 import json
 
 def get_market_demand(db: Session, province_id: int):
@@ -46,8 +48,21 @@ def autoBuyForMarketStand(db: Session, province: Province, stand: MarketStand, d
     if buy_amount <= 0:
         return 0.0
 
-    # Purchase price is 150% of the base value
-    price_per_unit = res.wert * 1.5
+    # Determine purchase price: use Kontor price if available and active and publicly visible, else fallback
+    price_entry = db.query(KontorPrice).filter(
+        KontorPrice.province_id == province.id,
+        KontorPrice.resource_id == res.id,
+        KontorPrice.mode == "sell",
+        KontorPrice.active == 1
+    ).first()
+    # Respect onlyFriends filter: auto-buy only uses non-friends-only prices
+    if price_entry and price_entry.friends_only == 1:
+        price_entry = None
+    if price_entry:
+        price_per_unit = price_entry.price
+    else:
+        price_per_unit = res.wert * 1.5
+
     total_price = buy_amount * price_per_unit
 
     # Update lager stock
@@ -57,8 +72,13 @@ def autoBuyForMarketStand(db: Session, province: Province, stand: MarketStand, d
     province.provinzkonto += total_price
     province.volkskonto -= total_price
 
+    # Bank bonus: if a bank building exists, apply a 20% bonus to revenue
+    from app.finance_logic import has_bank
+    if has_bank(db, province.id):
+        bonus = 1.2
+        province.provinzkonto += total_price * (bonus - 1)  # additional revenue
+        logger.info(f"Bank bonus applied for province {province.id}: +{total_price*(bonus-1)} extra")
     return total_price
-
 def process_market_tick(db: Session, province_id: int):
     """
     Processes the daily market logic:
