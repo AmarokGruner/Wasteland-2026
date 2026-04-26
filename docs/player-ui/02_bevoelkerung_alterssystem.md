@@ -12,32 +12,31 @@ Die Bevölkerung ist dynamisch und unterteilt in **drei Altersgruppen**. Nur Erw
 
 **Grunddauern mit Bildungseinfluss:**
 
-| Phase | Basis | Mit Bildung (150) | AP-Produktion | Ressourcenverbrauch |
+| Phase | Basis | Mit Bildung (500) | AP-Produktion | Ressourcenverbrauch |
 |-------|-----|-----------|---|---|
 | **Kinder** | 1 Tag | 0.5 Tage (-50%) | ❌ 0 AP | ✅ Ja (Nahrung, Getränke) |
 | **Erwachsene** | 6 Tage | 7.5 Tage (+25%) | ✅ 1 AP/Tag | ✅ Ja |
 | **Rentner** | 2 Tage | 2 Tage | ❌ 0 AP | ✅ Ja |
 
-**Bildungseinfluss auf Alterung:**
+**Bildungseinfluss auf Alterung (Lineare Skalierung):**
 ```javascript
 function berechneAlterungsDauer(province, stufe) {
   const BASE_DAUER = { kind: 1, erwachsener: 6, rentner: 2 };
   let dauer = BASE_DAUER[stufe];
   
-  const bildungBonus = province.bildungLevel * 0.01;
+  // Lineare Reduktion: Bildung / 1000 (max. -50%)
+  const reduktion = Math.min(bildungLevel / 1000, 0.5);
+  
   if (stufe === 'kind') {
-    dauer *= (1 - bildungBonus);
+    dauer = baseDauer - reduktion; // 1.0 bis 0.5 Tage
   } else if (stufe === 'erwachsener') {
-    dauer *= (1 + bildungBonus * 0.5);
+    dauer *= (1 + bildungBonus * 0.5); // +25% bei hoher Bildung
   }
   
   return Math.max(0.5, Math.min(10, dauer));
 }
 
-// Beispiel: Bildung = 150
-// Kinder: 1 × 0.5 = 0.5 Tage (12h)
-// Erwachsene: 6 × 1.75 = 7.5 Tage
-// Rentner: 2 Tage (unbeeinflusst)
+// Beispiel: Bildung = 500 → Kinderphase = 1 - (500/1000) = 0.5 Tage (-50%)
 ```
 
 **Total-Zyklus:** 0.5 + 7.5 + 2 = **10 Tage** (hohe Bildung) vs. 9 Tage (Basis)

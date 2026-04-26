@@ -482,19 +482,112 @@ async function processTechProduction() {
   → Wir führen eine separate Spalte `total_tech` ein; `tech_level` bleibt für andere Zwecke.
 
 - [x] **Build-Verfeinerung:** *Gibt es Gebäude, die nur mit bestimmten combos freigeschaltet werden?*  
-  → Wir bleiben bei einem simplen Schwellenwert (`tech_level` ≥ X); keine Kombinations‑Flags.
+  → Wir bleiben bei einem simplen Schwellenwert (`tech_level` ≥ X); keine Kombinations‑Flags.
 
 - [x] **Tech-Verlust:** *Gibt es Szenarien, in denen Tech verloren geht? (Antwort: Nein)*  
   → Tech‑Punkte werden ausschließlich additiv erworben (kein Verlust).
 
-- [ ] **Resource‑Search via Tech‑Level:** *Der Tech‑Level bestimmt, welche Rohstoffe durch Geldsuche gefunden werden können; eine Suche kostet Geld und nutzt eine Wahrscheinlichkeits‑Tabelle.*  
-  → (offen – Implementation geplant)
+- [x] **Resource-Suche via Tech-Level:** *Der Tech-Level bestimmt, welche Rohstoffe durch Geldsuche gefunden werden können; eine Suche kostet Geld und nutzt eine Wahrscheinlichkeits-Tabelle + Terraintyp-Modifikator.*  
+  → **Gewählter Ansatz:** Wahrscheinlichkeits-Tabelle + Terraintyp-Modifikator (60% Basis × Terrain)
+
+**Implementierung:**
+```javascript
+function sucheRohstoff(province, rohrstoffTyp) {
+  // Tech-Level prüfen ob Rohstoff freigeschaltet ist
+  const requiredTech = rohrstoffTyp.required_tech_level; // z.B. 50, 100, 200
+  
+  if (province.player.tech_level < requiredTech) {
+    throw new Error(`Benötigt Tech-Level ${requiredTech}`);
+  }
+  
+  // Kosten abziehen (immer gleich)
+  const kosten = rohrstoffTyp.suchkosten; // z.B. 100, 200, 500 MIPS
+  if (province.provinzkonto < kosten) {
+    throw new Error('Nicht genug MIPS');
+  }
+  
+  province.provinzkonto -= kosten;
+  
+  // Terraintyp-Modifikator aus JSON lesen
+  const terrainModifiers = JSON.parse(rohrstoffTyp.terrain_modifiers); // {"grasland": 1.0, "wüste": 0.5}
+  const terrain = province.terrain; // z.B. "grasland", "wüste"
+  const modifikator = terrainModifiers[terrain] || 1.0; // Standard: 1.0
+  
+  // Fundwahrscheinlichkeit berechnen (Basis × Terraintyp-Modifikator)
+  const baseWahrscheinlichkeit = rohrstoffTyp.base_fund_wahrscheinlichkeit; // z.B. 0.6 (60%)
+  const effectiveWahrscheinlichkeit = baseWahrscheinlichkeit * modifikator; // z.B. 0.6 × 1.0 = 0.6 (Grasland)
+  
+  // Maximal auf 1.0 begrenzen, Minimum auf 0.05 (5%)
+  const fundWahrscheinlichkeit = Math.min(Math.max(effectiveWahrscheinlichkeit, 0.05), 1.0);
+  
+  // Zufall prüfen (Zufall!)
+  const zufall = Math.random(); // 0.0 bis 1.0
+  
+  if (zufall < fundWahrscheinlichkeit) {
+    // Fund! Rohstoff hinzufügen
+    province.rohstoffe.push(rohrstoffTyp);
+    
+    logEvent('Bodenschatz', `${rohrstoffTyp.name} in ${province.name} (${province.terrain}) gefunden!`);
+    
+    return true; // Erfolgreich!
+  } else {
+    // Kein Fund (Ressourcen verschwendet)
+    logEvent('Bodenschatz', `Keine Vorkommen von ${rohrstoffTyp.name} in ${province.name} (${province.terrain})`);
+    
+    return false; // Nicht erfolgreich!
+  }
+}
+
+// Beispiel:
+// Tech = 100, Suche nach Eisen (60% Basis) in Grasland (Modifikator 1.0) → 60% Fundwahrscheinlichkeit
+// Tech = 100, Suche nach Eisen (60% Basis) in Wüste (Modifikator 0.5) → 30% Fundwahrscheinlichkeit
+```
+
+**Datenbank:**
+```sql
+CREATE TABLE vorkommen (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,              -- z.B. "Eisen", "Gold"
+  required_tech_level INTEGER NOT NULL, -- z.B. 50, 100, 200
+  suchkosten INTEGER NOT NULL,     -- z.B. 100, 200, 500 MIPS
+  base_fund_wahrscheinlichkeit REAL NOT NULL, -- z.B. 0.6 (60%)
+  terrain_modifiers TEXT           -- {"grasland": 1.0, "wüste": 0.5}
+);
+
+-- Beispiel-Daten:
+INSERT INTO vorkommen VALUES (1, 'Eisen', 50, 200, 0.6, '{"grasland": 1.0, "wüste": 0.5}');
+```
+
+---
+
+## 5.9 Zusammenfassung & Checkliste (Aktualisiert)
+
+### 5.9.1 To-Do für Implementierung
+
+- [ ] **Tech-Punkte** akkumulativ speichern (keine Obergrenze)
+- [ ] **Tech-Produktion** pro Gebäude berechnen & täglich addieren
+- [ ] **Tech-Freischaltung** prüfen (player.tech >= building.tech_level)
+- [ ] **Tech-Übersicht** mit Baumb-Struktur anzeigen
+- [ ] **Optimierungsvorschläge** für fehlende Tech-Gebäude
+- [ ] **Tech-Widget** im Dashboard (Produktion, Fortschritt)
+- [ ] **Gebäude-Filter** nach Freischalt-Status
+- [ ] **Estimate** für nächste Freischaltung (Tage berechnet)
+- [ ] **Tick-Logik** für tägliche Tech-Produktion
+
+### 5.9.2 Rohstoff-Suche (NEU!)
+
+- [ ] **vorkommen Tabelle** erstellen (name, required_tech_level, suchkosten, base_fund_wahrscheinlichkeit, terrain_modifiers)
+- [ ] **Suche-Funktion** implementieren (Tech-Level prüfen, Kosten abziehen, Wahrscheinlichkeit berechnen)
+- [ ] **Terraintyp-Modifikator** aus JSON lesen (z.B. {"grasland": 1.0, "wüste": 0.5})
+- [ ] **Fundwahrscheinlichkeit** berechnen (Basis × Terrain)
+- [ ] **Zufall prüfen** (Math.random() < Wahrscheinlichkeit)
+- [ ] **Gamelog-Einträge** für Funde/Nicht-Funde
 
 ---
 
 **Abschnitt 5 abgeschlossen ✅**
 
 *Dokument erstellt: 2026-04-05*  
-*Stand: Basierend auf Datenbank-Analysen*
+*Stand: Basierend auf Datenbank-Analysen + Wahrscheinlichkeits-Tabelle + Terraintyp-Modifikator*
 
 **Nächster Schritt:** Soll ich mit Abschnitt 6 (Rohstoffe & Lager) fortfahren? 🏭

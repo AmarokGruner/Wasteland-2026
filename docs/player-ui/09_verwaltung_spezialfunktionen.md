@@ -429,13 +429,139 @@ function onFieldClick(position) {
 
 ### 9.8.2 Offene Fragen
 
-1. **Power-Balance**: Wie genau wird "übervorteilt" berechnet?
-2. **Routen bei Gefangenschaft**: Was passiert mit laufenden Handelsrouten?
-3. **Freikaufsumme**: Wie wird sie berechnet (fest oder verhandelbar)?
+1. **Power-Balance**: Wie genau wird "übervorteilt" berechnet?  
+   → **Gewählter Ansatz:** Multi-Kriterien-Check + Admin-Approval (kombiniert)
+
+**Implementierung:**
+```javascript
+function canProvinceTransfer(sender, receiver, province) {
+  // Automatischer Check (Multi-Kriterien-Check wie Ansatz 2)
+  const autoCheck = {
+    // 1. MIPS: Sender ≤ Empfänger × 2
+    mips: sender.mips <= receiver.mips * 2,
+    
+    // 2. Tech-Level: Sender ≤ Empfänger × 2
+    tech: sender.tech_level <= receiver.tech_level * 2,
+    
+    // 3. Bevölkerung: Sender ≤ Empfänger × 2
+    population: sender.population <= receiver.population * 2,
+    
+    // 4. Provinzen-Anzahl: Sender ≤ Empfänger + 2 (nicht ×, sondern +)
+    provinces: sender.provinzen_count <= receiver.provinzen_count + 2,
+    
+    // 5. Allianz: Beide Spieler müssen verbündet sein (wenn nicht, blockiert)
+    alliance: areAllies(sender, receiver),
+    
+    // 6. Gleiche Insel (wenn nicht, blockiert)
+    sameIsland: sender.island === receiver.island
+  };
+  
+  // Wenn alle Checks erfüllt → automatisch genehmigt!
+  if (Object.values(autoCheck).every(Boolean)) {
+    return { allowed: true, requiresAdminApproval: false };
+  }
+  
+  // Wenn nicht alle Checks erfüllt → Admin-Approval nötig! (Ansatz 3)
+  const ratio = sender.mips / receiver.mips; // z.B. 3.3×
+  
+  if (ratio > 5) {
+    // Sehr starkes Ungleichgewicht → Admin muss genehmigen!
+    return { 
+      allowed: false, 
+      requiresAdminApproval: true,
+      reason: `Sehr starkes Ungleichgewicht (${ratio.toFixed(1)}×). Admin muss Transfer genehmigen!`
+    };
+  } else {
+    // Moderates Ungleichgewicht → Admin kann genehmigen (optional)
+    return { 
+      allowed: false, 
+      requiresAdminApproval: true,
+      reason: `Ungleichgewicht (${ratio.toFixed(1)}×). Admin kann Transfer genehmigen.`
+    };
+  }
+}
+
+function getTransferReason(checks) {
+  const failedChecks = Object.entries(checks).filter(([key, value]) => !value);
+  
+  if (failedChecks.length === 0) {
+    return 'Alle Checks erfüllt!';
+  }
+  
+  const reasons = [];
+  for (const [key, value] of failedChecks) {
+    if (key === 'mips') {
+      reasons.push(`MIPS: Sender hat ${sender.mips} MIPS, Empfänger nur ${receiver.mips} (max. 2×)`);
+    } else if (key === 'tech') {
+      reasons.push(`Tech-Level: Sender hat ${sender.tech_level}, Empfänger nur ${receiver.tech_level} (max. 2×)`);
+    } else if (key === 'population') {
+      reasons.push(`Bevölkerung: Sender hat ${sender.population}, Empfänger nur ${receiver.population} (max. 2×)`);
+    } else if (key === 'provinces') {
+      reasons.push(`Provinzen: Sender hat ${sender.provinzen_count}, Empfänger nur ${receiver.provinzen_count} (max. +2)`);
+    } else if (key === 'alliance') {
+      reasons.push('Nicht verbündet!');
+    } else if (key === 'sameIsland') {
+      reasons.push('Nicht auf derselben Insel!');
+    }
+  }
+  
+  return reasons.join(', ');
+}
+
+// Beispiel:
+// Sender = { mips: 100,000, tech_level: 1,500, population: 800, provinzen_count: 5 }
+// Empfänger = { mips: 60,000, tech_level: 800, population: 500, provinzen_count: 4 }
+// Status: ✅ OK (alle Checks erfüllt!)
+
+// Sender = { mips: 100,000 }, Empfänger = { mips: 30,000 } → Ratio = 3.3×
+// Status: ⚠️ Admin-Approval nötig (aber nicht blockiert!)
+
+// Sender = { mips: 100,000 }, Empfänger = { mips: 20,000 } → Ratio = 5×
+// Status: ❌ Blockiert (sehr starkes Ungleichgewicht!)
+```
+
+**UI:** Transfer-Modal zeigt automatisch Check-Ergebnis + Admin-Genehmigungsoption.
+
+2. **Routen bei Gefangenschaft**: Was passiert mit laufenden Handelsrouten?  
+   → **Automatisch abgebrochen** (Ressourcen gehen verloren, außer sie sind bereits im Ziel).
+
+3. **Freikaufsumme**: Wie wird sie berechnet (fest oder verhandelbar)?  
+   → **Fest** = 10% des Sender-MIPS (min. 500 MIPS).
+
+---
+
+## 9.9 Zusammenfassung & Checkliste (Aktualisiert)
+
+### 9.9.1 To-Do
+
+- [ ] Provinz-Transfer mit allen Checks (Allianz, Insel, Power-Balance)
+- [ ] Geld-Transfer via Staatskonto (mit Bank-Bonus)
+- [ ] Steuersatz konfigurieren (0-100%)
+- [ ] Gefangene-System mit 4 Optionen
+- [ ] Diplomatie-Interface (Freunde/Feinde/Alliierte)
+- [ ] Account-Reset mit 24h Cooldown
+- [ ] Bodenschätze suchen (mit Tech-Check)
+- [ ] Schnellbaumodus für effizientes Bauen
+- [ ] Verwaltung von Spieler-Einstellungen
+- [ ] Admin-Logs für alle kritischen Aktionen
+
+### 9.9.2 Power-Balance Multi-Kriterien-Check + Admin-Approval (NEU!)
+
+- [ ] **MIPS-Check**: Sender ≤ Empfänger × 2
+- [ ] **Tech-Level-Check**: Sender ≤ Empfänger × 2
+- [ ] **Bevölkerungs-Check**: Sender ≤ Empfänger × 2
+- [ ] **Provinzen-Anzahl-Check**: Sender ≤ Empfänger + 2 (nicht ×, sondern +)
+- [ ] **Allianz-Check**: Beide Spieler müssen verbündet sein (wenn nicht, blockiert)
+- [ ] **Insel-Check**: Gleiche Insel (wenn nicht, blockiert)
+- [ ] **Admin-Genehmigung** bei starkem Ungleichgewicht (> 5×)
+- [ ] **UI:** Transfer-Modal zeigt automatisch Check-Ergebnis + Admin-Genehmigungsoption
 
 ---
 
 **Abschnitt 9 abgeschlossen ✅**
 
 *Dokument erstellt: 2026-04-06*  
-*Stand: Basierend auf FAQ-Analysen*
+*Stand: Basierend auf FAQ-Analysen + Multi-Kriterien-Check + Admin-Approval (kombiniert)*
+
+**Alle 9 Player UI Dokumente aktualisiert! ✅**  
+*Soll ich jetzt alle Änderungen auf GitHub pushen? 🚀*

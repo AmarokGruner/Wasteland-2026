@@ -464,16 +464,197 @@ INSERT INTO diplomatie VALUES (1, 15, 23, 'ally');  // Spieler 15 & 23 sind Verb
 - [ ] Ruinen & freie Gebiete anzeigen
 - [ ] Armee-Bewegungsformular
 - [ ] Koordination in der UI anzeigen
-
 ### 7.8.2 Offene Fragen
-1. **Karten-Größe**: Ist 50x50 korrekt oder gibt es mehrere Inseln/Regionen?
-2. **Sichtweite**: Gibt es "Nebel des Krieges" (nur erforschte Bereiche sichtbar)?
-3. **Spezial-Zellen**: Welche Events gibt es außer Ruinen?
-4. **Armee-Geschwindigkeit**: Variiert sie nach Einheitentyp?
+
+1. **Karten-Größe**: Ist 50x50 korrekt oder gibt es mehrere Inseln/Regionen?  
+   → **Gewählter Ansatz:** Prozedural generierte Karte + Admin-Editor (statisch für Spieler)
+
+**Implementierung:**
+```javascript
+class AdminWeltEditor {
+  constructor() {
+    this.breite = 50;
+    this.hoehe = 50;
+    this.grid = []; // 50×50 Array
+    
+    // Terrain-Verteilung (Admin-Einstellungen)
+    this.terrainDistribution = {
+      wasser: 10,      // 10% Wasser (unbewohnbar)
+      wueste: 15,      // 15% Wüste (unbewohnbar)
+      gebirge: 15,     // 15% Gebirge (schwerer zu erreichen)
+      dschungel: 15,   // 15% Dschungel (Spezial-Rohstoffe)
+      vulkan: 5,       // 5% Vulkane (Events)
+      grasland: 40     // 40% Grasland (Standard)
+    };
+    
+    this.islandShape = 'organic'; // "circle", "rectangle", "organic"
+  }
+  
+  generiereWelt() {
+    // Prozedural generieren (Perlin Noise oder Zufall)
+    for (let y = 0; y < this.hoehe; y++) {
+      for (let x = 0; x < this.breite; x++) {
+        const rand = Math.random(); // 0.0 bis 1.0
+        
+        if (rand < this.terrainDistribution.wasser / 100) {
+          this.grid[y][x] = 'wasser'; // 10% Wasser (unbewohnbar)
+        } else if (rand < (this.terrainDistribution.wasser + this.terrainDistribution.wueste) / 100) {
+          this.grid[y][x] = 'wueste'; // 15% Wüste (unbewohnbar)
+        } else if (rand < (this.terrainDistribution.wasser + this.terrainDistribution.wueste + this.terrainDistribution.gebirge) / 100) {
+          this.grid[y][x] = 'gebirge'; // 15% Gebirge (schwerer zu erreichen)
+        } else if (rand < (this.terrainDistribution.wasser + this.terrainDistribution.wueste + this.terrainDistribution.gebirge + this.terrainDistribution.dschungel) / 100) {
+          this.grid[y][x] = 'dschungel'; // 15% Dschungel (Spezial-Rohstoffe)
+        } else if (rand < (this.terrainDistribution.wasser + this.terrainDistribution.wueste + this.terrainDistribution.gebirge + this.terrainDistribution.dschungel + this.terrainDistribution.vulkan) / 100) {
+          this.grid[y][x] = 'vulkan'; // 5% Vulkane (Events)
+        } else {
+          this.grid[y][x] = 'grasland'; // 40% Grasland (Standard)
+        }
+      }
+    }
+    
+    // Insel-Form anwenden (optional)
+    if (this.islandShape === 'circle') {
+      this.wendeInselForm('circle');
+    } else if (this.islandShape === 'rectangle') {
+      this.wendeInselForm('rectangle');
+    } else if (this.islandShape === 'organic') {
+      this.wendeInselForm('organic'); // Prozedural (Perlin Noise)
+    }
+  }
+  
+  speichereWelt(weltId) {
+    // Grid als JSON speichern (statisch für Spieler!)
+    const gridJson = JSON.stringify(this.grid);
+    
+    // In Datenbank speichern (welt_id, x, y, terrain)
+    database.welten.update(weltId, { grid: gridJson });
+    
+    for (let y = 0; y < this.hoehe; y++) {
+      for (let x = 0; x < this.breite; x++) {
+        database.welten_grid.insert({
+          welt_id: weltId,
+          x, y,
+          terrain: this.grid[y][x],
+          special: this.getSpecial(x, y) // z.B. "vulkan", null
+        });
+      }
+    }
+    
+    // Welt als "aktiv" markieren (für Spieler freigegeben)
+    database.welten.update(weltId, { status: 'aktiv' });
+  }
+  
+  getSpecial(x, y) {
+    const terrain = this.grid[y][x];
+    
+    if (terrain === 'vulkan') {
+      return 'vulkan'; // Event-Zelle!
+    } else if (terrain === 'dschungel') {
+      return Math.random() < 0.1 ? 'ruine' : null; // 10% Chance auf Ruine im Dschungel!
+    } else {
+      return null; // Keine Special-Zelle
+    }
+  }
+}
+
+// Beispiel:
+// Admin erstellt Welt "Alpha" (50×50 Grid)
+// 10% Wasser, 15% Wüste, 15% Gebirge, 15% Dschungel, 5% Vulkane, 40% Grasland
+// Insel-Form: "organic" (prozedural)
+// Nach Speichern: Welt ist für Spieler sichtbar und statisch!
+
+// Spieler können sich auf derselben Welt bewegen (Multiplayer)!
+```
+
+**Datenbank:**
+```sql
+CREATE TABLE welten (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,              -- z.B. "Welt Alpha", "Welt Beta"
+  breite INTEGER DEFAULT 50,       -- Standard: 50×50 Grid
+  hoehe INTEGER DEFAULT 50,        -- Standard: 50×50 Grid
+  status TEXT DEFAULT 'generiert', -- 'generiert', 'aktiv', 'archiviert'
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  grid TEXT NOT NULL               -- 50×50 Grid als JSON (z.B. "grasland", "wasser")
+);
+
+CREATE TABLE welten_grid (
+  welt_id INTEGER NOT NULL,
+  x INTEGER NOT NULL,
+  y INTEGER NOT NULL,
+  terrain TEXT NOT NULL,           -- "grasland", "wasser", "gebirge"
+  special TEXT,                    -- "vulkan", "ruine", null
+  
+  PRIMARY KEY (welt_id, x, y),
+  FOREIGN KEY (welt_id) REFERENCES welten(id)
+);
+
+-- Beispiel-Daten:
+INSERT INTO welten VALUES (1, 'Welt Alpha', 50, 50, 'aktiv', NOW(), '[["grasland", "wasser"], ...]');
+
+INSERT INTO welten_grid (welt_id, x, y, terrain) VALUES 
+  (1, 0, 0, 'wasser'),
+  (1, 1, 1, 'grasland'),
+  (1, 2, 2, 'gebirge');
+
+-- Admin-Editor:
+{
+  "welt_id": 1,
+  "name": "Welt Alpha",
+  "grid_size": [50, 50],
+  "terrain_distribution": {
+    "wasser": 10,      // 10% Wasser (unbewohnbar)
+    "wueste": 15,      // 15% Wüste (unbewohnbar)
+    "gebirge": 15,     // 15% Gebirge (schwerer zu erreichen)
+    "dschungel": 15,   // 15% Dschungel (Spezial-Rohstoffe)
+    "vulkan": 5,       // 5% Vulkane (Events)
+    "grasland": 40     // 40% Grasland (Standard)
+  },
+  "island_shape": "organic", // "circle", "rectangle", "organic" (prozedural)
+  "coastline_smoothness": 0.7 // Wie stark Küsten geglättet werden (0-1)
+}
+```
+
+2. **Sichtweite**: Gibt es "Nebel des Krieges" (nur erforschte Bereiche sichtbar)?  
+   → **Nein** - Spieler sehen alle 50×50 Grid-Zellen (Multiplayer-Browserspiel).
+
+3. **Spezial-Zellen**: Welche Events gibt es außer Ruinen?  
+   → Vulkane (5% Chance auf Events), Dschungel-Ruinen (10% Chance).
+
+4. **Armee-Geschwindigkeit**: Variiert sie nach Einheitentyp?  
+   → **Ja** - 1 Provinz/Stunde Standard, Kavallerie +200% (3×).
+
+---
+
+## 7.9 Zusammenfassung & Checkliste (Aktualisiert)
+
+### 7.9.1 To-Do
+- [ ] Weltkarte mit 50x50 Grid rendern
+- [ ] Zoom-Funktion (0.25x bis 4.0x)
+- [ ] Provinzen an Koordinaten anzeigen
+- [ ] Diplomatie-Farben anwenden
+- [ ] Armeen auf Karte anzeigen
+- [ ] Marschierende Armeen animieren
+- [ ] Zentriere-Knopf ("Meine Provinz")
+- [ ] Provinz-Vorschau beim Klick
+- [ ] Weltkarte-Modal mit Legend
+- [ ] Ruinen & freie Gebiete anzeigen
+- [ ] Armee-Bewegungsformular
+- [ ] Koordination in der UI anzeigen
+
+### 7.9.2 Weltkarte prozedural generiert (NEU!)
+- [ ] **Admin-Welteditor** implementieren (50×50 Grid)
+- [ ] **Terrain-Verteilung** konfigurieren (10% Wasser, 15% Wüste, etc.)
+- [ ] **Insel-Form** anwenden (circle, rectangle, organic)
+- [ ] **Grid als JSON speichern** (statisch für Spieler!)
+- [ ] **Special-Zellen** hinzufügen (Vulkane, Dschungel-Ruinen)
+- [ ] **Welt als "aktiv" markieren** (für Spieler freigegeben)
 
 ---
 
 **Abschnitt 7 abgeschlossen ✅**
 
 *Dokument erstellt: 2026-04-06*  
-*Stand: Basierend auf FAQ-Analysen*
+*Stand: Basierend auf FAQ-Analysen + prozedural generierte Karte + Admin-Editor (statisch für Spieler)*
+
+**Nächster Schritt:** Soll ich mit Abschnitt 8 (Spieler-Infos & Einstellungen) fortfahren? ⚙️

@@ -288,17 +288,23 @@ function trainArmies(armee) {
   saveArmee(armee);
 }
 
-// Kampfkraft-Berechnung
+// Kampfkraft-Berechnung (Exponentielle Formel)
 function calculateTotalStrength(units) {
   return units.reduce((total, unit) => {
-    // Training & Fitness beeinflussen Stärke
-    const factor = (unit.training / 100) * 0.5 + 
-                   (unit.fitness / 100) * 0.5;
+    // Exponentielle Formel: exp(Training / 200) × exp(Fitness / 150)
+    const trainingFaktor = Math.exp(unit.training / 200); // exp(Training/200)
+    const fitnessFaktor = Math.exp(unit.fitness / 150);   // exp(Fitness/150)
     
-    total += unit.anzahl * factor;
+    const kampfkraft = trainingFaktor * fitnessFaktor; // Multiplikation!
+    
+    total += unit.anzahl * kampfkraft;
     return total;
   }, 0);
 }
+
+// Beispiel:
+// Training = 80, Fitness = 90 → exp(0.4) × exp(0.6) = 1.49 × 1.82 = 2.71
+// Verluste bei gleicher Stärke: (1.0 - 2.71) × 100 = -171% (massiver Vorteil!)
 ```
 
 ---
@@ -492,6 +498,59 @@ INSERT INTO armies VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 -- province_id = 99
 -- travel_ticks_remaining = 0
 ```
+
+---
+
+## 4.6 Geschwindigkeit zwischen Provinzen (Gewählter Ansatz: Einheitentyp-basiert)
+
+**Regel:** 1 Provinz pro Stunde (Standard) + Einheitentyp-Modifikator
+
+**Datenbank:**
+```sql
+CREATE TABLE einheiten_typen (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,              -- z.B. "Rekrut", "Kavallerie"
+  kategorie TEXT NOT NULL,         -- "Infanterie", "Kavallerie"
+  beschreibung TEXT NOT NULL,      -- JSON: {"basis_speed": 1.0, "ausstattung": ["pferd"]}
+  
+  -- Geschwindigkeit zwischen Provinzen (neu!)
+  geschwindigkeit_pro_stunde REAL DEFAULT 1.0, -- Standard: 1 Provinz/Stunde
+  
+  -- Beispiel:
+  {"basis_speed": 1.0, "ausstattung": ["pferd"]} → 1 Provinz/Stunde
+  {"basis_speed": 3.0, "ausstattung": ["pferd", "reitsattel"]} → 3 Provinzen/Stunde!
+);
+
+-- Beispiel-Daten:
+INSERT INTO einheiten_typen VALUES (1, 'Rekrut', 'Infanterie', '{"basis_speed": 1.0}', 1.0);
+INSERT INTO einheiten_typen VALUES (2, 'Kavallerie', 'Kavallerie', '{"basis_speed": 3.0}', 3.0);
+INSERT INTO einheiten_typen VALUES (3, 'Siedler', 'Siedler', '{"basis_speed": 1.5}', 1.5);
+```
+
+**Implementierung:**
+```javascript
+function berechneReisezeit(distanz, einheitentyp) {
+  // Distanz = Anzahl der Provinzen zwischen Start und Ziel (nicht Grid-Felder!)
+  
+  const baseGeschwindigkeit = {
+    rekrut: 1,      // 1 Provinz/Stunde Basis (Standard)
+    bogenschuetze: 1,   // 1 Provinz/Stunde Basis (Standard)
+    axtkampf: 0.8,   // 0.8 Provinzen/Stunde (-20%)
+    kavallerie: 3,   // 3 Provinzen/Stunde (+200%!)
+    siedler: 1.5   // 1.5 Provinzen/Stunde (+50%)
+  };
+  
+  const speed = baseGeschwindigkeit[einheitentyp];
+  return Math.ceil(distanz / speed); // Reisezeit in Stunden (Provinzen!)
+}
+
+// Beispiel:
+// Distanz = 3 Provinzen, Rekrut → 3 Stunden (1 Provinz/Stunde)
+// Distanz = 3 Provinzen, Kavallerie → 1 Stunde (3 Provinzen/Stunde!)
+// Distanz = 5 Provinzen, Siedler → 3.3 Stunden (1.5 Provinzen/Stunde)
+```
+
+**Wichtig:** Geschwindigkeit zwischen **Provinzen**, nicht Grid-Felder!
 
 ---
 

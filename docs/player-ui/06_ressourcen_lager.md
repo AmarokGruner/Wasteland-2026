@@ -125,7 +125,7 @@ function berechneVorrat(ressource, produktion, verbrauch) {
     return Infinity;  // Unendlich (kein Engpass)
   } else {
     // Verbrauch > Produktion -> Vorrat sinkt
-    const tages deficit = Math.abs(netto);
+    const tagesDefizit = Math.abs(netto);
     const vorratInTagen = ressource.menge / tagesDefizit;
     return vorratInTagen;
   }
@@ -189,9 +189,9 @@ function berechneVorrat(ressource, produktion, verbrauch) {
         <Menge>{r.menge}</Menge>
         <Produktion>+{r.produktion_pro_tag}/Tag</Produktion>
         <Verbrauch>-{r.verbrauch_pro_tag}/Tag</Verbrauch>
-        <VorratDayen>
+        <VorratInTagen>
           {r.vorrat_in_tagen === Infinity ? '∞' : r.vorrat_in_tagen.toFixed(1)} Tage
-        </VorratDays>
+        </VorratInTagen>
       </RessourceItem>
     ))}
   </RessourcenList>
@@ -214,7 +214,7 @@ function berechneVorrat(ressource, produktion, verbrauch) {
   <StatGrid>
     <Stat label="Menge" value={resource.menge} />
     <Stat label="Kapazität" value={resource.max || '∞'} />
-    <Stat label="Produktion" value={`+${resourceproduktion_pro_tag}/Tag`} />
+    <Stat label="Produktion" value={`+${resource.produktion_pro_tag}/Tag`} />
     <Stat label="Verbrauch" value={`-${resource.verbrauch_pro_tag}/Tag`} />
     <Stat label="Vorrat" value={
       resource.vorrat_in_tagen === Infinity 
@@ -225,7 +225,7 @@ function berechneVorrat(ressource, produktion, verbrauch) {
   
   <ProductionsList>
     <h4>Produziert durch:</h4>
-    {resource.produktionGebäude.map(b => (
+    {resource.produktionGebaeude.map(b => (
       <ProductionItem>
         {b.name}: +{b.menge}/Tag
       </ProductionItem>
@@ -309,10 +309,79 @@ function checkLagerWarnungen(province) {
 
 ---
 
-## 6.7 Zusammenfassung & Checkliste
+## 6.7 Lager-Hybrid-Lösung (Gewählter Ansatz: Mischung aus allen drein)
 
-### 6.7.1 To-Do
-- [ ] Lager-Kapazität durch Gebäude berechnen
+**Regel:** Gesamtkapazität = Summe aller Lager-Gebäude + Pro-Ressource-Limit manuell einstellbar
+
+**Implementierung:**
+```javascript
+function berechneLagerBelegung(province, benutzerLimiten) {
+  // 1. Gesamtkapazität = Summe aller Lager-Gebäude (Ansatz 3)
+  let gesamtkapazitaet = 0;
+  
+  for (const gebaeude of province.buildings) {
+    if (gebaeude.lagerkapazitaet > 0) {
+      gesamtkapazitaet += gebaeude.lagerkapazitaet; // z.B. 500 + 2000 = 2500
+    }
+  }
+  
+  // 2. Pro-Ressource-Limit manuell einstellbar (Ansatz 2)
+  // benutzerLimiten = { "Kartoffeln": 1500, "Bauholz": null, ... }
+  
+  let belegung = 0;
+  const ressourcenStatus = [];
+  
+  for (const ressource of province.lager.ressourcen) {
+    // Limit bestimmen: Benutzer-Eingabe ODER dynamisch (Ansatz 1)
+    let limit = benutzerLimiten[ressource.name]; // z.B. 1500
+    
+    if (limit === null || limit === undefined) {
+      // Kein Limit gesetzt → dynamisch bis zur Gesamtkapazität (Ansatz 1)
+      limit = gesamtkapazitaet; // z.B. 2500
+    }
+    
+    // Menge begrenzen (überschüssige Rohstoffe gehen verloren!)
+    const effectiveMenge = Math.min(ressource.menge, limit);
+    
+    belegung += effectiveMenge;
+    
+    const status = ressource.menge > limit ? 'ueberlimit' : (belegung >= gesamtkapazitaet ? 'voll' : 'ok');
+    
+    ressourcenStatus.push({
+      name: ressource.name,
+      menge: ressource.menge, // Original-Menge (vor Limit)
+      effectiveMenge: effectiveMenge, // Begrenzte Menge (nach Limit)
+      limit: limit, // Benutzer-Limit oder dynamisch
+      status: status,
+      verloren: ressource.menge - effectiveMenge // Verlorene Menge!
+    });
+  }
+  
+  const belegungProzent = (belegung / gesamtkapazitaet) * 100;
+  
+  return {
+    gesamt: belegung, // Summe aller begrenzten Ressourcen
+    kapazitaet: gesamtkapazitaet, // Summe aller Lager-Gebäude
+    belegungProzent: belegungProzent,
+    voll: belegung >= gesamtkapazitaet,
+    ressourcenStatus: ressourcenStatus // Detail-Informationen pro Ressource
+  };
+}
+
+// Beispiel:
+// Bunker (500) + Vorratskammer (2000) = 2500 Gesamtkapazität
+// Kartoffeln: 3000 (Limit = 1500) → ❌ ÜBERLIMIT (1500 verloren!)
+// Bauholz: 2000 (Limit = null → dynamisch) → ✅ OK (Summe = 3500 < 2500? NEIN!)
+```
+
+**UI:** Schieberegler pro Ressource (manuell einstellbar) + Gesamtkapazität als Summe aller Lager-Gebäude.
+
+---
+
+## 6.8 Zusammenfassung & Checkliste (Aktualisiert)
+
+### 6.8.1 To-Do
+- [ ] Lager-Kapazität durch Gebäude berechnen (Summe aller Lager-Gebäude)
 - [ ] JSON-Produktion von Gebäuden parsen
 - [ ] Verbrauch durch Bevölkerung + Marktstände berechnen
 - [ ] Vorrat-in-Tagen-Logik implementieren
@@ -322,20 +391,17 @@ function checkLagerWarnungen(province) {
 - [ ] Ressource-Detail-Modal
 - [ ] Filter nach Kategorie (Nahrung, Baugüter, ...)
 
-### 6.7.2 Offene Fragen
-
-- [x] **Lager-Limit pro Ressource**: *Gibt es ein Maximum pro Ressource oder nur ein Gesamt-Kapazität?*  
-  → Wir implementieren ein pro‑Ressource‑Maximum (konfigurierbar per Gebäude), jedoch darf die Summe aller Ressourcen nicht die Gesamtkapazität aller Lager‑Gebäude überschreiten. Das Gesamtsystem bleibt auf die Summe der Gebäude‑Kapazitäten begrenzt.
-
-- [x] **Ressource-Spoiler**: *Was passiert bei 0 Menge? Produktion gestoppt oder negative Werte möglich?*  
-  → Produktion wird automatisch pausiert, sobald eine Ressource auf 0 sinkt; negative Werte sind nicht erlaubt.
-
-- [ ] **Rohstoff-Funde**: *Können Ressourcen durch Geld‑Suche gefunden werden, wobei der Tech‑Level bestimmt, welche Rohstoffe durchsucht werden können, und die Suche anhand einer Wahrscheinlichkeits‑Tabelle erfolgt?*  
-  → (Geplant – Implementation in Planung)
+### 6.8.2 Lager-Hybrid-Lösung (NEU!)
+- [ ] **Gesamtkapazität berechnen** = Summe aller Lager-Gebäude (Bunker, Vorratskammer)
+- [ ] **Pro-Ressource-Limit manuell einstellbar** (Schieberegler pro Ressource)
+- [ ] **Limit anwenden**: Überschüssige Rohstoffe gehen verloren!
+- [ ] **UI:** Schieberegler pro Ressource + Gesamtkapazität als Summe aller Lager-Gebäude
 
 ---
 
 **Abschnitt 6 abgeschlossen ✅**
 
 *Dokument erstellt: 2026-04-06*  
-*Stand: Basierend auf FAQ-Analysen*
+*Stand: Basierend auf FAQ-Analysen + Hybrid-Lösung (Gesamtkapazität = Summe aller Lager-Gebäude + Pro-Ressource-Limit manuell einstellbar)*
+
+**Nächster Schritt:** Soll ich mit Abschnitt 7 (Weltkarte & Navigation) fortfahren? 🗺️
