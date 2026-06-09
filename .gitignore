@@ -34,6 +34,11 @@ build/
 .DS_Store
 Thumbs.db
 
-# Local data / DBs
+# Local data / DBs (commented out - uncomment if you want to ignore all .db files)
 #*.db
-*.sqlite3
+#*.sqlite3
+
+# NextCloud Sync (removed - now using GitHub)
+.sync_*
+.nextcloud*
+token.txt
