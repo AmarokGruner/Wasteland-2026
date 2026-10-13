@@ -415,6 +415,19 @@ Das Projekt verwendet ein **Multi-Agenten-System** mit spezialisierten Sub-Agent
   - Accessibility Testing (WCAG 2.1 AA) durchführen
 - **Einsatz:** Vor Releases, bei UI-Änderungen, Performance-Optimierung
 
+
+**18. ai-player-bot (Adaptive AI Player Bot)**
+- **Spezialisierung:** Adaptive Spieler-Simulation, Reinforcement Learning, Langzeit-Testing
+- **Aufgaben:**
+  - Simuliert reale Spieler im Live-Browser (echte API-Endpunkte)
+  - Adaptives Lernen basierend auf Spielerfolg (Q-Learning, ε-greedy)
+  - Verschiedene Spielertypen simulieren (conservative, aggressive, trader, explorer)
+  - Spielbalance über längere Zeiträume testen (Tage/Wochen komprimiert)
+  - UX-Schwachstellen und Edge Cases unter realistischen Bedingungen erkennen
+- **Einsatz:** Bei Balance-Anpassungen, Langzeit-Simulationen, UX-Optimierung
+
+---
+
 ---
 
 
