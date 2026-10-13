@@ -41,11 +41,15 @@ Wasteland_neu/
 │   └── resources.html     # Ressourcen-Verwaltung
 ├── admin.html             # Haupt-Admin-Oberfläche
 ├── index.html             # Spieler-Oberfläche
-├── docs/                  # Vollständige Dokumentation (26 Dateien)
-│   ├── 00_meta_prompt_engineer.md    # KI-Agent Anweisungen
-│   ├── 00_session_start.md           # Session-Start Guide
-│   ├── COMPLETE_CLEAN_BUILD_GUIDE.md # Kompletter Aufbau
-│   └── ...                          # Feature-Dokumentationen
+├── docs/                  # Vollständige Dokumentation (8 Dateien)
+│   ├── 01_PROJEKTUEBERSICHT.md    # Projektbeschreibung, Tech-Stack
+│   ├── 02_DATENBANK.md            # Datenbank-Schema, Migrationen
+│   ├── 03_API.md                  # Alle API Endpunkte
+│   ├── 04_GAMEMECHANIK.md         # Alle Spielmechaniken
+│   ├── 05_ADMIN_SYSTEM.md         # Admin-Funktionen
+│   ├── 06_SICHERHEIT.md           # Sicherheit & Audit
+│   ├── 07_DEPLOYMENT.md           # Setup, Docker, nginx
+│   └── 08_ENTWICKLUNG.md          # Testing, Linting, CI/CD
 ├── .gitignore             # Ignorierte Dateien
 └── requirements.txt       # Python Abhängigkeiten
 ```
