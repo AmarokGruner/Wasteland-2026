@@ -196,7 +196,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8011 --reload
 - `docs/27_weltkarte_db_migration.md` - Migrationen
 - `app/models.py` - Alle Modelle
 
-### 9. Testing
+### 10. Testing
 
 ```bash
 # Unit Tests
@@ -210,7 +210,222 @@ flake8 app/
 mypy app/
 ```
 
-### 10. Deployment
+### 11. Multi-Agenten Architektur - Projektleiter & Sub-Agenten
+
+#### 🎯 Rolle des Haupt-Agenten (Projektleiter/Manager)
+
+Der Haupt-KI-Agent übernimmt die Rolle des **Projektmanagers** und koordiniert alle Entwicklungsaktivitäten:
+
+- **Aufgabenzerlegung:** Komplexe Aufgaben werden in kleinere, spezialisierte Arbeitspakete zerlegt
+- **Sub-Agenten Zuweisung:** Jedes Arbeitspaket wird an einen spezialisierten Sub-Agenten übergeben
+- **Ergebnis-Konsolidierung:** Ergebnisse mehrerer Sub-Agenten werden analysiert, verglichen und konsolidiert
+- **Qualitätssicherung:** Alle Ergebnisse werden auf Konsistenz, Vollständigkeit und Korrektheit geprüft
+- **Umsetzungs-Entscheidungen:** Basierend auf den Sub-Agenten-Ergebnissen wird die beste Lösung ausgewählt und umgesetzt
+
+#### 🤖 Sub-Agenten System
+
+Das Projekt verwendet ein **Multi-Agenten-System** mit spezialisierten Sub-Agenten. Jeder Sub-Agent hat eine klare Spezialisierung und wird über `delegate_task` mit isoliertem Kontext gestartet.
+
+##### 📋 Liste der Sub-Agenten
+
+**1. planning-analyst (Planungs-Analyst)**
+- **Spezialisierung:** Technische Analyse und Machbarkeitsprüfung
+- **Aufgaben:**
+  - Analyse bestehender Codebasis für Feature-Integration
+  - Identifikation von Abhängigkeiten und Konflikten
+  - Technische Machbarkeitsbewertung
+  - Risikobewertung und Alternative Vorschläge
+- **Einsatz:** Vor jeder Feature-Entwicklung
+
+**2. planning-architect (Planungs-Architekt)**
+- **Spezialisierung:** Systemdesign und Architektur
+- **Aufgaben:**
+  - Entwirft Datenbank-Schema Änderungen
+  - Plant API-Endpunkt Integrationen
+  - Definiert Model-Relationships und Back-Populates
+  - Erstellt Migrationspläne für bestehende Tabellen
+- **Einsatz:** Bei Datenbank- oder API-Änderungen
+
+**3. planning-developer (Planungs-Entwickler)**
+- **Spezialisierung:** Implementierungsplanung und Code-Struktur
+- **Aufgaben:**
+  - Erstellt detaillierte Implementierungs-Schritte
+  - Plant File-Struktur und Module-Organisation
+  - Definiert Test-Szenarien und Edge-Cases
+  - Erstellt Code-Beispiele für kritische Funktionen
+- **Einsatz:** Vor jeder Feature-Implementierung
+
+**4. backend-developer (Backend-Entwickler)**
+- **Spezialisierung:** FastAPI Backend Entwicklung
+- **Aufgaben:**
+  - Implementiert API-Endpunkte (Router, Services, Schemas)
+  - Erstellt Datenbank-Migrationen und Seeds
+  - Implementiert Business Logic und Validierung
+  - Schreibt Unit-Tests für Backend-Funktionen
+- **Einsatz:** Bei allen Backend-Features
+
+**5. frontend-developer (Frontend-Entwickler)**
+- **Spezialisierung:** Vanilla JS Frontend Entwicklung
+- **Aufgaben:**
+  - Implementiert UI-Komponenten (HTML/CSS/JS)
+  - Erstellt API-Integrationen im Frontend
+  - Plant State-Management und Event-Handling
+  - Implementiert Responsive Design und UX-Verbesserungen
+- **Einsatz:** Bei allen UI/Feature-Entwicklungen
+
+**6. game-mechanic (Spielmechanik-Experte)**
+- **Spezialisierung:** Spielbalance und Game Design
+- **Aufgaben:**
+  - Berechnet MIPS-Kosten und Ressourcen-Balance
+  - Definiert Tech-Level Anforderungen
+  - Plant Gebäude-Interaktionen und Synergien
+  - Erstellt Balance-Tabellen für neue Features
+- **Einsatz:** Bei neuen Spielmechaniken oder Balance-Anpassungen
+
+**7. security-auditor (Sicherheits-Audit)**
+- **Spezialisierung:** Sicherheit und Datenschutz
+- **Aufgaben:**
+  - Prüft API-Endpunkte auf Sicherheitslücken
+  - Validiert Input-Sanitization und SQL-Injection Schutz
+  - Prüft Authentifizierung und Autorisierung
+  - Erstellt Security-Checklisten für neue Features
+- **Einsatz:** Vor jedem Deployment oder bei sicherheitskritischen Features
+
+**8. documentation-writer (Dokumentations-Schreiber)**
+- **Spezialisierung:** Technische Dokumentation
+- **Aufgaben:**
+  - Erstellt Feature-Dokumentation im Markdown-Format
+  - Aktualisiert API-Dokumentation (OpenAPI/Swagger)
+  - Schreibt Changelog und Release Notes
+  - Erstellt Benutzerhandbücher für neue Features
+- **Einsatz:** Nach jeder Feature-Implementierung
+
+**9. testing-engineer (Test-Ingenieur)**
+- **Spezialisierung:** Testautomatisierung und Qualitätssicherung
+- **Aufgaben:**
+  - Erstellt Unit-Tests für Backend-Funktionen
+  - Schreibt Integrationstests für API-Endpunkte
+  - Plant Edge-Cases und Fehler-Szenarien
+  - Führt Regressionstests nach Änderungen durch
+- **Einsatz:** Vor und nach jeder Feature-Implementierung
+
+**10. database-admin (Datenbank-Administrator)**
+- **Spezialisierung:** Datenbank-Design und Performance
+- **Aufgaben:**
+  - Erstellt und optimiert Datenbank-Schemata
+  - Plant Index-Strategien für Performance
+  - Erstellt Migrationsskripte und Seed-Daten
+  - Prüft Daten-Integrität und Constraints
+- **Einsatz:** Bei allen Datenbank-Änderungen
+
+#### 🔄 Multi-Model Planning Workflow
+
+Für **Planungsaufgaben** wird ein spezieller Workflow verwendet, der die Stärken verschiedener LLM-Modelle kombiniert:
+
+##### Schritt 1: Parallel Planning (3 Sub-Agenten)
+Der Projektleiter erstellt **drei parallele Planungsaufgaben** an drei verschiedene Planning-Sub-Agenten:
+
+```
+Planning-Analyst (Modell A) → Technische Analyse
+Planning-Architect (Modell B) → Systemdesign  
+Planning-Developer (Modell C) → Implementierungsplan
+```
+
+##### Schritt 2: Modell-Zuweisung (10.68.42.2:1234)
+Jeder Planning-Sub-Agent verwendet ein **unterschiedliches LLM-Modell** vom lokalen Server:
+
+| Sub-Agent | Empfohlenes Modell | Stärke |
+|-----------|-------------------|--------|
+| Planning-Analyst | qwen3.6-35b-a3b-holo3-qwopus-instruct-qx64-hi-mlx | Tiefe technische Analyse |
+| Planning-Architect | qwen3.6-32b-a3b-instruct-qwopus-holo-fast-v1.5 | Schnelles Systemdesign |
+| Planning-Developer | qwen3.6-235b-a22b-v05-qwen3coder-instruct-qwopus-holo-mlx | Code-Generierung |
+
+##### Schritt 3: Ergebnis-Konsolidierung
+Der Projektleiter analysiert alle drei Planungsergebnisse:
+
+1. **Gemeinsamkeiten identifizieren:** Wo stimmen alle drei Modelle überein?
+2. **Unterschiede analysieren:** Wo weichen die Modelle ab und warum?
+3. **Stärken kombinieren:** Beste Aspekte jedes Plans auswählen
+4. **Konflikte lösen:** Widersprüche durch technische Bewertung auflösen
+5. **Konsolidierten Plan erstellen:** Optimaler Hybrid-Plan aus allen drei Ergebnissen
+
+##### Schritt 4: Umsetzung
+Der konsolidierte Plan wird an den zuständigen Sub-Agenten (backend-developer oder frontend-developer) zur Implementierung übergeben.
+
+##### Beispiel: Feature "Neues Gebäude-System"
+
+```
+📋 Projektleiter erstellt 3 parallele Planungsaufgaben:
+
+┌─────────────────────────────────────────────────────────────┐
+│ Planning-Analyst (qwen3.6-35b)                              │
+│ - Analyse: 209 Gebäude existieren, neue Tabelle nötig?      │
+│ - Risiko: Konflikte mit bestehenden Seeds                   │
+│ - Empfehlung: Erweiterung der gebaeude_typen Tabelle        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ Planning-Architect (qwen3.6-32b)                            │
+│ - Design: Neue Spalten in gebaeude_typen                    │
+│ - Migration: ALTER TABLE + Seed-Daten                       │
+│ - API: POST /admin/gebaeude_typen erweitern                │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ Planning-Developer (qwen3.6-235b)                           │
+│ - Implementierung: models.py patchen, seed_gebaeude.py      │
+│ - Tests: pytest für neue Spalten                            │
+│ - Code-Beispiel: BuildingType Model erweitern              │
+└─────────────────────────────────────────────────────────────┘
+
+📊 Konsolidierung durch Projektleiter:
+✅ Alle stimmen: Erweiterung der gebaeude_typen Tabelle
+✅ Architektur: ALTER TABLE + Seed-Daten
+✅ Implementierung: models.py patchen, Tests schreiben
+
+🎯 Konsolidierter Plan:
+1. BuildingType Model in models.py erweitern (alle neuen Spalten)
+2. Datenbank-Migration über init_tables() (SQLAlchemy-basiert)
+3. Seed-Daten in seed_gebaeude.py hinzufügen
+4. API-Endpunkt POST /admin/gebaeude_typen erweitern
+5. Unit-Tests für neue Spalten schreiben
+6. Dokumentation aktualisieren (docs/04_GAMEMECHANIK.md)
+```
+
+#### 📝 Sub-Agenten Konfiguration
+
+Jeder Sub-Agent wird über `delegate_task` mit folgenden Parametern gestartet:
+
+```python
+# Beispiel: Planning-Analyst Task
+delegate_task(
+    tasks=[{
+        "goal": "Analysiere die technische Machbarkeit von Feature X",
+        "context": "Bestehende Codebasis, Modelle, API-Endpunkte...",
+        "output_schema": {
+            "type": "object",
+            "properties": {
+                "feasibility": {"type": "string"},  # high/medium/low
+                "risks": {"type": "array", "items": {"type": "string"}},
+                "recommendations": {"type": "array", "items": {"type": "string"}}
+            }
+        }
+    }]
+)
+```
+
+#### ⚠️ Wichtige Regeln für den Projektleiter
+
+1. **IMMER Planning-Phase:** Keine Feature-Implementierung ohne vorherige parallele Planung (3 Modelle)
+2. **Dokumentation pflegen:** SESSION_LOG.md nach jeder Sub-Agenten-Execution aktualisieren
+3. **Qualitätssicherung:** Alle Ergebnisse auf Konsistenz prüfen bevor Umsetzung
+4. **Ressourcen schonen:** Nicht alle Tasks benötigen 3 parallele Planning-Agenten (einfache Fixes können direkt umgesetzt werden)
+5. **Modell-Auswahl:** Passendes Modell für jede Aufgabe wählen (siehe Tabelle oben)
+6. **Ergebnis-Konsolidierung:** Mindestens 2 von 3 Planning-Agenten müssen zustimmen bevor Umsetzung
+
+---
+
+### 13. Deployment
 
 #### Docker
 ```bash
