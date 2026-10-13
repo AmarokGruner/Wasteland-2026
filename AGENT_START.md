@@ -395,6 +395,29 @@ Das Projekt verwendet ein **Multi-Agenten-System** mit spezialisierten Sub-Agent
 - **Einsatz:** Bei Balance-Anpassungen, Admin Reporting Features
 
 
+**16. browser-frontend-developer (Browser Frontend Developer)**
+- **Spezialisierung:** Vanilla JavaScript, HTML5, CSS3, Browser Features
+- **Aufgaben:**
+  - Vanilla JS Module entwickeln (app.js, province.js, buildings-data.js)
+  - DOM Manipulation und Event Handling implementieren
+  - Responsive Design und Cross-Browser Kompatibilität sicherstellen
+  - Browser Storage (localStorage, sessionStorage) verwalten
+  - Progressive Web App (PWA) Features implementieren
+- **Einsatz:** Bei allen UI-Komponenten, responsive Design, PWA Features
+
+**17. browser-testing-engineer (Browser Testing Engineer)**
+- **Spezialisierung:** Browser-basierte E2E Tests, Cross-Browser Testing
+- **Aufgaben:**
+  - Playwright/Puppeteer E2E Tests schreiben (Chrome, Firefox, Safari)
+  - Cross-Browser Kompatibilität testen
+  - Responsive Design Testing (Mobile, Tablet, Desktop)
+  - Lighthouse Audits und Core Web Vitals messen
+  - Accessibility Testing (WCAG 2.1 AA) durchführen
+- **Einsatz:** Vor Releases, bei UI-Änderungen, Performance-Optimierung
+
+---
+
+
 #### 🔄 Multi-Model Planning Workflow
 
 Für **Planungsaufgaben** wird ein spezieller Workflow verwendet, der die Stärken verschiedener LLM-Modelle kombiniert:
