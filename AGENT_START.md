@@ -423,6 +423,154 @@ delegate_task(
 5. **Modell-Auswahl:** Passendes Modell für jede Aufgabe wählen (siehe Tabelle oben)
 6. **Ergebnis-Konsolidierung:** Mindestens 2 von 3 Planning-Agenten müssen zustimmen bevor Umsetzung
 
+#### 🌿 Branch-Strategie für Sub-Agenten
+
+Jeder Sub-Agent arbeitet **eigenständig in einem eigenen Git-Branch** für sein Arbeitspaket:
+
+##### Branch-Erstellung
+```bash
+# Projektleiter erstellt Branch für Sub-Agent
+git checkout -b feature/<feature-name>
+# oder
+git checkout -b fix/<bug-description>
+# oder
+git checkout -b refactor/<module-name>
+
+# Beispiel:
+git checkout -b feature/neues-gebaeude-system
+git checkout -b fix/auth-token-expiry
+git checkout -b refactor/database-migrations
+```
+
+##### Sub-Agent Arbeit im Branch
+- Sub-Agent arbeitet **ausschließlich** in seinem zugewiesenen Branch
+- Alle Code-Änderungen, Tests und Dokumentationen erfolgen im eigenen Branch
+- Regelmäßige Commits mit aussagekräftigen Messages:
+  ```bash
+  git add .
+  git commit -m "feat: BuildingType Model erweitert um neue Spalten"
+  git push origin feature/neues-gebaeude-system
+  ```
+
+##### Testing im Branch
+- Sub-Agent führt **alle Tests** im eigenen Branch durch:
+  ```bash
+  # Unit Tests
+  pytest tests/ -v
+  
+  # Integration Tests (wenn applicable)
+  pytest tests/integration/ -v
+  
+  # Linting
+  flake8 app/
+  mypy app/
+  ```
+
+##### Merge nach erfolgreicher Testung
+- **Voraussetzung:** Alle Tests bestanden, Dokumentation aktualisiert
+- Sub-Agent erstellt **Pull Request** zum master Branch:
+  ```bash
+  # GitHub CLI (gh) verwenden
+  gh pr create \
+    --base master \
+    --head feature/neues-gebaeude-system \
+    --title "feat: Neues Gebäude-System implementiert" \
+    --body "Implementierung basierend auf konsolidiertem Planning-Plan
+  
+  ## Änderungen
+  - BuildingType Model erweitert (17 Spalten)
+  - Seed-Daten hinzugefügt (122 Gebäude)
+  - API-Endpunkt POST /admin/gebaeue_typen erweitert
+  
+  ## Tests
+  - ✅ Alle Unit Tests bestanden
+  - ✅ Integrationstests erfolgreich
+  - ✅ Linting ohne Fehler
+  
+  ## Planning-Agenten Ergebnisse
+  - Planning-Analyst: Machbarkeit bestätigt (high)
+  - Planning-Architect: ALTER TABLE + Seed-Daten empfohlen
+  - Planning-Developer: models.py patchen, Tests schreiben"
+  ```
+
+##### Projektleiter Review & Merge
+- Projektleiter prüft Pull Request auf:
+  - Konsistenz mit konsolidiertem Plan
+  - Vollständigkeit der Implementierung
+  - Testabdeckung
+  - Dokumentationsaktualisierung
+- Bei Bestätigung: **Merge in master**
+  ```bash
+  gh pr merge <pr-number> --merge --delete-branch
+  ```
+
+##### Branch-Bereinigung
+- Nach erfolgreichem Merge: Feature-Branch löschen (automatisch durch gh pr merge)
+- Master Branch bleibt stabil und testbar
+
+##### Beispiel Workflow: Neues Gebäude-Feature
+
+```bash
+# 1. Projektleiter erstellt Planning (3 parallele Agenten)
+# ... Planning-Ergebnisse werden konsolidiert ...
+
+# 2. Projektleiter erstellt Branch für backend-developer
+git checkout -b feature/neues-gebaeude-system
+
+# 3. backend-developer arbeitet im Branch
+git checkout feature/neues-gebaeude-system
+
+# 4. Implementierung
+# - models.py patchen (BuildingType erweitern)
+# - seed_gebaeude.py aktualisieren
+# - API-Endpunkt erweitern
+
+# 5. Testing im Branch
+pytest tests/ -v
+flake8 app/
+
+# 6. Commit & Push
+git add .
+git commit -m "feat: BuildingType Model um 13 neue Spalten erweitert
+
+- platz_land, platz_wasser, platz_luft
+- verbrauch, produktionswert
+- beschreibung, created_at, updated_at
+- verbraucht_von, produziert_von
+- verbrauch_hinweis, fleisch_bei_schlachtung"
+git push origin feature/neues-gebaeude-system
+
+# 7. Pull Request erstellen
+gh pr create \
+  --base master \
+  --head feature/neues-gebaeude-system \
+  --title "feat: BuildingType Model erweitert (17 Spalten)" \
+  --body "Implementierung basierend auf konsolidiertem Planning-Plan"
+
+# 8. Projektleiter prüft PR und merged
+gh pr merge <pr-number> --merge --delete-branch
+
+# 9. Zurück zu master für nächstes Feature
+git checkout master
+```
+
+##### Branch-Namenskonventionen
+
+| Typ | Pattern | Beispiel |
+|-----|---------|----------|
+| Feature | `feature/<name>` | `feature/handelsrouten-system` |
+| Bugfix | `fix/<description>` | `fix/auth-token-expiry` |
+| Refactor | `refactor/<module>` | `refactor/database-migrations` |
+| Docs | `docs/<topic>` | `docs/api-documentation-update` |
+| Test | `test/<scenario>` | `test/integration-api-endpoints` |
+
+##### Ausnahmen (direkte Umsetzung ohne Branch)
+- **Kleine Documentation Updates** (Typos, Formatierung)
+- **Triviale Config Changes** (Port-Anpassungen, Environment Variables)
+- **SESSION_LOG.md Updates** (nach jeder Sub-Agenten-Execution)
+
+Diese können direkt auf master committet werden, ohne eigenen Branch zu erstellen.
+
 ---
 
 ### 13. Deployment
