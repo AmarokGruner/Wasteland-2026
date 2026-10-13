@@ -1,0 +1,23 @@
+fastapi==0.112.0
+uvicorn[standard]==0.30.3
+sqlalchemy==2.0.33
+apscheduler==3.10.4
+python-jose[cryptography]==3.3.0
+bcrypt==4.2.0
+pydantic==2.8.2
+
+# Monitoring & Observability
+prometheus-client==0.19.0
+
+# Rate Limiting
+slowapi==0.1.9
+
+# Production Server (optional, für Docker/Production)
+gunicorn==22.0.0
+
+# Environment Variables (falls nicht installiert)
+python-dotenv==1.0.1
+
+# Testing
+pytest==9.0.3
+httpx==0.28.1

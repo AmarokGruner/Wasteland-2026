@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Resources Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Resources Admin</h1>
+  <button id="btnNew">Neu Resource</button>
+  <table class="grid" id="tableResources">
+    <thead id="thead"></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div id="editorModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <span id="modalClose" class="close">&times;</span>
+      <h2 id="modalTitle">Resource bearbeiten</h2>
+      <form id="editorForm" class="form"></form>
+      <div class="modal-actions">
+        <button type="button" id="btnSave">Speichern</button>
+        <button type="button" id="btnCancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="resources.js"></script>
+</body>
+</html>

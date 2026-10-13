@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Die Verbrannte Zone v1.6</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ─── Onboarding Overlays ───────────────────────────────── */
+    #welcome-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(8,8,8,0.92);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      backdrop-filter: blur(6px);
+    }
+    #welcome-overlay .welcome-card {
+      background: linear-gradient(145deg, #1a1a2e, #16213e);
+      border: 1px solid #b8860b;
+      border-radius: 16px;
+      padding: 48px 52px;
+      text-align: center;
+      max-width: 480px;
+      box-shadow: 0 0 60px rgba(184,134,11,0.25);
+    }
+    #welcome-overlay .welcome-icon { font-size: 3.5rem; margin-bottom: 16px; }
+    #welcome-overlay h2 {
+      font-size: 1.7rem;
+      color: #cd853f;
+      margin-bottom: 12px;
+      font-family: 'Georgia', serif;
+      letter-spacing: 0.03em;
+    }
+    #welcome-overlay p {
+      color: #b0a090;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    #btn-spawn {
+      background: linear-gradient(135deg, #b8860b, #8b6914);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 36px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 18px rgba(184,134,11,0.4);
+    }
+    #btn-spawn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(184,134,11,0.55); }
+    #btn-spawn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Tutorial-Overlay (unten rechts) ───────────────────── */
+    #tutorial-overlay {
+      display: none;
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 8999;
+      width: 320px;
+      background: linear-gradient(145deg, #1e1e2f, #14142a);
+      border: 1px solid #4a4aaa;
+      border-radius: 12px;
+      padding: 20px 22px 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      flex-direction: column;
+      gap: 10px;
+      animation: slideInRight 0.3s ease;
+    }
+    @keyframes slideInRight {
+      from { opacity:0; transform: translateX(40px); }
+      to   { opacity:1; transform: translateX(0); }
+    }
+    #tutorial-overlay .tut-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #8888ff;
+      font-weight: bold;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+    #tutorial-title {
+      color: #dde;
+      font-size: 1rem;
+      font-weight: bold;
+      margin: 4px 0;
+    }
+    #tutorial-text {
+      color: #a0a0c0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+    #tutorial-progress {
+      color: #666;
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+    .tut-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .tut-actions button {
+      border: none;
+      border-radius: 6px;
+      padding: 7px 18px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .btn-tut-skip  { background: #333; color: #888; }
+    .btn-tut-next  { background: #4a4aaa; color: #fff; font-weight: bold; }
+    .btn-tut-skip:hover { background: #444; }
+    .btn-tut-next:hover { background: #6666cc; }
+
+    /* Tutorial-Highlight Puls-Effekt */
+    .tutorial-highlight {
+      animation: tutPulse 0.7s ease-in-out 3;
+    }
+    @keyframes tutPulse {
+      0%,100% { box-shadow: none; }
+      50% { box-shadow: 0 0 0 4px #8888ff99; }
+    }
+  </style>
+  <style>
+    /* ... existing styles ... */
+    .player-marker {
+      font-size: 1.2em;
+      text-shadow: 0 0 5px rgba(0,0,0,0.8);
+      pointer-events: none;
+      z-index: 10;
+    }
+    .army-marker {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      font-size: 1.2em;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      padding: 2px;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .status-badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+    .status-feind { background: #d32f2f; color: white; }
+    .status-neutral { background: #555; color: white; }
+    .status-allianz { background: #2e7d32; color: white; }
+    
+    .view-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Welcome-Overlay (Onboarding) ──────────────────────────── -->
+  <div id="welcome-overlay">
+    <div class="welcome-card">
+      <div class="welcome-icon">☢️</div>
+      <h2>Willkommen in der<br>Verbrannten Zone</h2>
+      <p>Du hast dich in einer verwüsteten Welt wiedergefunden.
+         Beanspruche deine erste Provinz und baue ein Überlebenslager
+         aus dem Nichts – oder stirb beim Versuch.</p>
+      <button id="btn-spawn" onclick="doSpawn()">🌍 Welt betreten</button>
+    </div>
+  </div>
+
+  <!-- ── Tutorial-Overlay (unten rechts) ───────────────────────── -->
+  <div id="tutorial-overlay">
+    <div class="tut-header">📖 Tutorial</div>
+    <div id="tutorial-title">Schritt</div>
+    <div id="tutorial-text"></div>
+    <div id="tutorial-progress">Schritt 1 / 2</div>
+    <div class="tut-actions">
+      <button class="btn-tut-skip" onclick="hideTutorial()">Überspringen</button>
+      <button class="btn-tut-next" onclick="advanceTutorial()">Weiter →</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ── Topbar (NEU) ────────────────────────────────────────────────── -->
+    <header id="main-topbar">
+      <div id="topbar-left">
+        <span id="game-title" onclick="showView('world')">🌍 Verbrannte Zone</span>
+        <span id="user-display">👤 Spieler</span>
+      </div>
+      
+      <div id="topbar-resources">
+        <span class="res-item" id="res-iron" title="Eisen">⚔️ <span id="iron-count">0</span></span>
+        <span class="res-item" id="res-steel" title="Stahl">🔩 <span id="steel-count">0</span></span>
+        <span class="res-item" id="res-fuel" title="Brennstoff">⛽ <span id="fuel-count">0</span></span>
+        <span class="res-item" id="res-coins" title="Münzen">💰 <span id="coins-count">0</span></span>
+        <span class="res-item res-moral" id="res-moral" title="Moral">😊 <span id="moral-avg">–</span>%</span>
+        <span class="res-item" id="res-pop" title="Bevölkerung">👥 <span id="pop-count">0</span></span>
+        <span class="res-item res-time" id="time-credit-display-top" title="Zeitguthaben">⏳ <span id="credit-hours">0</span>h</span>
+      </div>
+
+      <div id="topbar-right">
+        <button id="notif-btn" onclick="showView('nachrichten')">
+          🔔 <span id="notif-badge" class="badge hidden">0</span>
+        </button>
+        <button id="settings-btn" onclick="showSettings()" title="Einstellungen">⚙️</button>
+        <button id="logout-btn" onclick="logout()" style="background: #d32f2f;" title="Logout">🚪</button>
+      </div>
+    </header>
+
+    <!-- ── Haupt-Navigation ──────────────────────────────────────────────── -->
+    <nav id="main-nav">
+      <button class="nav-btn active" id="nav-world" onclick="showView('world')">🌍 Weltkarte</button>
+      <div class="nav-dropdown">
+        <button class="nav-btn" id="nav-provinces">🗺️ Provinzen ▾</button>
+        <div class="nav-dropdown-content" id="my-provinces-list">
+          <a href="#">Lade...</a>
+        </div>
+      </div>
+      <button class="nav-btn" id="nav-diplomacy" onclick="showView('diplomacy')">🤝 Diplomatie</button>
+      <button class="nav-btn" id="nav-nachrichten" onclick="showView('messages')">📬 Nachrichten <span id="unread-badge" style="display:none; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.75rem;">0</span></button>
+      <button class="nav-btn" id="nav-gamelog" onclick="showView('gamelog')">📋 Gamelog</button>
+      <a href="help.html" target="_blank" class="nav-btn" id="nav-help" style="text-decoration: none; display: inline-block; line-height: 1.4;">❓ Hilfe</a>
+    </nav>
+
+    <!-- ── Linke Sidebar ───────────────────────────────────────────────────── -->
+    <aside class="sidebar-left">
+
+      <!-- Weltkarte: Ressourcen-Box -->
+      <div id="sidebar-world-content">
+        <div class="resource-box">
+          <h3>Ressourcen</h3>
+          <div class="resource-item">
+            <span>Eisen</span>
+            <strong id="iron-count">1000</strong>
+          </div>
+          <div class="resource-item">
+            <span>Stahl</span>
+            <strong id="steel-count">500</strong>
+          </div>
+          <div class="resource-item">
+            <span>Brennstoff</span>
+            <strong id="fuel-count">200</strong>
+          </div>
+        </div>
+        <button class="province-menu-item" onclick="switchView('production')">📊 Produktionsübersicht</button>
+        <button class="province-menu-item" onclick="switchView('diplomacy')">🤝 Diplomatie</button>
+      </div>
+
+      <!-- Provinzansicht: Navigationsmenü -->
+      <div id="sidebar-province-content" style="display:none">
+        <div class="province-menu">
+          <button class="province-menu-item active" id="menu-btn-map" onclick="showProvinceSubView('map')">🗺️
+            Provinzkarte</button>
+          <button class="province-menu-item" id="menu-btn-vorschau" onclick="showProvinceSubView('vorschau')">📋
+            Provinz-Vorschau</button>
+          <button class="province-menu-item" id="menu-btn-lager" onclick="showProvinceSubView('lager')">🏪
+            Provinzlager</button>
+          <button class="province-menu-item" id="menu-btn-militaer" onclick="showProvinceSubView('militaer')">⚔️
+            Militär</button>
+          <button class="province-menu-item" id="menu-btn-transport" onclick="showProvinceSubView('transport')">🛺
+            Warentransport</button>
+        </div>
+        <button class="btn-back" onclick="switchView('world')">🌍 Zur Weltkarte</button>
+      </div>
+
+    </aside>
+
+    <!-- ── Hauptansicht ────────────────────────────────────────────────────── -->
+    <main class="main-view">
+
+      <!-- Weltansicht -->
+      <div id="worldmap-view">
+        <div class="view-controls">
+          <h2>Weltkarte 50x50 – Statisch</h2>
+        </div>
+        <div id="worldmap"></div>
+      </div>
+
+      <!-- Provinzansicht -->
+      <div id="province-view" style="display:none">
+        <div id="province-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: bold; font-size: 1.1em; color: var(--accent-color)">Provinz</span>
+                <input type="text" id="province-name-input" value="Lade..." class="editable-title"
+                onblur="saveProvinceName()" onkeydown="if(event.key==='Enter') this.blur()">
+                <span id="province-coords-display"
+                style="color: var(--text-muted); font-family: monospace; background: #222; padding: 2px 6px; border-radius: 4px;">[0,0]</span>
+            </div>
+            
+            <div class="province-tabs">
+                <button class="tab-btn active" id="ptab-btn-karte" onclick="showProvinceTab('karte')">🗺️ Karte</button>
+                <button class="tab-btn" id="ptab-btn-lager" onclick="showProvinceTab('lager')">📦 Lager</button>
+                <button class="tab-btn" id="ptab-btn-produktion" onclick="showProvinceTab('produktion')">🏭 Produktion</button>
+                <button class="tab-btn" id="ptab-btn-transport" onclick="showProvinceTab('transport')">🚛 Transport</button>
+                <button class="tab-btn" id="ptab-btn-militaer" onclick="showProvinceTab('militaer')">⚔️ Militär</button>
+                <button class="tab-btn" id="ptab-btn-vorschau" onclick="showProvinceTab('vorschau')">📊 Vorschau</button>
+            </div>
+        </div>
+
+        <!-- Sub-View: Provinzkarte -->
+        <div id="ptab-content-karte">
+          <div id="province-map-container" style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div id="province-city-grid-container" style="background: #111; padding: 10px; border-radius: 8px;">
+                <h3 style="margin-bottom: 10px; font-size: 14px; color: var(--accent-color);">🏙️ Stadt-Ansicht (15x15)</h3>
+                <canvas id="provinceCityCanvas" width="450" height="450" style="border: 1px solid #333; cursor: pointer;"></canvas>
+            </div>
+            <div id="province-info-panel" style="flex: 1; min-width: 300px;">
+                <div id="city-status-card" class="card" style="margin-bottom: 15px; padding: 10px; background: #1a1a1a;">
+                    <h4 id="city-level-name">Camp (Level 0)</h4>
+                    <p style="font-size: 12px; color: #888;">Nächster Ausbau: <strong id="next-city-building">Metropole</strong></p>
+                </div>
+                <div id="selected-field-info" class="card" style="padding: 10px; background: #1a1a1a; min-height: 200px;">
+                    <p style="color: #666; font-size: 13px;">Wähle ein Feld im Grid aus...</p>
+                </div>
+            </div>
+          </div>
+          <!-- Old Grid hidden or removed? Requirement says Canvas. Let's keep it for compatibility or hide it -->
+          <div id="province-grid" style="display:none"></div>
+        </div>
+
+        <!-- Sub-View: Provinz-Vorschau -->
+        <div id="ptab-content-vorschau" style="display:none">
+          <div class="preview-header">
+            <div class="preview-controls">
+              <span>Vorschau für:</span>
+              <select id="preview-hours-select">
+                <option value="24">24 Stunden (1 Tag)</option>
+                <option value="48">48 Stunden (2 Tage)</option>
+                <option value="168">168 Stunden (1 Woche)</option>
+              </select>
+              <button class="btn-action" onclick="loadProvincePreview()">Vorschau berechnen</button>
+              <div style="border-left: 1px solid #444; height: 20px; margin: 0 10px;"></div>
+              <button class="btn-action success" id="btn-turn-24" onclick="executeTurn(24)">Nächster Tag (24h)</button>
+            </div>
+          </div>
+          <div id="vorschau-content">
+            <p style="color: var(--text-muted)">Klicke auf 'Vorschau berechnen', um Prognosen zu sehen.</p>
+          </div>
+        </div>
+
+        <!-- Sub-View: Provinzlager -->
+        <div id="ptab-content-lager" style="display:none">
+          <div id="lager-content">
+            <p style="color: var(--text-muted)">Lade Lager...</p>
+          </div>
+        </div>
+
+        <!-- Sub-View: Militär -->
+        <div id="ptab-content-militaer" style="display:none">
+          <div class="military-header" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0">⚔️ Militär & Verteidigung</h3>
+            <div style="display: flex; gap: 20px;">
+              <div class="mil-stat-item">Soldaten: <strong id="mil-count">0</strong></div>
+              <div class="mil-stat-item">Fitness: <strong id="mil-fitness">100</strong>%</div>
+              <div class="mil-stat-item">Sicherheitsbonus: <strong id="mil-security-bonus">0</strong>%</div>
+            </div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: #222; padding: 15px; border-radius: 8px;">
+              <h4>Einheiten ausbilden</h4>
+              <p style="font-size: 0.9em; color: var(--text-muted)">Kosten: Eisen, Nahrung, Zeit. Erhöht Verteidigung.</p>
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="number" id="mil-train-amount" value="10" min="1" style="width: 80px; background: #333; color: #fff; border: 1px solid #444; padding: 5px;">
+                <button class="btn-action" onclick="trainUnits()" style="background: #2e7d32">Ausbilden</button>
+              </div>
+            </div>
+            <div style="background: #222; padding: 15px; border-radius: 8px;">
+              <h4>Einheiten entlassen</h4>
+              <p style="font-size: 0.9em; color: var(--text-muted)">Minimale Besatzung: 20 Soldaten.</p>
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="number" id="mil-dismiss-amount" value="10" min="1" style="width: 80px; background: #333; color: #fff; border: 1px solid #444; padding: 5px;">
+                <button class="btn-action" onclick="dismissUnits()" style="background: #d32f2f">Entlassen</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-View: Warentransport (UI Skizze) -->
+        <div id="ptab-content-transport" style="display:none">
+          <div class="transport-layout">
+
+            <!-- Links: Lokales Lager -->
+            <div class="transport-box local-storage">
+              <h3>Lokales Lager</h3>
+              <div id="transport-local-list">
+                <p style="color: var(--text-muted)">Lade...</p>
+              </div>
+            </div>
+
+            <!-- Mitte: Routenkonfiguration -->
+            <div class="transport-box route-config">
+              <h3>Routendetails</h3>
+              <div class="route-form">
+                <label>Ressource:</label>
+                <select id="transport-res-select">
+                  <option>Bitte wählen...</option>
+                </select>
+
+                <label>Menge:</label>
+                <input type="number" id="transport-amount" value="0" min="0">
+
+                <label>Verwendete Karren:</label>
+                <div class="cart-info">
+                  <span id="transport-carts-needed">0</span> / <span id="transport-carts-avail">0</span> verfügbare
+                  Handelskarren
+                </div>
+
+                <button class="btn-transport" onclick="sendTransport()">Transport starten</button>
+              </div>
+            </div>
+
+            <!-- Rechts: Ziel-Provinz -->
+            <div class="transport-box target-storage">
+              <h3>Zielprovinz</h3>
+              <select id="transport-target-prov" style="width: 100%; margin-bottom: 10px;">
+                <option>Ziel auswählen...</option>
+              </select>
+              <div id="transport-target-cap">
+                <p>Kapazität: <span id="target-cap-text">0 / 0</span></p>
+                <div class="cap-bar-bg">
+                  <div class="cap-bar-fill" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div id="transport-target-list">
+                <p style="color: var(--text-muted)">Zeigt Bestand nach Auswahl...</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div id="ptab-content-produktion" style="display:none">
+          <h3>🏭 Produktion in dieser Provinz</h3>
+          <div id="province-production-content">
+            <p style="color: var(--text-muted)">Lade Produktionsdaten...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gamelog View -->
+      <div id="gamelog-view" style="display:none; width: 100%;">
+        <div class="view-controls">
+          <h2>📋 Gamelog & Weltereignisse</h2>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="gamelog-search" placeholder="Suche..." style="padding: 5px 10px; border-radius: 4px; border: 1px solid #444; background: #333; color: white;">
+            <button class="btn-action" onclick="searchGamelog()" style="width: auto;">🔍 Suchen</button>
+            <button class="btn-action" onclick="loadGamelog()" style="width: auto; background: #333;">🔄 Aktualisieren</button>
+          </div>
+        </div>
+        <div class="gamelog-container" style="background: #222; border-radius: 8px; padding: 20px; max-height: 70vh; overflow-y: auto;">
+            <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #444; text-align: left; color: #aaa;">
+                        <th style="padding: 10px; width: 150px;">Zeitpunkt</th>
+                        <th style="padding: 10px; width: 150px;">Typ</th>
+                        <th style="padding: 10px;">Nachricht</th>
+                    </tr>
+                </thead>
+                <tbody id="gamelog-list">
+                    <!-- Dynamisch gefüllt -->
+                </tbody>
+            </table>
+        </div>
+      </div>
+
+      <!-- Messages View -->
+      <div id="messages-view" style="display:none; width: 100%;">
+        <div class="view-controls">
+          <h2>📬 Nachrichten & Postfach</h2>
+          <button class="btn-action" onclick="openNewMessageModal()" style="width: auto; background: #2e7d32;">➕ Neue Nachricht</button>
+        </div>
+        <div style="display: grid; grid-template-columns: 250px 1fr; gap: 20px;">
+            <div class="messages-sidebar" style="background: #222; border-radius: 8px; padding: 10px;">
+                <button class="nav-btn active" id="msg-nav-inbox" onclick="showInbox()" style="width: 100%; text-align: left; margin-bottom: 5px;">📥 Posteingang</button>
+                <button class="nav-btn" id="msg-nav-outbox" onclick="showOutbox()" style="width: 100%; text-align: left; margin-bottom: 5px;">📤 Gesendet</button>
+            </div>
+            <div class="messages-content" id="messages-list-container" style="background: #222; border-radius: 8px; padding: 20px; min-height: 50vh;">
+                <div id="messages-list">
+                    <!-- Dynamisch gefüllt -->
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- New Message Modal -->
+      <div id="new-message-modal" class="modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: #222; padding: 30px; border-radius: 12px; width: 500px; border: 1px solid #444;">
+            <h3>Neue Nachricht schreiben</h3>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #aaa;">Empfänger (ID):</label>
+                    <input type="number" id="msg-recipient-id" style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #aaa;">Betreff:</label>
+                    <input type="text" id="msg-subject" style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #aaa;">Nachricht:</label>
+                    <textarea id="msg-body" rows="6" style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                    <button class="btn-action" onclick="closeNewMessageModal()" style="background: #444; width: auto;">Abbrechen</button>
+                    <button class="btn-action" onclick="sendMessage()" style="background: #2e7d32; width: auto;">Absenden</button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- Message Detail Modal -->
+      <div id="message-detail-modal" class="modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: #222; padding: 30px; border-radius: 12px; width: 600px; border: 1px solid #444;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h3 id="detail-subject">Betreff</h3>
+                <button onclick="closeMessageDetail()" style="background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.5rem;">&times;</button>
+            </div>
+            <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; color: #aaa; font-size: 0.9rem;">
+                    <span id="detail-from-to">Von: ...</span>
+                    <span id="detail-date">Datum: ...</span>
+                </div>
+                <div id="detail-body" style="white-space: pre-wrap; line-height: 1.6; color: #ddd; background: #1a1a1a; padding: 15px; border-radius: 8px; min-height: 150px; max-height: 300px; overflow-y: auto;">
+                    Nachrichtentext...
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button class="btn-action" id="btn-reply" style="background: #2e7d32; width: auto;">Antworten</button>
+                    <button class="btn-action" id="btn-delete-msg" style="background: #c62828; width: auto;">Löschen</button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- Produktionsübersicht (Global) -->
+      <div id="production-view" style="display:none; width: 100%;">
+        <div class="view-controls">
+          <h2>Gesamt-Produktionsübersicht</h2>
+          <button class="btn-action" onclick="switchView('world')" style="width: auto; height: auto;">Zurück zur
+            Weltkarte</button>
+        </div>
+        <div id="production-content">
+          <p style="color: var(--text-muted)">Lade Daten...</p>
+        </div>
+      </div>
+
+      <!-- Gamelog View -->
+      <div id="gamelog-view" style="display:none">
+        <h2>📋 Gamelog</h2>
+        <div id="gamelog-container">Lade Log...</div>
+      </div>
+
+      <!-- Nachrichten View -->
+      <div id="nachrichten-view" style="display:none">
+        <h2>📬 Nachrichten</h2>
+        <div id="nachrichten-container">Lade Nachrichten...</div>
+      </div>
+    </main>
+
+    <!-- ── Rechte Sidebar ──────────────────────────────────────────────────── -->
+    <aside class="sidebar-right">
+      <div class="info-panel">
+        <h3>Auswahl-Info</h3>
+        <div id="selected-info">
+          <p>Wähle eine Provinz aus, um sie zu verwalten.</p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Schnellbau-Sitzung Overlay -->
+  <div id="quickbuild-overlay" style="display:none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; background: rgba(0,0,0,0.85); padding: 15px 25px; border-radius: 12px; border: 2px solid #b8860b; box-shadow: 0 0 20px rgba(184,134,11,0.5); align-items: center; gap: 20px; color: #fff;">
+    <div style="display:flex; flex-direction:column;">
+      <span id="qb-mode-text" style="font-weight:bold; color: #cd853f;">Schnellbau Aktiv: [Gebäude]</span>
+      <span id="qb-ap-text" style="font-size: 0.9em; color: #aaa;">Verbleibende AP: 100</span>
+    </div>
+    <button onclick="deactivateQuickMode()" style="background: #d32f2f; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">BEENDEN</button>
+  </div>
+
+  <!-- Scripts – REIHENFOLGE WICHTIG! -->
+  <script src="js/auth-service.js?v=6" defer></script>
+  <script>
+    // Initial Auth Check — runs after deferred scripts load
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = AuthService.getAccessToken();
+      if (!token) { window.location.href = "login.html"; }
+
+      const userDisplay = document.getElementById('user-display');
+      if (userDisplay) {
+        userDisplay.textContent = `Benutzer: ${AuthService.getUsername()}`;
+      }
+
+      // Global fetch replacement if possible or just careful in app.js
+      window.gameFetch = async function(url, options = {}) {
+        // Automatic prefix for /api if missing and not an absolute external URL
+        let finalUrl = url;
+        if (url.startsWith('/') && !url.startsWith('/api/') && url !== '/api') {
+            finalUrl = '/api' + url;
+        }
+        
+        const res = await AuthService.fetch(finalUrl, options);
+        if (res.status === 401) {
+          AuthService.logout();
+        }
+        return res;
+      };
+
+      window.logout = function() {
+        AuthService.logout();
+      };
+    });
+  </script>
+  <script src="js/terrain-types.js" defer></script>
+  <script src="js/buildings-data.js" defer></script>
+  <script src="js/app.js?v=6" defer></script>
+  <script src="js/onboarding.js" defer></script>
+  <script src="js/worldmap.js" defer></script>
+  <script src="js/province.js?v=6" defer></script>
+  <script src="js/province_grid.js" defer></script>
+  <script src="js/transport.js" defer></script>
+  <script src="js/offline-sync.js" defer></script>
+</body>
+
+</html>
