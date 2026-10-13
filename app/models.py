@@ -326,7 +326,7 @@ class BuildingType(Base):
     
     # New columns for building system
     kategorie = Column(String)
-    Bautyp = Column(String) # Land/Stadt/Stadtausbau/Weg/Wegkreuzung
+    bautyp = Column(String) # Land/Stadt/Stadtausbau/Weg/Wegkreuzung (kleines b wie in DB)
     baubar = Column(Integer, default=1)
     ausbaubar = Column(Integer, default=0)
     unique_gebaeude = Column(Integer, default=0)
@@ -338,6 +338,18 @@ class BuildingType(Base):
     rohstoffbedarf_bau = Column(String, default='[]') # JSON string
     rohstoffgrundbedarf_ausbau = Column(String, default='[]') # JSON string
     spezial_eigenschaften = Column(String, default='{}') # JSON string
+    
+    # Additional columns from original DB
+    beschreibung = Column(String, nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    energiebedarf = Column(Integer, default=0)
+    schlachtfeld = Column(String, nullable=True)
+    symbol_emoji = Column(String, nullable=True)
+    symbol_url = Column(String, nullable=True)
+    vorkommen_effektivitaet = Column(String, nullable=True)
+    zusatzarbeiter_pro_stufe = Column(Integer, default=0)
+    zusatzwohnraum_pro_stufe = Column(Integer, default=0)
 
 class BuildingInstance(Base):
     __tablename__ = 'provinz_gebaeude'
@@ -374,6 +386,19 @@ class Resource(Base):
     name = Column(String, nullable=False, unique=True)
     typ = Column(String, nullable=False) # Getränk, Nahrung, etc.
     wert = Column(Integer, default=0)
+    verbrauch = Column(Integer, default=0)
+    platzbedarf = Column(Integer, default=0)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    produktionswert = Column(Integer, default=0)
+    platz_land = Column(Integer, default=0)
+    platz_wasser = Column(Integer, default=0)
+    platz_luft = Column(Integer, default=0)
+    verbraucht_von = Column(String, nullable=True)  # JSON: Liste von Gebäude-Typen
+    produziert_von = Column(String, nullable=True)  # JSON: Liste von Gebäude-Typen
+    beschreibung = Column(String, nullable=True)
+    verbrauch_hinweis = Column(String, nullable=True)
+    fleisch_bei_schlachtung = Column(Integer, default=0)
 
 class ProvinceLager(Base):
     __tablename__ = 'provinz_lager'
@@ -449,7 +474,10 @@ class Vorkommen(Base):
     typ = Column(String) # geologisch/Oberfläche/unt.Seen
     tech = Column(Integer, default=0)
     suchkosten = Column(Integer, default=100)
+    beschreibung = Column(String, nullable=True)
     findwahrscheinlichkeit = Column(String, default='{}') # JSON {terrain: probability}
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     bild_url = Column(String, default='')  # Vorkommen image from webcrawler
     
     def get_probability(self, terrain_name: str) -> float:
@@ -620,6 +648,23 @@ class UnitType(Base):
     einheitengroesse = Column(Integer, default=1)
     module = Column(String, default="[]")  # Changed from module_json
     bild_url = Column(String, default='')  # Unit image from webcrawler
+    
+    # Additional columns from original DB
+    beschreibung = Column(String, nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    erstellbedingung = Column(String, nullable=True)
+    fernkampf_panzerung = Column(Integer, default=0)
+    fortbewegung = Column(String, nullable=True)
+    geschwindigkeit = Column(Float, default=1.0)
+    max_reichweite = Column(String, nullable=True)
+    nahkampf_panzerung = Column(Integer, default=0)
+    nahkampf_staerke = Column(Integer, default=0)
+    platzbedarf_luft = Column(Integer, default=0)
+    platzbedarf_see = Column(Integer, default=0)
+    platzbedarf_untersee = Column(Integer, default=0)
+    transport_land = Column(Integer, default=0)
+    zugehoerig = Column(String, nullable=True)
 
 class ProvinceUnit(Base):
     __tablename__ = 'provinz_einheiten'
@@ -683,6 +728,7 @@ class Regierungsform(Base):
     krieg_moeglich = Column(Integer, default=0)
     provinzanzahl_bis_malus = Column(Integer, default=2)
     malus_beschreibung = Column(String, default='')
+    beschreibung = Column(String, nullable=True)  # Added from original DB
     boni = Column(String, default='{}')
     voraussetzungen = Column(String, default='{}')
     bild_url = Column(String, default='')  # Government form image from webcrawler
@@ -733,6 +779,23 @@ class Article(Base):
     transportkapazitaet = Column(String, default="{}")
     platzbedarf = Column(String, default="{}")
     bild_url = Column(String, default='')  # Article image from webcrawler
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    gewicht = Column(Integer, default=0)
+    haltbarkeit = Column(Integer, default=0)
+
+# Lebewesen Model (fehlt komplett!)
+class Lebewesen(Base):
+    __tablename__ = 'lebewesen'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    typ = Column(String, default='Tier')  # Tier, Mensch, Kreatur
+    staerke = Column(Integer, default=0)
+    gesundheit = Column(Integer, default=100)
+    beschreibung = Column(String, nullable=True)
+    bevoelkerung_kosten = Column(Integer, default=0)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
 # Aliases for compatibility
 BuildingTemplate = BuildingType
