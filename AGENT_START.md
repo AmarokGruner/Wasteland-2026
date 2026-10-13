@@ -50,9 +50,26 @@ Wasteland_neu/
 │   ├── 06_SICHERHEIT.md           # Sicherheit & Audit
 │   ├── 07_DEPLOYMENT.md           # Setup, Docker, nginx
 │   └── 08_ENTWICKLUNG.md          # Testing, Linting, CI/CD
+├── SESSION_LOG.md           # Entwicklungs-Log (wird vom Agenten befüllt)
 ├── .gitignore             # Ignorierte Dateien
 └── requirements.txt       # Python Abhängigkeiten
 ```
+
+### 3. Session Log (SESSION_LOG.md) - WICHTIG!
+
+**DIESSES FILE MUSS VOR JEDER SESSION GELESEN UND NACH JEDER SESSION AKTUALISIERT WERDEN!**
+
+```
+SESSION_LOG.md:
+├── Letzte Session (Datum, Agent, Status)
+├── Erledigte Aufgaben (Checkliste)
+├── Offene Aufgaben (Was fehlt?)
+├── Bekannte Probleme (Fehler + Lösungen)
+└── Nächste Schritte (Plan für nächste Session)
+```
+
+**Zweck:** Konsistenz zwischen verschiedenen Sessions und Agenten wahren.  
+**Ohne Session Log keine konsistente Entwicklung über mehrere KI-Sessions hinweg!**
 
 ### 3. Datenbank-Schema (Kern-Tabellen)
 
