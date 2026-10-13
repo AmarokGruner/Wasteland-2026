@@ -41,15 +41,22 @@ Wasteland_neu/
 │   └── resources.html     # Ressourcen-Verwaltung
 ├── admin.html             # Haupt-Admin-Oberfläche
 ├── index.html             # Spieler-Oberfläche
-├── docs/                  # Vollständige Dokumentation (8 Dateien)
-│   ├── 01_PROJEKTUEBERSICHT.md    # Projektbeschreibung, Tech-Stack
-│   ├── 02_DATENBANK.md            # Datenbank-Schema, Migrationen
-│   ├── 03_API.md                  # Alle API Endpunkte
-│   ├── 04_GAMEMECHANIK.md         # Alle Spielmechaniken
-│   ├── 05_ADMIN_SYSTEM.md         # Admin-Funktionen
-│   ├── 06_SICHERHEIT.md           # Sicherheit & Audit
-│   ├── 07_DEPLOYMENT.md           # Setup, Docker, nginx
-│   └── 08_ENTWICKLUNG.md          # Testing, Linting, CI/CD
+| `docs/`                  # Vollständige Dokumentation (32 Dateien)
+│   ├── 00_meta_prompt_engineer.md    # KI-Agent Konfiguration und System-Prompts
+│   ├── 00_session_start.md           # Session-Start Checkliste
+│   ├── 01_PROJEKTUEBERSICHT.md       # Projektbeschreibung, Tech-Stack
+│   ├── 02_DATENBANK.md               # Datenbank-Schema, Migrationen
+│   ├── 03_API.md                     # Alle API Endpunkte
+│   ├── 04_GAMEMECHANIK.md            # Alle Spielmechaniken
+│   ├── 05_ADMIN_SYSTEM.md            # Admin-Funktionen
+│   ├── 06_SICHERHEIT.md              # Sicherheit & Audit
+│   ├── 07_DEPLOYMENT.md              # Setup, Docker, nginx
+│   ├── 08_ENTWICKLUNG.md             # Testing, Linting, CI/CD
+│   ├── 09_DATENBANK_ABGLEICH.md      # Datenbank-Abgleich Original vs. models.py
+│   ├── 10_ci_cd_pipeline.md          # GitHub Actions CI/CD Pipeline
+│   ├── 11_monitoring_logging.md      # Monitoring, Logging & Error Tracking
+│   ├── 12_backup_strategy.md         # Backup Strategy & Disaster Recovery
+│   ├── sub_agent_devops_engineer.md  # DevOps Engineer Sub-Agent Definition
 ├── SESSION_LOG.md           # Entwicklungs-Log (wird vom Agenten befüllt)
 ├── .gitignore             # Ignorierte Dateien
 └── requirements.txt       # Python Abhängigkeiten
@@ -180,21 +187,44 @@ uvicorn app.main:app --host 0.0.0.0 --port 8011 --reload
 ### 8. Wichtige Dateien für KI-Agenten
 
 **Zum Starten des Projekts lesen:**
-1. `docs/00_meta_prompt_engineer.md` - KI-Agent Konfiguration
+1. `docs/00_meta_prompt_engineer.md` - KI-Agent Konfiguration und System-Prompts
 2. `docs/00_session_start.md` - Session-Start Checkliste
-3. `docs/COMPLETE_CLEAN_BUILD_GUIDE.md` - Kompletter Aufbau-Guide
-4. `docs/SETUP_AND_CLEAN_BUILD.md` - Schnelleinrichtung
+3. `AGENT_START.md` - Komplette Projektübersicht und Multi-Agenten System
 
-**Für Feature-Entwicklung:**
-- `docs/01_feature_einheiten.md` - Militärsystem
+**Für Feature-Entwicklung (alle 28 docs/ Dateien):**
+- `docs/01_feature_einheiten.md` - Militärsystem (Einheiten & Kampf)
 - `docs/03_feature_ruinen.md` - Ruinen-Mechanik
-- `docs/08_feature_markt_handel.md` - Handelssystem
-- `docs/24_feature_weltgenerierung.md` - Weltkarte
-- `docs/29_feature_auth_system.md` - Authentifizierung
+- `docs/05_feature_wege_arbeit.md` - Wege, Arbeitspunkte & Straßennetz
+- `docs/07_feature_demolish.md` - Abriss-Funktion (Demolish)
+- `docs/08_feature_markt_handel.md` - Marktplatz & Spieler-Handel
+- `docs/09_feature_kultur_bildung.md` - Kulturpunkte, Bildung & Staatsform
+- `docs/12_feature_vorkommen.md` - Bodenschätze & Vorkommen
+- `docs/13_feature_regierungsformen.md` - Regierungsformen System
+- `docs/18_feature_bunker.md` - Bunker-Mechanik & Startprovinz
+- `docs/20_feature_kampf.md` - Belagerung & Kampfsystem
+- `docs/21_feature_siedler.md` - Siedler & Kolonisierung
+- `docs/24_feature_weltgenerierung.md` - Weltgenerierung & Admin-Tools
+- `docs/28_ui_ueberarbeitung.md` - Spieler-UI Überarbeitung (Navigation, Menü)
+- `docs/29_feature_auth_system.md` - Authentifizierung & Login-System
+- `docs/30_feature_server_tick.md` - Server-Tick Engine (Cronjob)
 
 **Für Datenbank-Änderungen:**
-- `docs/27_weltkarte_db_migration.md` - Migrationen
-- `app/models.py` - Alle Modelle
+- `docs/02_DATENBANK.md` - Datenbank-Schema und Migrationen
+- `docs/09_DATENBANK_ABGLEICH.md` - Abgleich Original vs. models.py
+- `docs/27_weltkarte_db_migration.md` - Weltkarte DB-Migration
+- `docs/MIGRATION_2026-09.md` - Datenbank-Migration September 2026
+- `app/models.py` - Alle SQLAlchemy Modelle
+
+**Für Infrastruktur & DevOps:**
+- `docs/10_ci_cd_pipeline.md` - GitHub Actions CI/CD Pipeline
+- `docs/11_monitoring_logging.md` - Monitoring, Logging & Error Tracking
+- `docs/12_backup_strategy.md` - Backup Strategy & Disaster Recovery
+- `docs/sub_agent_devops_engineer.md` - DevOps Engineer Sub-Agent
+
+**Für Admin-System:**
+- `docs/05_ADMIN_SYSTEM.md` - Admin-Funktionen Übersicht
+- `docs/26_admin_overhaul.md` - Admin-Oberfläche Überarbeitung
+- `docs/gebaeude_admin_grid.md` - Building System v3 (Admin Grid)
 
 ### 10. Testing
 
@@ -317,6 +347,53 @@ Das Projekt verwendet ein **Multi-Agenten-System** mit spezialisierten Sub-Agent
   - Erstellt Migrationsskripte und Seed-Daten
   - Prüft Daten-Integrität und Constraints
 - **Einsatz:** Bei allen Datenbank-Änderungen
+
+**11. devops-engineer (DevOps Engineer)**
+- **Spezialisierung:** CI/CD, Docker, Server Administration, Monitoring
+- **Aufgaben:**
+  - GitHub Actions Workflows erstellen und pflegen (.github/workflows/)
+  - Dockerfile und docker-compose.yml optimieren
+  - Server Deployment automatisieren (SSH, Systemd)
+  - Monitoring Infrastructure aufsetzen (Prometheus, Grafana, Sentry)
+  - Backup Strategy implementieren und überwachen
+- **Einsatz:** Bei Deployment, Server Setup, Monitoring Konfiguration
+
+**12. qa-manager (Quality Assurance Manager)**
+- **Spezialisierung:** Test-Strategie und Qualitätssicherung
+- **Aufgaben:**
+  - Test-Abdeckungsstrategie entwickeln (Unit, Integration, E2E)
+  - Quality Gates definieren (Code Coverage, Linting Standards)
+  - Accessibility und UX Testing durchführen
+  - Regression Testing nach größeren Änderungen
+- **Einsatz:** Vor Releases, bei großen Feature-Änderungen
+
+**13. ui-ux-designer (UI/UX Designer)**
+- **Spezialisierung:** Frontend Design und User Experience
+- **Aufgaben:**
+  - UI/UX Guidelines definieren (Farben, Typografie, Layout)
+  - Responsive Design und Mobile-First Ansatz
+  - Accessibility (WCAG 2.1) sicherstellen
+  - User Flow und Navigation optimieren
+- **Einsatz:** Bei UI-Überarbeitungen, neuen Features mit Frontend
+
+**14. api-integration-specialist (API Integration Specialist)**
+- **Spezialisierung:** Third-party API Integration und Webhooks
+- **Aufgaben:**
+  - OAuth2 / OpenID Connect Integrationen
+  - Webhook Handler implementieren
+  - API Rate Limiting und Retry Logic
+  - External Service Error Handling
+- **Einsatz:** Bei Integration externer Dienste (Payment, Email, SMS)
+
+**15. data-analyst (Data Analyst)**
+- **Spezialisierung:** Datenanalyse und Reporting
+- **Aufgaben:**
+  - Spielstatistiken auswerten (Nutzung, Balance)
+  - Admin Reporting Dashboards erstellen
+  - Player Behavior Analytics
+  - Performance Monitoring und Optimierungsvorschläge
+- **Einsatz:** Bei Balance-Anpassungen, Admin Reporting Features
+
 
 #### 🔄 Multi-Model Planning Workflow
 
