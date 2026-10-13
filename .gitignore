@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.db
+logs/
+webcrawler/cache/
+webcrawler/images/
+.DS_Store
