@@ -28,27 +28,37 @@
 
 ### Letzte Session
 **Datum:** 2026-10-14  
-**Agent:** [KI-Agent Name/ID]  
-**Status:** ✅ Abgeschlossen
+**Agent:** KI-Agent (Hermes)  
+**Status:** ⚠️ Unterbrochen - Datenbank-Initialisierung fehlgeschlagen
 
 #### Erledigte Aufgaben:
-- [x] Dokumentation komplett überarbeitet (8 homogene Dateien)
-- [x] 7 redundante Dokumentationen gelöscht
-- [x] AGENT_START.md aktualisiert
-- [x] Clean Build Repo erstellt mit essentiellen Dateien
+- [x] Original-Datenbank analysiert (50 Tabellen, 383 Spalten)
+- [x] models.py Schema extrahiert (45 Models, 383 Spalten)
+- [x] Detaillierter Abgleichsbericht erstellt (`docs/09_DATENBANK_ABGLEICH.md`)
+- [x] Fehlende Seed-Dateien kopiert (vorkommen, artikel, lebewesen, regierungsformen)
+- [x] Datenbank-Initialisierung versucht
 
 #### Offene Aufgaben:
-- [ ] Feature-Dokumentationen konsolidieren (19 Dateien → in 04_GAMEMECHANIK.md integrieren)
-- [ ] Datenbank-Migrationen dokumentieren (MIGRATION_2026-09.md)
-- [ ] UI-Dokumentation aktualisieren (28_ui_ueberarbeitung.md)
+- [ ] **KRITISCH:** Datenbank-Schema anpassen (models.py oder Migration)
+- [ ] Ressourcen-Seed ausführen (fehlende Spalte 'platz_land')
+- [ ] Gebaeude-Typen vervollständigen (nur 122 von 209)
+- [ ] Weltkarte initialisieren (50x50 Felder)
 
 #### Bekannte Probleme:
-- Keine kritischen Probleme bekannt
+1. **ressourcen Tabelle:** Model hat Spalte 'platz_land' aber DB nicht → Seed bricht ab
+2. **gebaeude_typen:** Model und Original-DB haben unterschiedliche Spalten-Namen (z.B. 'Bautyp' vs 'bautyp')
+3. **einheiten_typen:** Viele Spalten fehlen in DB (geschwindigkeit, nahkampf_staerke, etc.)
+4. **Nur 122 von 209 Gebäude** wurden initialisiert - Seed brach vor Ressourcen ab
 
-#### Nächste Schritte:
-1. Feature-Dokumentationen in 04_GAMEMECHANIK.md integrieren
-2. Datenbank-Migrationen dokumentieren
-3. UI-Überarbeitungsdokumentation aktualisieren
+#### Entscheidungen:
+- Datenbank-Schema muss zuerst konsistent gemacht werden BEVOR Seeds laufen können
+- Zwei Optionen: (a) models.py an Original anpassen, ODER (b) DB-Migration durchführen
+
+#### Nächste Schritte für nächste Session:
+1. **Priorität 1:** models.py Spalten an Original-Datenbank anpassen (insb. ressourcen, gebaeude_typen)
+2. **Priorität 2:** Datenbank-Migrationsskript erstellen für fehlende Spalten
+3. **Priorität 3:** Seed-Prozess vollständig durchlaufen lassen
+4. **Priorität 4:** Abgleichsbericht aktualisieren
 
 ---
 
