@@ -42,12 +42,71 @@ Preis = Basiswert × (Nachfrage / Angebot) × Zeitfaktor × Zufall
 └─────────────┘     └──────────────┘              │
                                                    ▼
                                           ┌──────────────┐
-                                          │   KI-Händler  │
-                                          │   (Kontore)   │
-                                          └──────────────┘
-```
+                                          |   KI-Händler  │
+                                                                                    │   (Kontore)   │
+                                                                                    └──────────────┘
+                                          ```
 
----
+                                          ### Preis-Formel im Detail
+
+                                          ```python
+                                          def berechne_neuer_preis(alter_preis, angebot, nachfrage, zeitfaktor):
+                                              """Dynamische Preisberechnung pro Tick (24h Intervall)"""
+    
+                                              # Grundformel: Preis = Basiswert × (Nachfrage / Angebot) × Zeitfaktor × Zufall
+                                              if angebot == 0:
+                                                  # Kein Angebot → Preis explodiert (selten)
+                                                  neuer_preis = alter_preis * 2.0
+                                              else:
+                                                  verhaeltnis = nachfrage / angebot
+        
+                                                  # Nicht-lineare Skalierung (verhindert extreme Schwankungen)
+                                                  if verhaeltnis > 1.5:
+                                                      # Hohe Nachfrage → starker Preisanstieg
+                                                      faktor = 1.0 + (verhaeltnis - 1.0) * 0.8
+                                                  elif verhaeltnis < 0.67:
+                                                      # Hohes Angebot → starker Preisverfall
+                                                      faktor = 1.0 - (1.0 - verhaeltnis) * 0.6
+                                                  else:
+                                                      # Ausgewogen → leichte Schwankung
+                                                      faktor = 1.0 + (verhaeltnis - 1.0) * 0.3
+        
+                                                  neuer_preis = alter_preis * faktor * zeitfaktor
+    
+                                              # Zufallskomponente (±5%)
+                                              import random
+                                              zufall = random.uniform(0.95, 1.05)
+                                              neuer_preis *= zufall
+    
+                                              # Preise nicht unter 1 MIPS fallen lassen
+                                              neuer_preis = max(1, int(neuer_preis))
+    
+                                              return neuer_preis
+                                          ```
+
+                                          ### Preis-Beispiele (praktische Anwendung)
+
+                                          | Situation | Angebot | Nachfrage | Verhältnis | Preisänderung | Neuer Preis (Basis 100) |
+                                          |-----------|---------|-----------|------------|---------------|------------------------|
+                                          | Normaler Markt | 100 | 100 | 1.0 | +3% (Zufall) | **103** |
+                                          | Hohe Nachfrage | 50 | 150 | 3.0 | +42% (stark) | **142** |
+                                          | Überangebot | 200 | 50 | 0.25 | -38% (stark) | **62** |
+                                          | Geringe Nachfrage | 100 | 70 | 0.7 | -8% (leicht) | **92** |
+                                          | Kein Angebot | 0 | 100 | ∞ | +100% (extrem) | **200** |
+                                          | Extremes Überangebot | 500 | 100 | 0.2 | -48% (stark) | **52** |
+
+                                          ### Zeitfaktor (Tageszeit/Jahreszeit-Einfluss)
+
+                                          | Zeitperiode | Faktor | Beschreibung |
+                                          |-------------|--------|--------------|
+                                          | Nacht (22-6 Uhr) | 0.95 | Geringere Nachfrage → -5% Preise |
+                                          | Tag (6-22 Uhr) | 1.0 | Normalpreis |
+                                          | Winter | 0.9 | Weniger Produktion → -10% Preise |
+                                          | Sommer | 1.05 | Mehr Produktion → +5% Preise |
+                                          | Dürreperiode | 0.8 | Knappheit → -20% Preise (für Nahrung) |
+                                          | Erntezeit | 1.15 | Überangebot → +15% Preise (für Nahrung) |
+
+                                          ---
 
 ## 📊 Datenbank-Schema für Wirtschaft
 
@@ -138,6 +197,115 @@ def calculate_marktpreis(artikel_id: int, angebot: int, nachfrage: int) -> int:
     if angebot == 0:
         # Kein Angebot → Preis explodiert (sehr hoch)
         return basispreis * 10
+
+### KI-Handelsstrategien (Kontore)
+
+| Strategie | Verhalten | Kaufpreis | Verkaufspreis | Risiko |
+|-----------|-----------|-----------|---------------|--------|
+| **Aggressiv** | Kauft/verkauft viel, schnelle Umsätze | +15% über Marktpreis | -15% unter Marktpreis | Hoch (hohe Verluste bei Preissturz) |
+| **Neutral** | Ausgewogener Handel, moderate Mengen | +5% über Marktpreis | -5% unter Marktpreis | Mittel (stabiler Profit) |
+| **Konservativ** | Kauft/verkauft wenig, wartet auf gute Preise | +2% über Marktpreis | -2% unter Marktpreis | Niedrig (geringe Verluste, aber auch geringe Gewinne) |
+
+### Kontor-Beispiele (praktische Anwendung)
+
+| Kontor ID | Provinz | Artikel | Strategie | Volumen/24h | Max Lager | Erwarteter Profit/Tag |
+|-----------|---------|---------|-----------|-------------|-----------|----------------------|
+| 1 | Provinz A (Farm) | Kartoffeln | Aggressiv | 50 Einheiten | 1.000 | +25 MIPS |
+| 2 | Provinz B (Stadt) | Wasser | Neutral | 30 Einheiten | 500 | +15 MIPS |
+| 3 | Provinz C (Industrie) | Stahl | Konservativ | 10 Einheiten | 200 | +5 MIPS |
+| 4 | Provinz D (Handel) | Stoffe | Aggressiv | 100 Einheiten | 2.000 | +50 MIPS |
+| 5 | Provinz E (Forschung) | Elektronik | Neutral | 20 Einheiten | 300 | +12 MIPS |
+
+### Kontor-Logik (pro Tick)
+
+```python
+async def kontor_tick(kontor_id: int):
+    """KI-Händler handelt pro Tick (24h Intervall)"""
+    
+    kontor = db.query(Kontor).get(kontor_id)
+    marktpreis_obj = db.query(Marktpreis).filter_by(artikel_id=kontor.artikel_id).first()
+    
+    if not marktpreis_obj:
+        return
+    
+    aktueller_preis = marktpreis_obj.aktueller_preis
+    
+    # Strategie-basierte Preisgrenzen
+    if kontor.ki_strategie == "aggressiv":
+        kauf_preis_grenze = aktueller_preis * 1.15  # Kauft bis 15% über Markt
+        verkauf_preis_grenze = aktueller_preis * 0.85  # Verkauft ab 15% unter Markt
+        volumen = kontor.handels_volumen * 2  # Doppeltes Volumen
+    elif kontor.ki_strategie == "konservativ":
+        kauf_preis_grenze = aktueller_preis * 1.02  # Kauft nur bis 2% über Markt
+        verkauf_preis_grenze = aktueller_preis * 0.98  # Verkauft ab 2% unter Markt
+        volumen = kontor.handels_volumen // 2  # Halbes Volumen
+    else:  # neutral
+        kauf_preis_grenze = aktueller_preis * 1.05
+        verkauf_preis_grenze = aktueller_preis * 0.95
+        volumen = kontor.handels_volumen
+    
+    # Kauf-Logik (wenn Preis unter Grenzwert)
+    if aktueller_preis <= kauf_preis_grenze:
+        # Kaufe so viel wie möglich (bis Max Lager)
+        max_lager = kontor.max_lager.get(str(kontor.artikel_id), 1000)
+        aktuelle_menge = marktpreis_obj.angebot_menge
+        
+        kauf_menge = min(volumen, max_lager - aktuelle_menge)
+        
+        if kauf_menge > 0:
+            # Kauf ausführen (Kostet MIPS)
+            kosten = kauf_menge * aktueller_preis
+            kontor.profit -= kosten
+            
+            # Angebot erhöhen (KI kauft vom Markt)
+            marktpreis_obj.angebot_menge += kauf_menge
+            
+            print(f"🛒 Kontor {kontor_id} kauft {kauf_menge} Einheiten zu {aktueller_preis} MIPS")
+    
+    # Verkaufs-Logik (wenn Preis über Grenzwert)
+    elif aktueller_preis >= verkauf_preis_grenze:
+        # Verkaufe so viel wie möglich (aus Lager)
+        max_lager = kontor.max_lager.get(str(kontor.artikel_id), 1000)
+        aktuelle_menge = marktpreis_obj.angebot_menge
+        
+        verkauf_menge = min(volumen, aktuelle_menge)
+        
+        if verkauf_menge > 0:
+            # Verkauf ausführen (bringt MIPS)
+            einnahmen = verkauf_menge * aktueller_preis
+            kontor.profit += einnahmen
+            
+            # Angebot verringern (KI verkauft auf den Markt)
+            marktpreis_obj.angebot_menge -= verkauf_menge
+            
+            print(f"📦 Kontor {kontor_id} verkauft {verkauf_menge} Einheiten zu {aktueller_preis} MIPS")
+    
+    # Profit kumulieren (pro 24h)
+    kontor.kumulierter_profit += kontor.profit
+    
+    db.commit()
+```
+
+### Wirtschaftszyklen (Inflation/Deflation)
+
+| Zyklus | Dauer | Beschreibung | Preisentwicklung |
+|--------|-------|--------------|------------------|
+| **Aufschwung** | 10-30 Tage | Hohe Produktion, viele Händler | Preise steigen (+5-15%/Tag) |
+| **Hochphase** | 3-7 Tage | Maximale Nachfrage, Knappheit | Preise explodieren (+20-50%/Tag) |
+| **Abschwung** | 10-30 Tage | Überangebot, wenig Nachfrage | Preise fallen (-5-15%/Tag) |
+| **Tiefphase** | 3-7 Tage | Geringste Produktion, Deflation | Preise brechen ein (-20-50%/Tag) |
+
+### Steuer-System (Provinz-Ebene)
+
+| Steuerstufe | Satz | Effekt auf Provinz | Effekt auf Händler |
+|-------------|------|-------------------|-------------------|
+| **Keine Steuer** | 0% | Keine Einnahmen | Volle Gewinne |
+| **Niedrig** | 5% | +5% Provinz-Einnahmen | -5% Händler-Gewinne |
+| **Mittel** | 10% | +10% Provinz-Einnahmen | -10% Händler-Gewinne |
+| **Hoch** | 20% | +20% Provinz-Einnahmen | -20% Händler-Gewinne |
+| **Extrem** | 50% | +50% Provinz-Einnahmen | -50% Händler-Gewinne (Handel sinkt) |
+
+---
     
     if nachfrage == 0:
         # Keine Nachfrage → Preis fällt (sehr niedrig)
