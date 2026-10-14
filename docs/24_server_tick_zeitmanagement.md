@@ -1,0 +1,836 @@
+# ⏱️ Server-Tick & Zeitmanagement
+
+**Wasteland - Verbrannte Zone v1.6**  
+**Letztes Update:** 2026-10-14
+
+---
+
+## 📋 Übersicht
+
+Dieses Dokument beschreibt das Server-Tick-System, Zeit-Synchronisation und Handhabung von verzögerten Aktionen im Spiel.
+
+---
+
+## 🎯 Ziele
+
+1. **Deterministische Simulation** - Gleiche Ergebnisse bei gleichen Eingaben
+2. **Zeit-Synchronisation** - Alle Clients sehen gleichen Spielstand
+3. **Ausfall-Toleranz** - Server-Ausfall wird kompensiert
+4. **Verzögerte Aktionen** - Bau/Forschung dauert mehrere Ticks
+
+---
+
+## 🏗️ Server-Tick Architektur
+
+### Tick-System Overview
+
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Client     │────▶│  Server Tick  │────▶│  Database    │
+│   (Browser)  │◀────│  (60s Interval)│     │  (SQLite)    │
+│              │     │               │     │              │
+└─────────────┘     └──────────────┘     └─────────────┘
+                            │
+                    ┌───────┴───────┐
+                    │  WebSocket    │
+                    │  Broadcast    │
+                    └───────────────┘
+```
+
+### Tick-Intervall Konfiguration
+
+```python
+# app/config.py
+
+class GameTickConfig:
+    # Tick-Intervall in Sekunden (Standard: 60 Sekunden = 1 Minute Spielzeit)
+    TICK_INTERVAL_SECONDS = int(os.getenv("TICK_INTERVAL", "60"))
+    
+    # Maximaler Backlog (wie viele Ticks können angesammelt werden?)
+    MAX_TICK_BACKLOG = 10  # Bei Server-Ausfall max 10 Ticks nachholen
+    
+    # Timeout für Client-Antworten (wenn Client zu langsam antwortet)
+    CLIENT_RESPONSE_TIMEOUT = 10  # Sekunden
+    
+    # Welt-Zeit Startpunkt (Unix Timestamp)
+    WORLD_START_TIMESTAMP = 1728000000  # Beispiel: 1.10.2024
+    
+    # UTC als Standardszeitzone
+    TIMEZONE = "UTC"
+
+tick_config = GameTickConfig()
+```
+
+---
+
+## ⏰ Zeit-Synchronisation
+
+### Server als Single Source of Truth
+
+```python
+# app/services/tick_manager.py
+import time
+import asyncio
+from datetime import datetime, timezone
+
+class TickManager:
+    def __init__(self):
+        self.current_tick = 0
+        self.last_tick_time = None
+        self.tick_interval = tick_config.TICK_INTERVAL_SECONDS
+        self.is_running = False
+        self.tick_task = None
+    
+    def get_current_world_time(self) -> datetime:
+        """Aktuelle Welt-Zeit berechnen"""
+        
+        elapsed_ticks = self.current_tick
+        elapsed_seconds = elapsed_ticks * self.tick_interval
+        
+        world_time = datetime.fromtimestamp(
+            tick_config.WORLD_START_TIMESTAMP + elapsed_seconds,
+            tz=timezone.utc
+        )
+        
+        return world_time
+    
+    def get_tick_number(self) -> int:
+        """Aktuelle Tick-Nummer"""
+        return self.current_tick
+    
+    def start(self):
+        """Tick-Loop starten"""
+        self.is_running = True
+        self.last_tick_time = time.time()
+        
+        # Asynchroner Tick-Loop
+        asyncio.create_task(self._tick_loop())
+    
+    async def _tick_loop(self):
+        """Hauptschleife für Server-Ticks"""
+        
+        while self.is_running:
+            try:
+                # Warten bis nächster Tick fällig ist
+                await asyncio.sleep(self.tick_interval)
+                
+                # Tick ausführen
+                await self.execute_tick()
+                
+                self.current_tick += 1
+                self.last_tick_time = time.time()
+                
+                print(f"✅ Tick #{self.current_tick} abgeschlossen ({self.get_current_world_time()})")
+            
+            except Exception as e:
+                print(f"❌ Tick-Fehler: {e}")
+                # Bei Fehler weitermachen (nicht abstürzen)
+    
+    async def execute_tick(self):
+        """Einzelnen Tick verarbeiten"""
+        
+        from app.models import Province, Building, User
+        
+        # 1. Ressourcen-Produktion berechnen
+        await self.calculate_production()
+        
+        # 2. Gebäude-Aktionen ausführen (Bau, Ausbau)
+        await self.execute_building_actions()
+        
+        # 3. Einheiten bewegen/aktualisieren
+        await self.update_units()
+        
+        # 4. Diplomatie-Beziehungen aktualisieren
+        await self.update_diplomacy()
+        
+        # 5. Welt-Ereignisse prüfen (zufällige Events)
+        await self.check_world_events()
+        
+        # 6. State an alle Clients broadcasten
+        await self.broadcast_state_update()
+    
+    async def calculate_production(self):
+        """Ressourcen-Produktion pro Tick berechnen"""
+        
+        # Alle Provinzen durchgehen
+        provinces = db.query(Province).all()
+        
+        for province in provinces:
+            # Gebäude der Provinz finden
+            buildings = db.query(Building).filter_by(province_id=province.id).all()
+            
+            total_production = {
+                "food": 0,
+                "water": 0,
+                "energy": 0,
+                "materials": 0
+            }
+            
+            for building in buildings:
+                # Produktion aus Gebäude-Typ lesen
+                production = building.typ.produktion  # JSON: {"food": 10, "water": 5}
+                
+                # Terrain-Effektivität anwenden (50-100%)
+                terrain_eff = building.typ.terrain_effektivitaet.get(province.terrain_typ_id, 100)
+                efficiency = terrain_eff / 100.0
+                
+                # Produktion berechnen
+                for resource, amount in production.items():
+                    total_production[resource] += amount * efficiency
+            
+            # Lagerkapazität prüfen
+            storage = db.query(ProvinceStorage).filter_by(province_id=province.id).first()
+            
+            for resource, amount in total_production.items():
+                storage_key = f"resources_{resource}"
+                current = getattr(storage, storage_key, 0)
+                max_storage = getattr(storage, f"max_{storage_key}", 10000)
+                
+                new_amount = min(current + amount, max_storage)
+                setattr(storage, storage_key, new_amount)
+            
+            db.commit()
+    
+    async def execute_building_actions(self):
+        """Gebäude-Aktionen ausführen (Bau, Ausbau)"""
+        
+        # Gebäude mit aktiven Bau-Aktionen finden
+        buildings = db.query(Building).filter_by(bau_status="im_bau").all()
+        
+        for building in buildings:
+            # Fortschritt erhöhen (1 Tick = 1% oder festes Maß)
+            building.bau_fortschritt += 10  # 10% pro Tick
+            
+            if building.bau_fortschritt >= 100:
+                # Bau abgeschlossen
+                building.bau_status = "fertig"
+                building.bau_fortschritt = 100
+                
+                # Gebäude aktivieren (Produktion starten)
+                building.aktiv = True
+            
+            db.commit()
+    
+    async def update_units(self):
+        """Einheiten bewegen/aktualisieren"""
+        
+        units = db.query(Unit).filter_by(bewegungs_status="unterwegs").all()
+        
+        for unit in units:
+            # Bewegung fortsetzen
+            unit.bewegung_fortschritt += 5  # 5% pro Tick
+            
+            if unit.bewegung_fortschritt >= 100:
+                # Ziel erreicht
+                unit.bewegungs_status = "angekommen"
+                unit.bewegung_fortschritt = 100
+                
+                # Aktion ausführen (Angreifen, Verteidigen, etc.)
+                await self.execute_unit_action(unit)
+            
+            db.commit()
+    
+    async def check_world_events(self):
+        """Zufällige Welt-Ereignisse prüfen"""
+        
+        import random
+        
+        # 5% Chance pro Tick für ein Welt-Ereignis
+        if random.random() < 0.05:
+            event_type = random.choice(["drought", "flood", "trade_boom", "discovery"])
+            
+            await self.trigger_world_event(event_type)
+    
+    async def trigger_world_event(self, event_type: str):
+        """Welt-Ereignis auslösen"""
+        
+        if event_type == "drought":
+            # Dürre: Produktion aller Farmen reduziert um 50% für 3 Ticks
+            print("🌵 Welt-Ereignis: Dürre!")
+            
+        elif event_type == "flood":
+            # Überschwemmung: Küsten-Gebäude beschädigt
+            print("🌊 Welt-Ereignis: Überschwemmung!")
+            
+        elif event_type == "trade_boom":
+            # Handels-Boom: Preise für Luxusgüter steigen
+            print("📈 Welt-Ereignis: Handels-Boom!")
+            
+        elif event_type == "discovery":
+            # Neue Ressource entdeckt
+            print("🔍 Welt-Ereignis: Neue Entdeckung!")
+
+# Singleton
+tick_manager = TickManager()
+```
+
+---
+
+## 🔄 Client-Server Synchronisation
+
+### WebSocket State Broadcast
+
+```python
+# app/services/state_sync.py
+import json
+from app.services.redis_client import redis_client
+
+class StateSyncService:
+    async def broadcast_state_update(self):
+        """Spiel-State an alle Clients broadcasten"""
+        
+        # Aktuellen State sammeln
+        state = {
+            "tick": tick_manager.current_tick,
+            "world_time": tick_manager.get_current_world_time().isoformat(),
+            "events": []  # Welt-Ereignisse dieses Ticks
+        }
+        
+        # Redis Pub/Sub an alle WebSocket Clients senden
+        await redis_client.publish(
+            "wasteland:websocket",
+            json.dumps({
+                "type": "state_update",
+                **state
+            })
+        )
+    
+    async def sync_client_state(self, user_id: int) -> dict:
+        """Client-State mit Server synchronisieren"""
+        
+        # Letzten bekannten Tick des Clients
+        client_tick = self.get_client_last_tick(user_id)
+        
+        # Wenn Client veraltet ist: Vollständigen State senden
+        if client_tick < tick_manager.current_tick - 5:
+            return await self.get_full_state(user_id)
+        
+        # Sonst nur Delta (Änderungen seit letztem Tick)
+        return await self.get_delta_state(user_id, client_tick)
+    
+    async def get_full_state(self, user_id: int) -> dict:
+        """Vollständigen Spiel-State für User abrufen"""
+        
+        from app.models import Province, Building, Unit
+        
+        user = db.query(User).get(user_id)
+        
+        state = {
+            "tick": tick_manager.current_tick,
+            "world_time": tick_manager.get_current_world_time().isoformat(),
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "level": user.level
+            },
+            "provinces": []
+        }
+        
+        # Alle Provinzen des Users
+        provinces = db.query(Province).filter_by(owner_id=user.id).all()
+        
+        for province in provinces:
+            province_data = {
+                "id": province.id,
+                "name": province.name,
+                "terrain_typ_id": province.terrain_typ_id,
+                "buildings": [],
+                "units": [],
+                "resources": {}
+            }
+            
+            # Gebäude der Provinz
+            buildings = db.query(Building).filter_by(province_id=province.id).all()
+            
+            for building in buildings:
+                province_data["buildings"].append({
+                    "id": building.id,
+                    "name": building.typ.name,
+                    "status": building.bau_status,
+                    "fortschritt": building.bau_fortschritt,
+                    "stufe": building.stufe
+                })
+            
+            # Einheiten der Provinz
+            units = db.query(Unit).filter_by(province_id=province.id).all()
+            
+            for unit in units:
+                province_data["units"].append({
+                    "id": unit.id,
+                    "typ": unit.typ.name,
+                    "status": unit.bewegungs_status,
+                    "fortschritt": unit.bewegung_fortschritt
+                })
+            
+            # Ressourcen der Provinz
+            storage = db.query(ProvinceStorage).filter_by(province_id=province.id).first()
+            
+            if storage:
+                province_data["resources"] = {
+                    "food": storage.resources_food,
+                    "water": storage.resources_water,
+                    "energy": storage.resources_energy
+                }
+            
+            state["provinces"].append(province_data)
+        
+        return state
+    
+    async def get_delta_state(self, user_id: int, since_tick: int) -> dict:
+        """Nur Änderungen seit bestimmtem Tick zurückgeben"""
+        
+        # Game Logs durchsuchen (ab since_tick)
+        logs = db.query(GameLog).filter(
+            GameLog.tick >= since_tick,
+            GameLog.user_id == user_id
+        ).order_by(GameLog.tick).all()
+        
+        deltas = []
+        
+        for log in logs:
+            deltas.append({
+                "tick": log.tick,
+                "event": log.event_type,
+                "data": json.loads(log.data) if log.data else {}
+            })
+        
+        return {
+            "tick": tick_manager.current_tick,
+            "world_time": tick_manager.get_current_world_time().isoformat(),
+            "deltas": deltas
+        }
+
+# Singleton
+state_sync = StateSyncService()
+```
+
+---
+
+## 🖥️ Client-Side Tick Handling (JavaScript)
+
+### Game Loop & State Sync
+
+```javascript
+// js/game/tick-manager.js
+
+class TickManager {
+    constructor(baseUrl = 'http://localhost:8011') {
+        this.baseUrl = baseUrl;
+        this.currentTick = 0;
+        this.worldTime = null;
+        this.lastServerTick = 0;
+        this.ws = null;
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 5;
+    }
+
+    // WebSocket Verbindung herstellen
+    connect() {
+        const wsUrl = `ws://${window.location.host}/ws/game`;
+        
+        this.ws = new WebSocket(wsUrl);
+        
+        this.ws.onopen = () => {
+            console.log('✅ WebSocket verbunden');
+            this.reconnectAttempts = 0;
+            
+            // Initialen State anfordern
+            this.requestStateSync();
+        };
+        
+        this.ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.handleMessage(data);
+        };
+        
+        this.ws.onclose = () => {
+            console.log('⚠️ WebSocket getrennt, versuche neu zu verbinden...');
+            this.attemptReconnect();
+        };
+        
+        this.ws.onerror = (error) => {
+            console.error('❌ WebSocket Error:', error);
+        };
+    }
+
+    // Nachrichten verarbeiten
+    handleMessage(data) {
+        switch (data.type) {
+            case 'state_update':
+                this.handleStateUpdate(data);
+                break;
+            
+            case 'delta_update':
+                this.handleDeltaUpdate(data);
+                break;
+            
+            case 'world_event':
+                this.handleWorldEvent(data);
+                break;
+            
+            case 'error':
+                this.handleError(data);
+                break;
+        }
+    }
+
+    // Vollständiger State Update
+    handleStateUpdate(data) {
+        this.currentTick = data.tick;
+        this.worldTime = data.world_time;
+        
+        // UI aktualisieren
+        this.updateUI(data);
+        
+        // Game State speichern
+        localStorage.setItem('game_state', JSON.stringify(data));
+    }
+
+    // Delta Update (nur Änderungen)
+    handleDeltaUpdate(data) {
+        for (const delta of data.deltas) {
+            this.applyDelta(delta);
+        }
+        
+        this.currentTick = data.tick;
+    }
+
+    // Welt-Ereignis verarbeiten
+    handleWorldEvent(data) {
+        const event = data.event;
+        
+        // Notification anzeigen
+        this.showWorldEventNotification(event);
+        
+        // UI aktualisieren (z.B. Dürre: Farmen grau markieren)
+        this.updateWorldEventUI(event);
+    }
+
+    // UI aktualisieren
+    updateUI(state) {
+        // Welt-Zeit anzeigen
+        document.getElementById('world-time').textContent = 
+            `Weltzeit: ${this.formatWorldTime(this.worldTime)}`;
+        
+        // Tick-Nummer anzeigen
+        document.getElementById('current-tick').textContent = 
+            `Tick: ${this.currentTick}`;
+        
+        // Ressourcen aktualisieren
+        this.updateResources(state.provinces);
+        
+        // Gebäude-Status aktualisieren
+        this.updateBuildings(state.provinces);
+    }
+
+    // Delta auf UI anwenden
+    applyDelta(delta) {
+        if (delta.event === 'building_completed') {
+            this.markBuildingAsComplete(delta.data.building_id);
+        } else if (delta.event === 'resources_updated') {
+            this.updateResourceDisplay(delta.data);
+        } else if (delta.event === 'unit_moved') {
+            this.updateUnitPosition(delta.data);
+        }
+    }
+
+    // Welt-Ereignis Notification anzeigen
+    showWorldEventNotification(event) {
+        const notification = document.createElement('div');
+        notification.className = 'world-event-notification';
+        
+        const icons = {
+            'drought': '🌵',
+            'flood': '🌊',
+            'trade_boom': '📈',
+            'discovery': '🔍'
+        };
+        
+        notification.innerHTML = `
+            <div class="event-icon">${icons[event.type] || '⚠️'}</div>
+            <div class="event-message">${event.message}</div>
+        `;
+        
+        document.getElementById('notifications').appendChild(notification);
+        
+        // Nach 10 Sekunden automatisch entfernen
+        setTimeout(() => {
+            notification.remove();
+        }, 10000);
+    }
+
+    // State vom Server anfordern (bei Disconnect)
+    async requestStateSync() {
+        try {
+            const response = await fetch(`${this.baseUrl}/api/v1/game/state`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+            
+            if (response.ok) {
+                const state = await response.json();
+                this.handleStateUpdate(state);
+            }
+        } catch (error) {
+            console.error('State Sync Error:', error);
+        }
+    }
+
+    // Reconnect versuchen (exponentieller Backoff)
+    attemptReconnect() {
+        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+            console.error('Max Reconnect Attempts erreicht');
+            this.showOfflineMessage();
+            return;
+        }
+        
+        const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+        
+        console.log(`Versuche neu zu verbinden in ${delay}ms (Attempt ${this.reconnectAttempts + 1})`);
+        
+        setTimeout(() => {
+            this.connect();
+            this.reconnectAttempts++;
+        }, delay);
+    }
+
+    showOfflineMessage() {
+        const message = document.createElement('div');
+        message.id = 'offline-message';
+        message.className = 'offline-banner';
+        message.innerHTML = `
+            <p>🔴 Offline - Verbindung zum Server getrennt</p>
+            <p>Spiel läuft weiter, aber keine Echtzeit-Updates möglich.</p>
+        `;
+        
+        document.body.appendChild(message);
+    }
+
+    formatWorldTime(worldTime) {
+        // Welt-Zeit in lesbares Format umwandeln
+        const date = new Date(worldTime);
+        return date.toLocaleString('de-DE', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Initialisieren
+    init() {
+        this.connect();
+        
+        // Periodisch State prüfen (wenn WebSocket nicht verfügbar)
+        setInterval(() => {
+            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+                this.requestStateSync();
+            }
+        }, 30000); // Alle 30 Sekunden
+    }
+}
+
+// Singleton
+const tickManager = new TickManager();
+
+export default tickManager;
+```
+
+---
+
+## 🛡️ Server-Ausfall & Recovery
+
+### Ausfall-Szenarien
+
+```python
+# app/services/failure_recovery.py
+
+class FailureRecoveryService:
+    async def handle_server_restart(self):
+        """Server Neustart verarbeiten"""
+        
+        # 1. Letzten Tick aus Datenbank laden
+        last_tick = db.query(GameState).order_by(GameState.tick.desc()).first()
+        
+        if last_tick:
+            tick_manager.current_tick = last_tick.tick
+            
+            print(f"🔄 Server neu gestartet - letzter Tick: #{last_tick.tick}")
+        
+        # 2. World Time berechnen
+        world_time = tick_manager.get_current_world_time()
+        
+        # 3. Alle Provinzen validieren (Datenkonsistenz prüfen)
+        await self.validate_province_data()
+        
+        # 4. Tick-Loop neu starten
+        tick_manager.start()
+    
+    async def validate_province_data(self):
+        """Provinz-Daten auf Konsistenz prüfen"""
+        
+        provinces = db.query(Province).all()
+        
+        for province in provinces:
+            # Lagerbestände prüfen (dürfen nicht negativ sein)
+            storage = db.query(ProvinceStorage).filter_by(province_id=province.id).first()
+            
+            if storage:
+                for resource_field in ['resources_food', 'resources_water', 'resources_energy']:
+                    value = getattr(storage, resource_field, 0)
+                    
+                    if value < 0:
+                        print(f"⚠️  Negative Ressourcen in Provinz {province.id}: {resource_field}={value}")
+                        setattr(storage, resource_field, 0)  # Auf 0 setzen
+        
+        db.commit()
+    
+    async def handle_client_disconnect(self, user_id: int):
+        """Client Disconnect verarbeiten"""
+        
+        # Client-State im Redis tracken (für Reconnect)
+        await redis_client.setex(
+            f"client_state:{user_id}",
+            3600,  # 1 Stunde gültig
+            json.dumps({
+                "last_tick": tick_manager.current_tick,
+                "disconnected_at": datetime.utcnow().isoformat()
+            })
+        )
+    
+    async def handle_client_reconnect(self, user_id: int) -> dict:
+        """Client Reconnect verarbeiten"""
+        
+        # Letzten Client-State laden
+        client_state_json = await redis_client.get(f"client_state:{user_id}")
+        
+        if not client_state_json:
+            # Kein State gefunden → Vollständigen State senden
+            return await state_sync.get_full_state(user_id)
+        
+        client_state = json.loads(client_state_json)
+        last_client_tick = client_state["last_tick"]
+        
+        # Wenn Client veraltet (> 5 Ticks) → Vollständiger State
+        if tick_manager.current_tick - last_client_tick > 5:
+            return await state_sync.get_full_state(user_id)
+        
+        # Sonst nur Delta senden
+        return await state_sync.get_delta_state(user_id, last_client_tick)
+
+# Singleton
+failure_recovery = FailureRecoveryService()
+```
+
+---
+
+## 🧪 Testing Tick-System
+
+### Unit Tests
+
+```python
+# tests/services/test_tick_manager.py
+import pytest
+import asyncio
+from datetime import datetime, timezone
+
+@pytest.fixture
+def tick_manager():
+    from app.services.tick_manager import TickManager
+    
+    manager = TickManager()
+    manager.current_tick = 0
+    
+    return manager
+
+def test_get_current_world_time(tick_manager):
+    """Testet Welt-Zeit Berechnung"""
+    
+    tick_manager.current_tick = 10
+    
+    world_time = tick_manager.get_current_world_time()
+    
+    # Erwartet: WORLD_START + 10 * TICK_INTERVAL
+    expected_timestamp = tick_config.WORLD_START_TIMESTAMP + (10 * tick_config.TICK_INTERVAL_SECONDS)
+    expected_time = datetime.fromtimestamp(expected_timestamp, tz=timezone.utc)
+    
+    assert world_time.year == expected_time.year
+    assert world_time.month == expected_time.month
+
+def test_tick_increment(tick_manager):
+    """Testet Tick-Inkrementierung"""
+    
+    assert tick_manager.current_tick == 0
+    
+    tick_manager.current_tick += 1
+    
+    assert tick_manager.current_tick == 1
+
+def test_world_time_advances_with_ticks(tick_manager):
+    """Testet dass Welt-Zeit mit Ticks fortschreitet"""
+    
+    time_0 = tick_manager.get_current_world_time()
+    
+    tick_manager.current_tick = 60  # 60 Ticks = 60 * 60s = 3600s = 1 Stunde
+    
+    time_60 = tick_manager.get_current_world_time()
+    
+    # Zeit sollte sich um 1 Stunde unterscheiden
+    assert (time_60 - time_0).total_seconds() == 3600
+
+@pytest.mark.asyncio
+async def test_tick_loop_runs(tick_manager, mocker):
+    """Testet dass Tick-Loop läuft"""
+    
+    execute_tick_mock = mocker.patch.object(tick_manager, 'execute_tick')
+    
+    tick_manager.is_running = True
+    
+    # Loop für 3 Ticks starten (mit kurzem Interval für Test)
+    original_interval = tick_config.TICK_INTERVAL_SECONDS
+    tick_config.TICK_INTERVAL_SECONDS = 0.1  # 100ms für Test
+    
+    task = asyncio.create_task(tick_manager._tick_loop())
+    
+    await asyncio.sleep(0.35)  # Warten bis 3 Ticks durchlaufen
+    
+    tick_manager.is_running = False
+    await task
+    
+    # execute_tick sollte 3x aufgerufen worden sein
+    assert execute_tick_mock.call_count == 3
+    
+    # Restore original interval
+    tick_config.TICK_INTERVAL_SECONDS = original_interval
+
+def test_state_sync_full_vs_delta(tick_manager):
+    """Testet Full State vs Delta State Logik"""
+    
+    # Client ist aktuell (< 5 Ticks veraltet)
+    client_tick = tick_manager.current_tick - 2
+    
+    # Sollte Delta zurückgeben (effizienter)
+    assert tick_manager.current_tick - client_tick < 5
+    
+    # Client ist veraltet (> 5 Ticks)
+    client_tick = tick_manager.current_tick - 10
+    
+    # Sollte Full State zurückgeben
+    assert tick_manager.current_tick - client_tick >= 5
+```
+
+---
+
+## 🎯 Best Practices
+
+1. **Server als Single Source of Truth** - Client niemals vertrauen
+2. **WebSocket für Echtzeit-Updates** - Polling vermeiden
+3. **Delta Updates bei Reconnect** - Nur Änderungen senden, nicht ganzen State
+4. **Exponential Backoff beim Reconnect** - Server nicht überlasten
+5. **World Time deterministisch** - Gleiche Ticks = gleiche Zeit
+
+---
+
+**Server-Tick-System ermöglicht deterministische, synchronisierte Spiel-Simulation!**
