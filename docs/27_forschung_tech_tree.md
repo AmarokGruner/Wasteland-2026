@@ -51,38 +51,21 @@ Moderne Ära (Tech-Level 100+)
     └── Spezial-Einheiten
 ```
 
-### Detaillierter Tech-Tree (mit konkreten Werten)
+### Tech-Level-Schwellen für Gebäude (primäre Freischaltung)
 
-| Tech-Stufe | Tech-Level | Name | Voraussetzungen | Freigeschaltetes | Kosten (Forschungspunkte) |
-|------------|------------|------|-----------------|------------------|--------------------------|
-| **Steinzeit** | 0-10 | Holzfällerei | Keine | Holzgewinnung +20% | 50 |
-| **Steinzeit** | 5-15 | Steinmetzkunst | Holzfällerei | Steinbau +20% | 75 |
-| **Steinzeit** | 10-20 | Einfache Landwirtschaft | Steinmetzkunst | Kartoffelfarm, Getreidefarm | 100 |
-| **Bronzezeit** | 20-35 | Weberei | Einfache Landwirtschaft | Stoffproduktion | 150 |
-| **Bronzezeit** | 25-40 | Sägewerk | Holzfällerei | Holzverarbeitung +30% | 125 |
-| **Bronzezeit** | 30-45 | Kaserne (einfach) | Weberei | Rekruten, Bogenschützen | 200 |
-| **Eisenzeit** | 45-65 | Stahlproduktion | Sägewerk | Stahlbau, Festungen | 300 |
-| **Eisenzeit** | 55-75 | Fort/Befestigung | Stahlproduktion | Verteidigungsbonus +25% | 350 |
-| **Eisenzeit** | 60-80 | Schwerere Einheiten | Kaserne (einfach) | Schwertkämpfer, Beritten | 400 |
-| **Industrie** | 80-100 | Fabriken | Stahlproduktion | Massengüter +50% | 500 |
-| **Industrie** | 90-110 | Kraftwerke | Fabriken | Energieproduktion +40% | 600 |
-| **Industrie** | 100-120 | Universität (Forschung) | Weberei | Forschung +50% | 700 |
-| **Moderne Ära** | 120-150 | Flughafen | Kraftwerke | Schnelle Einheiten, Siedler | 800 |
-| **Moderne Ära** | 130-160 | Leuchtturm | Universität | Handel +30% | 900 |
-| **Moderne Ära** | 150-200+ | Hochtechnologie | Universität + Kraftwerke | Elektronik, Spezial-Einheiten | 1.500+ |
-
-### Tech-Level-Schwellen für Gebäude (Beispiele)
+**WICHTIG:** Es gibt keine separaten Tech-Stufen (Steinzeit, Bronzezeit, etc.). 
+Die einzigen relevanten Werte sind die Tech-Level-Schwellen in der Gebäudetabelle!
 
 | Gebäude ID | Name | Benötigtes Tech-Level | Ausbaustufe 10 (Grundwert × 46) |
 |------------|------|----------------------|-------------------------------|
 | 71 | Feuerstelle | 0 (Start) | N/A (kein Ausbau) |
-| 130 | Beerenpresse | 130 | **5.980** (130 × 46) |
-| 223 | Universität | 100 | **4.600** (100 × 46) |
-| 387 | Forschungslabor | 120 | **5.520** (120 × 46) |
-| 390 | Observatorium | 150 | **6.900** (150 × 46) |
 | 112 | Bibliothek | 80 | **3.680** (80 × 46) |
-| 291 | Akademie | 110 | **5.060** (110 × 46) |
 | 141 | Tempel der Weisheit | 90 | **4.140** (90 × 46) |
+| 223 | Universität | 100 | **4.600** (100 × 46) |
+| 291 | Akademie | 110 | **5.060** (110 × 46) |
+| 387 | Forschungslabor | 120 | **5.520** (120 × 46) |
+| 130 | Beerenpresse | 130 | **5.980** (130 × 46) |
+| 390 | Observatorium | 150 | **6.900** (150 × 46) |
 
 ### Forschungs-Gebäude im Vergleich
 
@@ -95,6 +78,27 @@ Moderne Ära (Tech-Level 100+)
 | 291 | Akademie | +12 | 110 | 1.200 MIPS |
 | 387 | Forschungslabor | +20 | 120 | 2.500 MIPS |
 | 390 | Observatorium | +18 | 150 | 2.000 MIPS |
+
+### Beispiel: Tech-Level-Fortschritt eines Spielers
+
+```
+Spieler startet mit Tech-Level 0:
+
+Tick 0 (Start): Tech-Level = 0
+- Baubar: Feuerstelle (ID 71)
+
+Nach 24 Stunden (Tick 1): Tech-Level = 0 + 1 = 1
+- Baubar: Feuerstelle
+
+Nach 240 Stunden (Tick 10): Tech-Level = 0 + 10 = 10
+- Baubar: Feuerstelle
+
+Nach 2.400 Stunden (Tick 100): Tech-Level = 0 + 100 = 100
+- Baubar: Universität (ID 223) freigeschaltet!
+
+Nach 4.600 Stunden (Tick ~230): Tech-Level = 100 + 1.400 = 1.500
+- Baubar: Universität Ausbaustufe 10 freigeschaltet (100 × 46 = 4.600)
+```
 
 ---
 
