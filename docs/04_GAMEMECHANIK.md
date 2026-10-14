@@ -15,7 +15,8 @@ Das Spiel basiert auf folgenden Hauptmechaniken:
 5. **Handel & Wirtschaft** - Marktplätze, Kontore, Spieler-Handel
 6. **Regierung & Kultur** - 7 Staatsformen mit Boni
 7. **Siedler & Kolonisierung** - Neue Provinzen gründen
-8. **Server-Tick** - Automatische Rundenmechanik
+8. **Tech-Level System** - Globale Forschung pro 24h (pro Spieler)
+9. **Server-Tick** - Automatische Rundenmechanik
 
 ---
 
@@ -176,9 +177,77 @@ Das Spiel basiert auf folgenden Hauptmechaniken:
 - Benötigt für: Regierungsform wechseln, Tech-Fortschritt
 
 ### Bildung
-- **Universität:** +15 Techproduktion pro Tick
+- **Universität:** +15 Techproduktion pro 24h (in Echtzeit)
 - **Schule:** Grundlegende Bildung
 - Tech-Level bestimmt: Welche Gebäude baubar sind
+
+---
+
+## 🔬 8. Tech-Level System (Globale Forschung)
+
+### Grundprinzip
+- **Tech-Level gilt für ALLE Provinzen des Spielers** (global!)
+- Gebäude mit Techproduktion produzieren pro 24h einen bestimmten Wert
+- In Echtzeit ablaufend: Jede Minute Echtzeit = +1 Minute Tech-Produktion
+
+### Gebäude mit Techproduktion (Beispiele)
+| Gebäude ID | Name | Techproduktion/24h |
+|------------|------|---------------------|
+| 71 | Feuerstelle | +1 |
+| 223 | Universität | +15 |
+| 387 | Forschungslabor | +20 |
+| 390 | Observatorium | +18 |
+| 112 | Bibliothek | +5 |
+| 291 | Akademie | +12 |
+| 141 | Tempel der Weisheit | +8 |
+
+### Tech-Level Akkumulation
+```
+Beispiel: Feuerstelle (ID 71) produziert +1 Tech/24h
+
+Tick 0: Tech-Level = 10
+Tick 1 (nach 24h): Tech-Level = 10 + 1 = 11
+Tick 2 (nach 48h): Tech-Level = 11 + 1 = 12
+...
+Tick 10 (nach 240h/10 Tage): Tech-Level = 10 + 10 = 20
+```
+
+### Mehrere Gebäude multiplizieren die Produktion
+```
+Spieler hat:
+- Provinz A: 1 Feuerstelle → +1 Tech/24h
+- Provinz B: 1 Feuerstelle → +1 Tech/24h
+- Gesamt: +2 Tech/24h
+
+Nach 24 Stunden: Tech-Level +2
+Nach 240 Stunden (10 Tage): Tech-Level +20
+```
+
+### Gebäude-Freischaltung durch Tech-Level
+- Jedes Gebäude hat ein **minimales Tech-Level** für den Bau
+- Beispiel: Beerenpresse (Gebäude ID X) benötigt Tech-Level 130
+
+### Ausbaustufen von Gebäuden
+- Gebäude können bis zu **10 Stufen** ausgebaut werden
+- Jede Ausbaustufe benötigt ein höheres Tech-Level
+
+#### Ausbaustufen-Formel (Beispiel: Beerenpresse, Grundwert = 130)
+| Stufe | Formel | Benötigtes Tech-Level |
+|-------|--------|----------------------|
+| 1 (Grundwert) | 130 × 1 | **130** |
+| 2 | 130 × 2 | **260** |
+| 3 | 130 × 4 | **520** |
+| 4 | 130 × 7 | **910** |
+| 5 | 130 × 11 | **1.430** |
+| 6 | 130 × 16 | **2.080** |
+| 7 | 130 × 22 | **2.860** |
+| 9 | 130 × 37 | **4.810** |
+| 10 | 130 × 46 | **5.980** |
+
+### WICHTIG: Tech-Level ist global!
+- Tech-Level gilt für **ALLE Provinzen** des Spielers
+- Nicht pro Provinz getrennt!
+- Beispiel: 2 Feuerstellen in verschiedenen Provinzen = +2 Tech/24h gesamt
 
 ---
 

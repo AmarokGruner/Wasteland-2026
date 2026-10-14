@@ -7,7 +7,7 @@
 
 ## 📋 Übersicht
 
-Dieses Dokument beschreibt das Server-Tick-System, Zeit-Synchronisation und Handhabung von verzögerten Aktionen im Spiel.
+Dieses Dokument beschreibt das Server-Tick-System, Zeit-Synchronisation, Tech-Produktion und Handhabung von verzögerten Aktionen im Spiel.
 
 ---
 
@@ -17,6 +17,7 @@ Dieses Dokument beschreibt das Server-Tick-System, Zeit-Synchronisation und Hand
 2. **Zeit-Synchronisation** - Alle Clients sehen gleichen Spielstand
 3. **Ausfall-Toleranz** - Server-Ausfall wird kompensiert
 4. **Verzögerte Aktionen** - Bau/Forschung dauert mehrere Ticks
+5. **Tech-Produktion** - Gebäude produzieren Tech-Level pro 24h (global für Spieler)
 
 ---
 
@@ -271,6 +272,82 @@ class TickManager:
                 building.aktiv = True
                 
                 print(f"✅ Gebäude {building.id} ({building.typ.name}) fertig gebaut!")
+            
+            db.commit()
+    
+    async def calculate_tech_production(self):
+        """Tech-Produktion pro Tick berechnen (24h Intervall in ECHTZEIT)
+        
+        WICHTIG: Tech-Level gilt für ALLE Provinzen des Spielers!
+        Gebäude mit Techproduktion produzieren pro 24h einen bestimmten Wert.
+        
+        Beispiel:
+        - Feuerstelle (ID 71): Techproduktion = 1 pro 24h
+        - Nach 24 Stunden: Tech-Level +1
+        - Nach 240 Stunden (10 Tage): Tech-Level +10
+        
+        Wenn Spieler 2 Feuerstellen hat:
+        - Provinz A: 1 Feuerstelle → +1 Tech/24h
+        - Provinz B: 1 Feuerstelle → +1 Tech/24h
+        - Gesamt: +2 Tech/24h
+        
+        Tech-Level bestimmt:
+        1. Welche Gebäude baubar sind (z.B. Beerenpresse bei Tech-Level 130)
+        2. Ausbaustufen von Gebäuden (Grundwert × Multiplikator)
+        
+        Ausbaustufen-Formel:
+        - Stufe 1: Grundwert (z.B. 130)
+        - Stufe 2: Grundwert × 2 (z.B. 260)
+        - Stufe 3: Grundwert × 4 (z.B. 520)
+        - Stufe 4: Grundwert × 7 (z.B. 910)
+        - Stufe 5: Grundwert × 11 (z.B. 1430)
+        - Stufe 6: Grundwert × 16 (z.B. 2080)
+        - Stufe 7: Grundwert × 22 (z.B. 2860)
+        - Stufe 9: Grundwert × 37 (z.B. 4810)
+        - Stufe 10: Grundwert × 46 (z.B. 5980)
+        """
+        
+        from app.models import Province, Building
+        
+        # Alle Provinzen durchgehen
+        provinces = db.query(Province).all()
+        
+        for province in provinces:
+            # Gebäude mit Techproduktion finden (nur aktive!)
+            buildings = db.query(Building).filter_by(
+                province_id=province.id, 
+                aktiv=True
+            ).all()
+            
+            total_tech = 0
+            
+            for building in buildings:
+                # Techproduktion aus Gebäude-Typ lesen (24h-Wert!)
+                tech_prod = building.typ.techproduktion  # Integer: z.B. 1
+                
+                if not tech_prod or tech_prod == 0:
+                    continue
+                
+                # Terrain-Effektivität anwenden (50-100%)
+                terrain_eff = building.typ.terrain_effektivitaet.get(
+                    province.terrain_typ_id, 100
+                )
+                efficiency = terrain_eff / 100.0
+                
+                # Tech-Produktion berechnen (24h-Wert × Terrain-Bonus)
+                total_tech += tech_prod * efficiency
+            
+            # Tech-Level des Spielers aktualisieren (global für alle Provinzen!)
+            player = db.query(Player).filter_by(id=province.player_id).first()
+            
+            if not player:
+                continue
+            
+            # Tech-Level akkumulieren (pro 24h Tick)
+            player.tech_level += total_tech
+            
+            print(f"🔬 Tech-Produktion in Provinz {province.id}: +{total_tech} Tech")
+            print(f"   Gesamt-Tech-Level von Spieler {player.id}: {player.tech_level}")
             
             db.commit()
     
