@@ -43,16 +43,18 @@ Dieses Dokument beschreibt das Server-Tick-System, Zeit-Synchronisation und Hand
 # app/config.py
 
 class GameTickConfig:
-    # WICHTIG: 1 Tick = 24 Stunden Spielzeit (nicht 60 Sekunden!)
-    # Das Intervall auf dem Server kann beliebig sein (z.B. 60s),
-    # aber jeder Tick repräsentiert 24 Stunden Spielzeit.
+    # WICHTIG: Echtzeit-Spiel mit Spul-Mechanik!
+    # 1 Tick = 24 Stunden Spielzeit, aber in ECHTZEIT ablaufend
+    # Jede Minute Echtzeit = +1 Minute Spul-Guthaben (Spielzeit)
+    
+    # Server-Tick-Intervall (wie oft wird der Tick ausgeführt?)
     TICK_INTERVAL_SECONDS = int(os.getenv("TICK_INTERVAL", "60"))
     
     # Spielzeit pro Tick in Stunden (IMMER 24)
     SPIELZEIT_PRO_TICK_STUNDEN = 24
     
-    # Maximaler Lagerbestand in Stunden (10 Tage = 240 Stunden)
-    MAX_LAGER_STUNDEN = 240
+    # Maximaler Spul-Bestand in Stunden (10 Tage = 240 Stunden)
+    MAX_SPIELZEIT_GUTHABEN_STUNDEN = 240
     
     # Maximaler Backlog (wie viele Ticks können angesammelt werden?)
     MAX_TICK_BACKLOG = 10  # Bei Server-Ausfall max 10 Ticks nachholen
@@ -71,11 +73,23 @@ tick_config = GameTickConfig()
 
 ---
 
-## ⏰ Zeit-Synchronisation & Lager-Berechnung
+## ⏰ Echtzeit-Spiel mit Spul-Mechanik
 
-### WICHTIG: 1 Tick = 24 Stunden Spielzeit
+### WICHTIG: 24 Stunden Echtzeit = 24 Stunden Spielzeit
 
-**Der Server tickt alle 60 Sekunden, aber jeder Tick repräsentiert 24 Stunden Spielzeit!**
+**Das Spiel läuft in ECHTZEIT ab!** Jede Minute, die in der realen Welt vergeht, erhöht das Spul-Guthaben um eine Minute.
+
+```
+Realwelt: 1 Minute vergeht
+    ↓
+Spul-Guthaben: +1 Minute Spielzeit verfügbar
+    ↓
+Spieler kann bis zu 240 Stunden (10 Tage) vorspulen
+```
+
+### Server-Tick vs. Spielzeit
+
+**Server tickt alle 60 Sekunden (1 Minute Echtzeit), aber jeder Tick repräsentiert 24 Stunden Spielzeit.**
 
 ```python
 # app/services/tick_manager.py
@@ -87,9 +101,9 @@ class TickManager:
     def __init__(self):
         self.current_tick = 0
         self.last_tick_time = None
-        self.tick_interval = tick_config.TICK_INTERVAL_SECONDS  # Server-Intervall (60s)
+        self.tick_interval = tick_config.TICK_INTERVAL_SECONDS  # Server-Intervall (60s Echtzeit)
         self.spielzeit_pro_tick = tick_config.SPIELZEIT_PRO_TICK_STUNDEN  # IMMER 24 Stunden
-        self.max_lager_stunden = tick_config.MAX_LAGER_STUNDEN  # 240 Stunden (10 Tage)
+        self.max_spielzeit_guthaben = tick_config.MAX_SPIELZEIT_GUTHABEN_STUNDEN  # 240 Stunden (10 Tage)
         self.is_running = False
         self.tick_task = None
     
@@ -111,20 +125,20 @@ class TickManager:
         return self.current_tick
     
     def start(self):
-        """Tick-Loop starten (Server-intervall unabhängig von Spielzeit)"""
+        """Tick-Loop starten (Echtzeit-Spiel)"""
         self.is_running = True
         self.last_tick_time = time.time()
         
-        # Asynchroner Tick-Loop (Server tickt alle 60s, aber jeder Tick = 24h Spielzeit)
+        # Asynchroner Tick-Loop (Server tickt alle 60s Echtzeit, jeder Tick = 24h Spielzeit)
         asyncio.create_task(self._tick_loop())
     
     async def _tick_loop(self):
-        """Hauptschleife für Server-Ticks"""
+        """Hauptschleife für Server-Ticks (Echtzeit)"""
         
         while self.is_running:
             try:
-                # Warten bis nächster Tick fällig ist (Server-intervall)
-                await asyncio.sleep(self.tick_interval)  # z.B. 60 Sekunden
+                # Warten bis nächster Tick fällig ist (Echtzeit-Intervall)
+                await asyncio.sleep(self.tick_interval)  # z.B. 60 Sekunden Echtzeit
                 
                 # Tick ausführen (repräsentiert 24 Stunden Spielzeit)
                 await self.execute_tick()
@@ -162,10 +176,15 @@ class TickManager:
         await self.broadcast_state_update()
     
     async def calculate_production(self):
-        """Ressourcen-Produktion pro Tick berechnen (24h Intervall)
+        """Ressourcen-Produktion pro Tick berechnen (24h Intervall in ECHTZEIT)
         
         WICHTIG: Produktionswerte in models.py beziehen sich auf 24 Stunden!
-        Beispiel: Kartoffelfarm (ID 2) produziert 40 Kartoffeln (ID 13) pro 24h.
+        Beispiel: Kartoffelfarm (ID 2) produziert 40 Kartoffeln (Ressourcen ID 13) pro 24h.
+        
+        Da das Spiel in ECHTZEIT läuft:
+        - Jede Minute Echtzeit = +1 Minute Spul-Guthaben (Spielzeit)
+        - Nach 24 Stunden Echtzeit = 24 Stunden Spielzeit verfügbar
+        - Spieler kann bis zu 240 Stunden (10 Tage) vorspulen
         """
         
         from app.models import Province, Building
@@ -174,15 +193,10 @@ class TickManager:
         provinces = db.query(Province).all()
         
         for province in provinces:
-            # Gebäude der Provinz finden
+            # Gebäude der Provinz finden (nur aktive!)
             buildings = db.query(Building).filter_by(province_id=province.id, aktiv=True).all()
             
-            total_production = {
-                "food": 0,
-                "water": 0,
-                "energy": 0,
-                "materials": 0
-            }
+            total_production = {}
             
             for building in buildings:
                 # Produktion aus Gebäude-Typ lesen (24h-Wert!)
@@ -197,9 +211,11 @@ class TickManager:
                 
                 # Produktion berechnen (24h-Wert × Terrain-Bonus)
                 for ressourcen_id, amount in produktion.items():
+                    if ressourcen_id not in total_production:
+                        total_production[ressourcen_id] = 0
                     total_production[ressourcen_id] += amount * efficiency
             
-            # Lagerkapazität prüfen (MAX 240 Stunden = 10 Tage!)
+            # Spul-Guthaben prüfen (MAX 240 Stunden = 10 Tage!)
             storage = db.query(ProvinceStorage).filter_by(province_id=province.id).first()
             
             if not storage:
@@ -210,18 +226,18 @@ class TickManager:
             for ressourcen_id, amount in total_production.items():
                 storage_key = f"resources_{ressourcen_id}"
                 
-                # Aktuellen Lagerbestand lesen (in Stunden)
+                # Aktuelles Spul-Guthaben lesen (in Stunden)
                 current = getattr(storage, storage_key, 0) or 0
                 
-                # Maximaler Lagerbestand (240 Stunden = 10 Tage)
-                max_lager = self.max_lager_stunden  # 240 Stunden
+                # Maximaler Spul-Bestand (240 Stunden = 10 Tage)
+                max_guthaben = self.max_spielzeit_guthaben  # 240 Stunden
                 
                 # Produktion hinzufügen, aber nicht über Maximum hinaus
-                new_amount = min(current + amount, max_lager)
+                new_amount = min(current + amount, max_guthaben)
                 
                 # Überschuss verfällt! (wenn über 240 Stunden)
-                if current + amount > max_lager:
-                    verfall = (current + amount) - max_lager
+                if current + amount > max_guthaben:
+                    verfall = (current + amount) - max_guthaben
                     print(f"⚠️  Verfall in Provinz {province.id}: {verfall} Stunden Ressourcen ({ressourcen_id})")
                 
                 setattr(storage, storage_key, new_amount)
@@ -229,30 +245,32 @@ class TickManager:
             db.commit()
     
     async def execute_building_actions(self):
-        """Gebäude-Aktionen ausführen (Bau, Ausbau) - pro 24h Tick
+        """Gebäude-Aktionen ausführen (Bau, Ausbau) - in ECHTZEIT
         
-        Jeder Tick = 24 Stunden Spielzeit.
-        Bau-Fortschritt: 10% pro Tick = 10 Ticks (240 Stunden / 10 Tage) für fertiges Gebäude.
+        WICHTIG: Gebäude sind SOFORT da, wenn errichtet!
+        - Kein Bau-Fortschritt über Ticks hinweg
+        - Gebäude zählt beim nächsten Tick mit (wenn Spieler vorspult)
+        - Echtzeit-Spiel: 24h Echtzeit = 24h Spielzeit
         """
         
         from app.models import Building
         
-        # Gebäude mit aktiven Bau-Aktionen finden
+        # Gebäude mit aktiven Bau-Aktionen finden (wenn es doch welche gibt)
         buildings = db.query(Building).filter_by(bau_status="im_bau").all()
         
         for building in buildings:
-            # Fortschritt erhöhen (1 Tick = 24h = 10% Fortschritt)
+            # Fortschritt erhöhen (1 Tick = 24h Spielzeit)
             building.bau_fortschritt += 10  # 10% pro Tick
             
             if building.bau_fortschritt >= 100:
-                # Bau abgeschlossen (nach 10 Ticks = 240 Stunden / 10 Tage)
+                # Bau abgeschlossen (nach 10 Ticks = 240 Stunden Spielzeit)
                 building.bau_status = "fertig"
                 building.bau_fortschritt = 100
                 
-                # Gebäude aktivieren (Produktion starten)
+                # Gebäude aktivieren (sofort verfügbar!)
                 building.aktiv = True
                 
-                print(f"✅ Gebäude {building.id} ({building.typ.name}) fertig gebaut nach 10 Ticks!")
+                print(f"✅ Gebäude {building.id} ({building.typ.name}) fertig gebaut!")
             
             db.commit()
     
