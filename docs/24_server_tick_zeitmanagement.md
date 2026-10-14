@@ -43,8 +43,16 @@ Dieses Dokument beschreibt das Server-Tick-System, Zeit-Synchronisation und Hand
 # app/config.py
 
 class GameTickConfig:
-    # Tick-Intervall in Sekunden (Standard: 60 Sekunden = 1 Minute Spielzeit)
+    # WICHTIG: 1 Tick = 24 Stunden Spielzeit (nicht 60 Sekunden!)
+    # Das Intervall auf dem Server kann beliebig sein (z.B. 60s),
+    # aber jeder Tick repräsentiert 24 Stunden Spielzeit.
     TICK_INTERVAL_SECONDS = int(os.getenv("TICK_INTERVAL", "60"))
+    
+    # Spielzeit pro Tick in Stunden (IMMER 24)
+    SPIELZEIT_PRO_TICK_STUNDEN = 24
+    
+    # Maximaler Lagerbestand in Stunden (10 Tage = 240 Stunden)
+    MAX_LAGER_STUNDEN = 240
     
     # Maximaler Backlog (wie viele Ticks können angesammelt werden?)
     MAX_TICK_BACKLOG = 10  # Bei Server-Ausfall max 10 Ticks nachholen
@@ -63,9 +71,11 @@ tick_config = GameTickConfig()
 
 ---
 
-## ⏰ Zeit-Synchronisation
+## ⏰ Zeit-Synchronisation & Lager-Berechnung
 
-### Server als Single Source of Truth
+### WICHTIG: 1 Tick = 24 Stunden Spielzeit
+
+**Der Server tickt alle 60 Sekunden, aber jeder Tick repräsentiert 24 Stunden Spielzeit!**
 
 ```python
 # app/services/tick_manager.py
@@ -77,7 +87,9 @@ class TickManager:
     def __init__(self):
         self.current_tick = 0
         self.last_tick_time = None
-        self.tick_interval = tick_config.TICK_INTERVAL_SECONDS
+        self.tick_interval = tick_config.TICK_INTERVAL_SECONDS  # Server-Intervall (60s)
+        self.spielzeit_pro_tick = tick_config.SPIELZEIT_PRO_TICK_STUNDEN  # IMMER 24 Stunden
+        self.max_lager_stunden = tick_config.MAX_LAGER_STUNDEN  # 240 Stunden (10 Tage)
         self.is_running = False
         self.tick_task = None
     
@@ -85,10 +97,10 @@ class TickManager:
         """Aktuelle Welt-Zeit berechnen"""
         
         elapsed_ticks = self.current_tick
-        elapsed_seconds = elapsed_ticks * self.tick_interval
+        elapsed_stunden = elapsed_ticks * self.spielzeit_pro_tick  # 24h pro Tick
         
         world_time = datetime.fromtimestamp(
-            tick_config.WORLD_START_TIMESTAMP + elapsed_seconds,
+            tick_config.WORLD_START_TIMESTAMP + (elapsed_stunden * 3600),  # Stunden → Sekunden
             tz=timezone.utc
         )
         
@@ -99,11 +111,11 @@ class TickManager:
         return self.current_tick
     
     def start(self):
-        """Tick-Loop starten"""
+        """Tick-Loop starten (Server-intervall unabhängig von Spielzeit)"""
         self.is_running = True
         self.last_tick_time = time.time()
         
-        # Asynchroner Tick-Loop
+        # Asynchroner Tick-Loop (Server tickt alle 60s, aber jeder Tick = 24h Spielzeit)
         asyncio.create_task(self._tick_loop())
     
     async def _tick_loop(self):
@@ -111,10 +123,10 @@ class TickManager:
         
         while self.is_running:
             try:
-                # Warten bis nächster Tick fällig ist
-                await asyncio.sleep(self.tick_interval)
+                # Warten bis nächster Tick fällig ist (Server-intervall)
+                await asyncio.sleep(self.tick_interval)  # z.B. 60 Sekunden
                 
-                # Tick ausführen
+                # Tick ausführen (repräsentiert 24 Stunden Spielzeit)
                 await self.execute_tick()
                 
                 self.current_tick += 1
@@ -150,14 +162,20 @@ class TickManager:
         await self.broadcast_state_update()
     
     async def calculate_production(self):
-        """Ressourcen-Produktion pro Tick berechnen"""
+        """Ressourcen-Produktion pro Tick berechnen (24h Intervall)
+        
+        WICHTIG: Produktionswerte in models.py beziehen sich auf 24 Stunden!
+        Beispiel: Kartoffelfarm (ID 2) produziert 40 Kartoffeln (ID 13) pro 24h.
+        """
+        
+        from app.models import Province, Building
         
         # Alle Provinzen durchgehen
         provinces = db.query(Province).all()
         
         for province in provinces:
             # Gebäude der Provinz finden
-            buildings = db.query(Building).filter_by(province_id=province.id).all()
+            buildings = db.query(Building).filter_by(province_id=province.id, aktiv=True).all()
             
             total_production = {
                 "food": 0,
@@ -167,47 +185,74 @@ class TickManager:
             }
             
             for building in buildings:
-                # Produktion aus Gebäude-Typ lesen
-                production = building.typ.produktion  # JSON: {"food": 10, "water": 5}
+                # Produktion aus Gebäude-Typ lesen (24h-Wert!)
+                produktion = building.typ.produktion  # JSON: {"ressourcen_id_13": 40}
+                
+                if not produktion:
+                    continue
                 
                 # Terrain-Effektivität anwenden (50-100%)
                 terrain_eff = building.typ.terrain_effektivitaet.get(province.terrain_typ_id, 100)
                 efficiency = terrain_eff / 100.0
                 
-                # Produktion berechnen
-                for resource, amount in production.items():
-                    total_production[resource] += amount * efficiency
+                # Produktion berechnen (24h-Wert × Terrain-Bonus)
+                for ressourcen_id, amount in produktion.items():
+                    total_production[ressourcen_id] += amount * efficiency
             
-            # Lagerkapazität prüfen
+            # Lagerkapazität prüfen (MAX 240 Stunden = 10 Tage!)
             storage = db.query(ProvinceStorage).filter_by(province_id=province.id).first()
             
-            for resource, amount in total_production.items():
-                storage_key = f"resources_{resource}"
-                current = getattr(storage, storage_key, 0)
-                max_storage = getattr(storage, f"max_{storage_key}", 10000)
+            if not storage:
+                # Storage erstellen wenn nicht vorhanden
+                storage = ProvinceStorage(province_id=province.id)
+                db.add(storage)
+            
+            for ressourcen_id, amount in total_production.items():
+                storage_key = f"resources_{ressourcen_id}"
                 
-                new_amount = min(current + amount, max_storage)
+                # Aktuellen Lagerbestand lesen (in Stunden)
+                current = getattr(storage, storage_key, 0) or 0
+                
+                # Maximaler Lagerbestand (240 Stunden = 10 Tage)
+                max_lager = self.max_lager_stunden  # 240 Stunden
+                
+                # Produktion hinzufügen, aber nicht über Maximum hinaus
+                new_amount = min(current + amount, max_lager)
+                
+                # Überschuss verfällt! (wenn über 240 Stunden)
+                if current + amount > max_lager:
+                    verfall = (current + amount) - max_lager
+                    print(f"⚠️  Verfall in Provinz {province.id}: {verfall} Stunden Ressourcen ({ressourcen_id})")
+                
                 setattr(storage, storage_key, new_amount)
             
             db.commit()
     
     async def execute_building_actions(self):
-        """Gebäude-Aktionen ausführen (Bau, Ausbau)"""
+        """Gebäude-Aktionen ausführen (Bau, Ausbau) - pro 24h Tick
+        
+        Jeder Tick = 24 Stunden Spielzeit.
+        Bau-Fortschritt: 10% pro Tick = 10 Ticks (240 Stunden / 10 Tage) für fertiges Gebäude.
+        """
+        
+        from app.models import Building
         
         # Gebäude mit aktiven Bau-Aktionen finden
         buildings = db.query(Building).filter_by(bau_status="im_bau").all()
         
         for building in buildings:
-            # Fortschritt erhöhen (1 Tick = 1% oder festes Maß)
+            # Fortschritt erhöhen (1 Tick = 24h = 10% Fortschritt)
             building.bau_fortschritt += 10  # 10% pro Tick
             
             if building.bau_fortschritt >= 100:
-                # Bau abgeschlossen
+                # Bau abgeschlossen (nach 10 Ticks = 240 Stunden / 10 Tage)
                 building.bau_status = "fertig"
                 building.bau_fortschritt = 100
                 
                 # Gebäude aktivieren (Produktion starten)
                 building.aktiv = True
+                
+                print(f"✅ Gebäude {building.id} ({building.typ.name}) fertig gebaut nach 10 Ticks!")
             
             db.commit()
     
