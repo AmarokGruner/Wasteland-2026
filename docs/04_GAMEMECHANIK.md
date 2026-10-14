@@ -67,9 +67,11 @@ Das Spiel basiert auf folgenden Hauptmechaniken:
 | **Luxusgut** | Stoffe, Möbel, Schmuck | Handel, Kultur |
 
 ### Produktion
-- Gebäude produzieren Ressourcen pro Tick (60s)
+- Gebäude produzieren Ressourcen pro **24 Stunden Intervall** (in Echtzeit ablaufend)
 - **Terrain-Effektivität** beeinflusst Produktion (50-100%)
 - Beispiel: Kartoffelfarm auf Grasland = 100%, auf Ödland = 25%
+- **Echtzeit-Spiel:** Jede Minute Echtzeit = +1 Minute Spul-Guthaben (Spielzeit)
+- Nach 24 Stunden Echtzeit = 24 Stunden Spielzeit verfügbar (1 Tick)
 
 ### Lagerung
 - Jedes Gebäude bietet **Lagerraum** (z.B. Bunker: 20.000)
@@ -204,18 +206,32 @@ Das Spiel basiert auf folgenden Hauptmechaniken:
 
 ---
 
-## ⏱️ 8. Server-Tick (Rundenmechanik)
+## ⏱️ 8. Server-Tick (Echtzeit-Spiel mit Spul-Mechanik)
+
+### WICHTIG: 24 Stunden Echtzeit = 24 Stunden Spielzeit
+
+**Das Spiel läuft in ECHTZEIT ab!** Jede Minute, die in der realen Welt vergeht, erhöht das Spul-Guthaben um eine Minute.
 
 ### Tick-Intervall
-- **Alle 60 Sekunden** berechnet der Server:
-  - Ressourcen-Produktion
-  - Nahrungsaufnahme
-  - Bevölkerungswachstum
-  - Gebäude-Wartung (10% MIPS pro Woche)
+- **Server tickt alle 60 Sekunden** (Echtzeit-Intervall)
+- **Jeder Tick repräsentiert 24 Stunden Spielzeit** (in Echtzeit ablaufend)
+- Nach 24 Stunden Echtzeit = 1 Tick (24h Spielzeit) verfügbar
+- Maximal **240 Stunden** (10 Tage) Spul-Guthaben speicherbar
+
+### Was passiert pro Tick?
+- Ressourcen-Produktion (24h Intervall, in Echtzeit)
+- Nahrungsaufnahme der Bevölkerung
+- Bevölkerungswachstum (pro 24h)
+- Gebäude-Wartung (10% MIPS pro Woche)
+
+### Spul-Mechanik
+- Spieler können Zeit vorspulen (bis zu 240 Stunden / 10 Tage)
+- Spul-Guthaben wächst mit Echtzeit (+1h pro Stunde)
+- Gebäude sind SOFORT da, wenn errichtet (kein Bau-Fortschritt!)
 
 ### Gamelog
 - Alle Ereignisse werden protokolliert:
-  - Gebäude gebaut/abgerissen
+  - Gebäude gebaut/abgerissen (sofort verfügbar)
   - Kämpfe gewonnen/verloren
   - Handel abgeschlossen
   - Naturereignisse (Dürre, Flut)
