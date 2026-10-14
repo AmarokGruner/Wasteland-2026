@@ -212,16 +212,33 @@ Tick 2 (nach 48h): Tech-Level = 11 + 1 = 12
 Tick 10 (nach 240h/10 Tage): Tech-Level = 10 + 10 = 20
 ```
 
-### Mehrere Gebäude multiplizieren die Produktion
+### Mehrere Gebäude addieren ihre Produktion
 ```
 Spieler hat:
-- Provinz A: 1 Feuerstelle → +1 Tech/24h
-- Provinz B: 1 Feuerstelle → +1 Tech/24h
-- Gesamt: +2 Tech/24h
+- Provinz A: 1 Feuerstelle (+1 Tech) + 1 Universität (+15 Tech) = +16 Tech/24h
+- Provinz B: 1 Feuerstelle (+1 Tech) = +1 Tech/24h
+- Gesamt: +17 Tech/24h
 
-Nach 24 Stunden: Tech-Level +2
-Nach 240 Stunden (10 Tage): Tech-Level +20
+Nach 24 Stunden: Tech-Level +17
+Nach 240 Stunden (10 Tage): Tech-Level +170
 ```
+
+### Gebäude mit Verbrauchsgütern (Teilproduktion)
+- Einige Tech-Gebäude benötigen Verbrauchsgüter (ähnlich anderer produzierender Gebäude)
+- Beispiel: Erfinderwerkstatt produziert 3 Tech, benötigt:
+  * 2 Bretter
+  * 0,5 Werkzeug
+  * 1 Seile
+
+- Ist nur 1 Bretter, 0,25 Werkzeug und 0,5 Seile vorhanden:
+  * Bretter: 1/2 = 50%
+  * Werkzeug: 0,25/0,5 = 50%
+  * Seile: 0,5/1 = 50%
+  * **Geringster Wert bestimmt Produktion: 50%**
+  * Ergebnis: 3 Tech × 50% = **1,5 Tech**
+
+- Wenn kein einziges Verbrauchsgut vorhanden:
+  * Produktion = 0 Tech (Gebäude steht still)
 
 ### Gebäude-Freischaltung durch Tech-Level
 - Jedes Gebäude hat ein **minimales Tech-Level** für den Bau

@@ -281,15 +281,29 @@ class TickManager:
         WICHTIG: Tech-Level gilt für ALLE Provinzen des Spielers!
         Gebäude mit Techproduktion produzieren pro 24h einen bestimmten Wert.
         
-        Beispiel:
+        BEISPIEL:
         - Feuerstelle (ID 71): Techproduktion = 1 pro 24h
         - Nach 24 Stunden: Tech-Level +1
         - Nach 240 Stunden (10 Tage): Tech-Level +10
         
-        Wenn Spieler 2 Feuerstellen hat:
-        - Provinz A: 1 Feuerstelle → +1 Tech/24h
-        - Provinz B: 1 Feuerstelle → +1 Tech/24h
-        - Gesamt: +2 Tech/24h
+        WICHTIG: Gebäude addieren ihre Werte, multiplizieren NICHT!
+        - Provinz A: 1 Feuerstelle (+1 Tech) + 1 Universität (+15 Tech) = +16 Tech/24h
+        - Provinz B: 1 Feuerstelle (+1 Tech) = +1 Tech/24h
+        - Gesamt: +17 Tech/24h
+        
+        VERBRAUCHSGÜTER:
+        - Einige Tech-Gebäude benötigen Verbrauchsgüter (ähnlich anderer produzierender Gebäude)
+        - Beispiel: Erfinderwerkstatt produziert 3 Tech, benötigt:
+          * 2 Bretter
+          * 0,5 Werkzeug
+          * 1 Seile
+        
+        - Ist nur 1 Bretter, 0,25 Werkzeug und 0,5 Seile vorhanden:
+          * Bretter: 1/2 = 50%
+          * Werkzeug: 0,25/0,5 = 50%
+          * Seile: 0,5/1 = 50%
+          * Geringster Wert bestimmt Produktion: 50%
+          * Ergebnis: 3 Tech × 50% = 1,5 Tech
         
         Tech-Level bestimmt:
         1. Welche Gebäude baubar sind (z.B. Beerenpresse bei Tech-Level 130)
@@ -334,8 +348,39 @@ class TickManager:
                 )
                 efficiency = terrain_eff / 100.0
                 
-                # Tech-Produktion berechnen (24h-Wert × Terrain-Bonus)
-                total_tech += tech_prod * efficiency
+                # Grundproduktion berechnen (24h-Wert × Terrain-Bonus)
+                base_tech = tech_prod * efficiency
+                
+                # VERBRAUCHSGÜTER prüfen (wenn vorhanden)
+                verbrauchsgueter = building.typ.verbrauchsgueter  # JSON: {"ressourcen_id_1": 2, ...}
+                
+                if verbrauchsgueter:
+                    # Verbrauchsmenge prüfen (pro 24h)
+                    min_verfuegbarkeit = 100.0  # Start bei 100%
+                    
+                    for ressourcen_id, benoetigte_menge in verbrauchsgueter.items():
+                        # Aktuellen Lagerbestand lesen (in Stunden)
+                        storage_key = f"resources_{ressourcen_id}"
+                        aktueller_bestand = getattr(
+                            province.storage, storage_key, 0
+                        ) or 0
+                        
+                        # Verfügbarkeit berechnen (aktueller / benötigter Bestand)
+                        verfuegbarkeit = (aktueller_bestand / benoetigte_menge) * 100.0
+                        
+                        # Geringste Verfügbarkeit bestimmt die Produktion
+                        min_verfuegbarkeit = min(min_verfuegbarkeit, verfuegbarkeit)
+                    
+                    # Produktion mit Verfügbarkeit multiplizieren
+                    total_tech += base_tech * (min_verfuegbarkeit / 100.0)
+                    
+                    if min_verfuegbarkeit < 100:
+                        print(f"⚠️  Teilproduktion in Provinz {province.id}: "
+                              f"{building.typ.name} produziert nur {min_verfuegbarkeit:.1f}% "
+                              f"({base_tech * (min_verfuegbarkeit / 100.0):.2f} Tech)")
+                else:
+                    # Keine Verbrauchsgüter → volle Produktion
+                    total_tech += base_tech
             
             # Tech-Level des Spielers aktualisieren (global für alle Provinzen!)
             player = db.query(Player).filter_by(id=province.player_id).first()
@@ -346,7 +391,7 @@ class TickManager:
             # Tech-Level akkumulieren (pro 24h Tick)
             player.tech_level += total_tech
             
-            print(f"🔬 Tech-Produktion in Provinz {province.id}: +{total_tech} Tech")
+            print(f"🔬 Tech-Produktion in Provinz {province.id}: +{total_tech:.2f} Tech")
             print(f"   Gesamt-Tech-Level von Spieler {player.id}: {player.tech_level}")
             
             db.commit()
