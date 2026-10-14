@@ -36,14 +36,179 @@ Moral = Basis (50)
        - Krieg-Schock (-25 wenn angegriffen)
 ```
 
-### Bevölkerungsberechnung
+### Moral-Faktoren im Detail (mit konkreten Werten)
 
+| Faktor | Bedingung | Moral-Änderung | Beispiel |
+|--------|-----------|----------------|----------|
+| **Basis-Moral** | Startwert | +50 | Jede Provinz startet mit 50 |
+| **Nahrung-Überschuss** | > 1.000 Nahrung | +20 | 1.500 Kartoffeln → +20 Moral |
+| **Nahrung-Mangel** | < 100 Nahrung | -30 | Nur 50 Kartoffeln → -30 Moral |
+| **Nahrung-Kritisch** | < 10 Nahrung | -50 | Hungersnot → -50 Moral |
+| **Wohnraum-Verfügbarkeit** | > Bevölkerung | +15 | 200 Plätze, 150 Siedler → +15 Moral |
+| **Überbelegung** | < Bevölkerung | -20 | 100 Plätze, 150 Siedler → -20 Moral |
+| **Gesundheit (keine Seuche)** | Gesundheit > 70 | +10 | Gute Hygiene → +10 Moral |
+| **Gesundheit (leicht krank)** | Gesundheit 40-70 | +5 | Leichte Erkältung → +5 Moral |
+| **Gesundheit (schwer krank)** | Gesundheit < 40 | -10 | Schwere Krankheit → -10 Moral |
+| **Seuchen-Ausbruch** | Seuche aktiv | -40 | Pest → -40 Moral |
+| **Kultur-Gebäude** | Pro Universität/Schule | +5 | 2 Schulen → +10 Moral |
+| **Krieg-Schock** | Provinz angegriffen | -25 | Angriff → -25 Moral |
+| **Feiertag/Fest** | Sonderereignis | +10 | Erntedank → +10 Moral |
+| **Naturkatastrophe** | Dürre/Flut/Erdbeben | -30 | Dürre → -30 Moral |
+
+### Moral-Berechnung (Python-Code)
+
+```python
+async def berechne_moral(provinz_id: int):
+    """Moral einer Provinz berechnen (pro 24h Tick)"""
+    
+    province = db.query(Province).get(provinz_id)
+    siedler = db.query(Siedler).filter_by(province_id=province.id).first()
+    
+    if not siedler:
+        return 50  # Default Moral
+    
+    moral = 50  # Basis-Moral
+    
+    # Nahrung-Überschuss/Mangel prüfen
+    storage = db.query(ProvinceStorage).filter_by(province_id=province.id).first()
+    if storage:
+        nahrung = getattr(storage, "resources_13", 0) or 0  # ID 13 = Kartoffeln
+        
+        if nahrung > 1000:
+            moral += 20  # Nahrung-Überschuss
+        elif nahrung < 100:
+            moral -= 30  # Nahrung-Mangel
+        elif nahrung < 10:
+            moral -= 50  # Hungersnot
+    
+    # Wohnraum prüfen
+    gebaeude = db.query(Building).filter_by(province_id=province.id, aktiv=True).all()
+    gesamt_wohnraum = sum(g.typ.wohnraum for g in gebaeude)
+    
+    if gesamt_wohnraum > siedler.anzahl:
+        moral += 15  # Genug Wohnraum
+    elif gesamt_wohnraum < siedler.anzahl:
+        moral -= 20  # Überbelegung
+    
+    # Gesundheit/Seuche prüfen
+    if siedler.seuche_aktiv:
+        moral -= 40  # Seuchen-Ausbruch
+    elif siedler.gesundheit > 70:
+        moral += 10  # Gute Gesundheit
+    elif siedler.gesundheit < 40:
+        moral -= 10  # Schlechte Gesundheit
+    
+    # Kultur-Gebäude zählen
+    kultur_gebaeude = [g for g in gebaeude if g.typ.kultur_boni > 0]
+    moral += len(kultur_gebaeude) * 5  # +5 pro Kultur-Gebäude
+    
+    # Krieg-Schock prüfen (wenn Provinz angegriffen)
+    if province.angegriffen:
+        moral -= 25
+    
+    # Moral auf 0-100 begrenzen
+    moral = max(0, min(100, moral))
+    
+    siedler.moral = moral
+    db.commit()
+    
+    return moral
 ```
-Bevölkerung = Siedler-Anzahl
-Geburtenrate = Moral × 0.1 (pro Tick)
-Sterbefälle = Alter × 0.05 + Krankheits-Faktor
-Wanderung = -10 wenn Moral < 30, +5 wenn Moral > 70
+
+### Moral-Effekte auf Bevölkerung (pro 24h Tick)
+
+| Moral-Bereich | Geburtenrate | Sterbefälle | Wanderung | Beschreibung |
+|---------------|--------------|-------------|-----------|--------------|
+| **0-10** | -5% | +15% | -20% | Hungersnot, Flucht |
+| **10-30** | -2% | +8% | -10% | Schlechte Bedingungen |
+| **30-50** | 0% | +3% | -2% | Unterdurchschnittlich |
+| **50-70** | +2% | +1% | 0% | Normal |
+| **70-90** | +5% | -1% | +3% | Gut |
+| **90-100** | +10% | -3% | +5% | Exzellent, Zuzug |
+
+### Bevölkerungsberechnung (Python-Code)
+
+```python
+async def aktualisiere_bevoelkerung(provinz_id: int):
+    """Bevölkerung pro Tick aktualisieren (24h Intervall)"""
+    
+    province = db.query(Province).get(provinz_id)
+    siedler = db.query(Siedler).filter_by(province_id=province.id).first()
+    
+    if not siedler:
+        return
+    
+    moral = siedler.moral
+    
+    # Geburtenrate (prozentual, pro 24h)
+    if moral >= 90:
+        geburten_rate = 0.10  # +10% pro Tag
+    elif moral >= 70:
+        geburten_rate = 0.05  # +5% pro Tag
+    elif moral >= 50:
+        geburten_rate = 0.02  # +2% pro Tag
+    elif moral >= 30:
+        geburten_rate = 0.0   # Keine Geburten
+    elif moral >= 10:
+        geburten_rate = -0.02  # -2% (Abwanderung)
+    else:
+        geburten_rate = -0.05  # -5% (Flucht)
+    
+    # Sterbefälle (prozentual, pro 24h)
+    if siedler.gesundheit >= 80:
+        sterberate = -0.03  # -3% (natürliches Altern)
+    elif siedler.gesundheit >= 60:
+        sterberate = +0.01  # +1% (leichte Krankheiten)
+    elif siedler.gesundheit >= 40:
+        sterberate = +0.03  # +3% (Krankheiten)
+    elif siedler.gesundheit >= 20:
+        sterberate = +0.08  # +8% (schwere Epidemie)
+    else:
+        sterberate = +0.15  # +15% (Massensterben)
+    
+    # Seuche beschleunigt Sterberate
+    if siedler.seuche_aktiv:
+        sterberate += 0.10  # +10% durch Seuche
+    
+    # Wanderung (netto, pro 24h)
+    if moral >= 90:
+        wanderung = int(siedler.anzahl * 0.05)  # +5% Zuzug
+    elif moral >= 70:
+        wanderung = int(siedler.anzahl * 0.03)  # +3% Zuzug
+    elif moral >= 50:
+        wanderung = 0  # Keine Wanderung
+    elif moral >= 30:
+        wanderung = -int(siedler.anzahl * 0.02)  # -2% Abwanderung
+    elif moral >= 10:
+        wanderung = -int(siedler.anzahl * 0.10)  # -10% Abwanderung
+    else:
+        wanderung = -int(siedler.anzahl * 0.20)  # -20% Flucht
+    
+    # Bevölkerung aktualisieren
+    neue_geburten = int(siedler.anzahl * geburten_rate)
+    neue_todesfaelle = int(siedler.anzahl * sterberate)
+    
+    siedler.anzahl += neue_geburten - neue_todesfaelle + wanderung
+    
+    # Mindestens 1 Siedler lassen (keine vollständige Auslöschung)
+    siedler.anzahl = max(1, siedler.anzahl)
+    
+    print(f"👥 Provinz {province.id}: {siedler.anzahl} Siedler "
+          f"(Geburten: +{neue_geburten}, Tode: -{neue_todesfaelle}, "
+          f"Wanderung: {wanderung})")
+    
+    db.commit()
 ```
+
+### Seuchen-System (Beispiele)
+
+| Seuche-Typ | Ausbreitungsgeschwindigkeit | Sterberate | Moral-Effekt | Dauer (Tage) | Heilung |
+|------------|---------------------------|------------|--------------|--------------|---------|
+| **Erkältung** | Langsam (1-2 Tage) | +1% | -5 | 3-7 | Apotheken |
+| **Grippe** | Mittel (2-4 Tage) | +3% | -10 | 5-10 | Krankenhäuser |
+| **Cholera** | Schnell (1-3 Tage) | +8% | -20 | 7-14 | Sauberes Wasser |
+| **Pest** | Sehr schnell (1-2 Tage) | +15% | -40 | 10-21 | Quarantäne |
+| **Kriegsverletzungen** | Sofort | +5% | -15 | 3-7 | Lazarette |
 
 ---
 
